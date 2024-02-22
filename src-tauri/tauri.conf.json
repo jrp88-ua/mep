@@ -7,7 +7,7 @@
 		"distDir": "../build"
 	},
 	"package": {
-		"productName": "skeleton-starter-tauri",
+		"productName": "ua-jrp88-tfg",
 		"version": "0.1.0"
 	},
 	"tauri": {
@@ -29,7 +29,7 @@
 				"icons/icon.icns",
 				"icons/icon.ico"
 			],
-			"identifier": "com.tauri.dev",
+			"identifier": "ua.jrp88.tfg",
 			"longDescription": "",
 			"macOS": {
 				"entitlements": null,
@@ -58,8 +58,10 @@
 				"fullscreen": false,
 				"height": 600,
 				"resizable": true,
-				"title": "Skeleton starter Tauri",
-				"width": 800
+				"title": "Planificador",
+				"width": 800,
+				"minHeight": 600,
+				"minWidth": 800
 			}
 		]
 	}

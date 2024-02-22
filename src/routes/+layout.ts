@@ -1,2 +1,5 @@
-export const prerender = true;
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
+//export const prerender = true;
 export const ssr = false;
+//export const csr = true;
