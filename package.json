@@ -1,5 +1,5 @@
 {
-	"name": "skeleton-starter-tauri",
+	"name": "mep",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -44,6 +44,7 @@
 	"type": "module",
 	"dependencies": {
 		"@fortawesome/fontawesome-free": "^6.5.1",
-		"@tauri-apps/api": "^1.5.3"
+		"@tauri-apps/api": "^1.5.3",
+		"tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log#v1"
 	}
 }

@@ -7,8 +7,8 @@
 		"distDir": "../build"
 	},
 	"package": {
-		"productName": "ua-jrp88-tfg",
-		"version": "0.1.0"
+		"productName": "MEP",
+		"version": "0.0.1"
 	},
 	"tauri": {
 		"allowlist": {
