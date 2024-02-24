@@ -1,8 +1,8 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"navbar_settings": "Settings",
-	"navbar_participants": "Participants",
+	"navbar_examinees": "Examinees",
 	"settings_title": "Settings",
-	"participants_page_title": "Participants",
+	"examinees_page_title": "Examinees",
 	"settings_language": "Language"
 }

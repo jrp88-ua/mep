@@ -16,14 +16,14 @@
 		</AppRailAnchor>
 	</svelte:fragment>
 	<AppRailAnchor
-		href="/participants"
-		title="participants"
-		selected={route.startsWith('/participants')}
+		href="/examinees"
+		title="examinees"
+		selected={route.startsWith('/examinees')}
 	>
 		<svelte:fragment slot="lead">
 			<i class="fa-solid fa-graduation-cap text-2xl" />
 		</svelte:fragment>
-		{m.navbar_participants()}
+		{m.navbar_examinees()}
 	</AppRailAnchor>
 	<svelte:fragment slot="trail">
 		<AppRailAnchor href="/settings" title="settings" selected={route.startsWith('/settings')}>

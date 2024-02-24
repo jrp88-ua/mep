@@ -2,6 +2,6 @@ import * as m from '$paraglide/messages';
 
 export function load() {
 	return {
-		pageTitle: m.participants_page_title
+		pageTitle: m.examinees_page_title
 	};
 }

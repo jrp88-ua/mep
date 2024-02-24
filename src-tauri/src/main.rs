@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod storage;
+mod data;
 
 use log::LevelFilter;
 use tauri_plugin_log::LogTarget;
@@ -14,9 +14,7 @@ const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::LogDir];
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            storage::database::open_db_file_with_password
-        ])
+        .invoke_handler(tauri::generate_handler![])
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets(LOG_TARGETS)
@@ -25,7 +23,7 @@ fn main() {
                 .level(LevelFilter::Debug)
                 .build(),
         )
-        .manage(storage::database::DatabaseState::default())
+        //.manage(storage::database::DatabaseState::default())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
