@@ -4,5 +4,14 @@
 	"navbar_examinees": "Examinados",
 	"settings_title": "Ajustes",
 	"examinees_page_title": "Examinados",
-	"settings_language": "Idioma"
+	"settings_language": "Idioma",
+	"datatable_no_entries_found": "No hay datos",
+	"datatable_show_amount": "Mostrar",
+	"datatable_search_entry": "Buscar...",
+	"datatable_filter": "Filtrar",
+	"examenees_datatable_name": "Nombre",
+	"examenees_datatable_surenames": "Apellidos",
+	"examenees_datatable_orogin": "Origen",
+	"examenees_datatable_origin": "Origen",
+	"examenees_datatable_court": "Tribunal"
 }

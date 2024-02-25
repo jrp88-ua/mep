@@ -13,11 +13,11 @@
 			<AppNavigationBar />
 		</svelte:fragment>
 		<svelte:fragment slot="pageHeader">
-			<div class="ml-4 mt-4">
+			<div class="mt-4 mx-4">
 				<CurrentPageTitle />
 			</div>
 		</svelte:fragment>
-		<div class="ml-4 mt-4">
+		<div class="m-4">
 			<slot />
 		</div>
 	</AppShell>

@@ -4,5 +4,9 @@
 	"navbar_examinees": "Examinees",
 	"settings_title": "Settings",
 	"examinees_page_title": "Examinees",
-	"settings_language": "Language"
+	"settings_language": "Language",
+	"datatable_no_entries_found": "No entries found",
+	"datatable_show_amount": "Show",
+	"datatable_search_entry": "Search...",
+	"datatable_filter": "Filter"
 }

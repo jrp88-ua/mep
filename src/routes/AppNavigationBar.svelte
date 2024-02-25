@@ -15,11 +15,7 @@
 			</svelte:fragment>
 		</AppRailAnchor>
 	</svelte:fragment>
-	<AppRailAnchor
-		href="/examinees"
-		title="examinees"
-		selected={route.startsWith('/examinees')}
-	>
+	<AppRailAnchor href="/examinees" title="examinees" selected={route.startsWith('/examinees')}>
 		<svelte:fragment slot="lead">
 			<i class="fa-solid fa-graduation-cap text-2xl" />
 		</svelte:fragment>
