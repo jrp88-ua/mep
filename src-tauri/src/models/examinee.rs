@@ -1,4 +1,10 @@
-use super::ModelId;
+use std::sync::Arc;
+
+use super::{
+    CreateEntityError, EntityHolder, EntityId, Repository, RepositoryEntity,
+    RepositoryEntityUpdater, WithAssignedId,
+};
+use crate::ctx::ApplicationContext;
 use serde::{Deserialize, Serialize};
 use serde_with_macros::skip_serializing_none;
 use ts_rs::TS;
@@ -18,23 +24,29 @@ pub enum ExamineeOrigin {
 #[ts(export, export_to = "../src/types/")]
 pub enum AcademicCentreForExaminee {
     Name(String),
-    Id(ModelId),
+    Id(EntityId),
 }
 
 // endregion: --- Examinee enums
 
-// region: --- Examinee
+// region: --- examinee
 
 #[skip_serializing_none]
 #[derive(Serialize, Debug, PartialEq, Eq, Clone, TS)]
 #[ts(export, export_to = "../src/types/")]
 pub struct Examinee {
-    id: ModelId,
+    id: EntityId,
     name: String,
     surenames: String,
     origin: ExamineeOrigin,
     court: i16,
     academic_centre_id: Option<i32>,
+}
+
+impl RepositoryEntity for Examinee {
+    fn id(&self) -> EntityId {
+        self.id.clone()
+    }
 }
 
 // endregion: --- Examinee
@@ -68,3 +80,48 @@ pub struct ExamineeForUpdate {
 }
 
 // endregion: --- ExamineeForUpdate
+
+// region: --- ExamineeService
+
+pub struct ExamineeService {
+    repository: Repository<Examinee>,
+}
+
+impl ExamineeService {
+    pub fn new(context: Arc<ApplicationContext>) -> Self {
+        ExamineeService {
+            repository: Repository::new(),
+        }
+    }
+}
+
+impl EntityHolder<Examinee> for ExamineeService {
+    fn create<V: WithAssignedId<Examinee>>(
+        &mut self,
+        values: V,
+    ) -> Result<&Examinee, CreateEntityError> {
+        self.repository.create(values)
+    }
+
+    fn get(&self, id: EntityId) -> Option<&Examinee> {
+        self.repository.get(id)
+    }
+
+    fn get_all(&self) -> Vec<&Examinee> {
+        self.repository.get_all()
+    }
+
+    fn update<V: RepositoryEntityUpdater<Examinee>>(
+        &mut self,
+        id: EntityId,
+        values: V,
+    ) -> Option<&Examinee> {
+        self.repository.update(id, values)
+    }
+
+    fn delete(&mut self, id: EntityId) -> bool {
+        self.repository.delete(id)
+    }
+}
+
+// endregion: --- ExamineeService
