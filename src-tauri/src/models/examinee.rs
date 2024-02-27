@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use super::{
-    CreateEntityError, EntityHolder, EntityId, Repository, RepositoryEntity,
+    CreateEntityError, EntityId, Repository, RepositoryEntity,
     RepositoryEntityUpdater, WithAssignedId,
 };
 use crate::ctx::ApplicationContext;
@@ -88,14 +88,14 @@ pub struct ExamineeService {
 }
 
 impl ExamineeService {
-    pub fn new(context: Arc<ApplicationContext>) -> Self {
+    pub fn new() -> Self {
         ExamineeService {
             repository: Repository::new(),
         }
     }
 }
 
-impl EntityHolder<Examinee> for ExamineeService {
+impl ExamineeService {
     fn create<V: WithAssignedId<Examinee>>(
         &mut self,
         values: V,

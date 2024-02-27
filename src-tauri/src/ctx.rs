@@ -20,7 +20,7 @@ impl ApplicationContext {
     pub fn new(app_handle: AppHandle<Wry>) -> Self {
         ApplicationContext {
             app_handle,
-            examinees: Arc::new(Mutex::new(ExamineeService::new(self))),
+            examinees: Arc::new(Mutex::new(ExamineeService::new())),
         }
     }
 

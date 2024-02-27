@@ -6,17 +6,6 @@ pub mod Examinee;
 pub mod academic_centre;
 pub mod examinee;
 
-pub trait EntityHolder<T>
-where
-    T: RepositoryEntity,
-{
-    fn create<V: WithAssignedId<T>>(&mut self, values: V) -> Result<&T, CreateEntityError>;
-    fn get(&self, id: EntityId) -> Option<&T>;
-    fn get_all(&self) -> Vec<&T>;
-    fn update<V: RepositoryEntityUpdater<T>>(&mut self, id: EntityId, values: V) -> Option<&T>;
-    fn delete(&mut self, id: EntityId) -> bool;
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS, Hash)]
 #[ts(export, export_to = "../src/types/")]
 pub struct EntityId(i32);
@@ -72,7 +61,7 @@ where
     }
 }
 
-impl<T> EntityHolder<T> for Repository<T>
+impl<T> Repository<T>
 where
     T: RepositoryEntity,
 {
