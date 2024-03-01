@@ -1,10 +1,5 @@
-use std::sync::Arc;
-
-use super::{
-    CreateEntityError, EntityId, Repository, RepositoryEntity,
-    RepositoryEntityUpdater, WithAssignedId,
-};
-use crate::ctx::ApplicationContext;
+use super::{EntityId, RepositoryEntity, RepositoryEntityUpdater, WithAssignedId};
+use crate::ctx::ApplicationState;
 use serde::{Deserialize, Serialize};
 use serde_with_macros::skip_serializing_none;
 use ts_rs::TS;
@@ -40,7 +35,6 @@ pub struct Examinee {
     surenames: String,
     origin: ExamineeOrigin,
     court: i16,
-    academic_centre_id: Option<i32>,
 }
 
 impl RepositoryEntity for Examinee {
@@ -61,7 +55,18 @@ pub struct ExamineeForCreate {
     surenames: String,
     origin: ExamineeOrigin,
     court: i16,
-    academic_centre: AcademicCentreForExaminee,
+}
+
+impl WithAssignedId<Examinee> for ExamineeForCreate {
+    fn with_assigned_id(&self, id: &EntityId) -> Examinee {
+        Examinee {
+            id: id.clone(),
+            name: self.name.clone(),
+            surenames: self.surenames.clone(),
+            origin: self.origin.clone(),
+            court: self.court,
+        }
+    }
 }
 
 // endregion: --- ExamineeForCreate
@@ -83,44 +88,40 @@ pub struct ExamineeForUpdate {
 
 // region: --- ExamineeService
 
-pub struct ExamineeService {
-    repository: Repository<Examinee>,
-}
-
-impl ExamineeService {
-    pub fn new() -> Self {
-        ExamineeService {
-            repository: Repository::new(),
-        }
-    }
-}
-
-impl ExamineeService {
-    fn create<V: WithAssignedId<Examinee>>(
-        &mut self,
-        values: V,
-    ) -> Result<&Examinee, CreateEntityError> {
-        self.repository.create(values)
+impl ApplicationState {
+    pub fn create_examinee<V: WithAssignedId<Examinee>>(&mut self, values: V) -> &Examinee {
+        let result = self.get_examinees_mut().create(values);
+        self.modified_state();
+        result
     }
 
-    fn get(&self, id: EntityId) -> Option<&Examinee> {
-        self.repository.get(id)
+    pub fn get_examinee(&self, id: EntityId) -> Option<&Examinee> {
+        self.get_examinees().get(id)
     }
 
-    fn get_all(&self) -> Vec<&Examinee> {
-        self.repository.get_all()
+    pub fn get_all_examinees(&self) -> Vec<&Examinee> {
+        self.get_examinees().get_all()
     }
 
-    fn update<V: RepositoryEntityUpdater<Examinee>>(
+    pub fn update_examinee<V: RepositoryEntityUpdater<Examinee>>(
         &mut self,
         id: EntityId,
         values: V,
     ) -> Option<&Examinee> {
-        self.repository.update(id, values)
+        let examinees = self.get_examinees_mut();
+        let result = examinees.update(id, values);
+        if result.is_some() {
+            self.modified_state();
+        }
+        result
     }
 
-    fn delete(&mut self, id: EntityId) -> bool {
-        self.repository.delete(id)
+    pub fn delete_examinee(&mut self, id: EntityId) -> bool {
+        let deleted = self.get_examinees_mut().delete(id);
+        if deleted {
+            self.modified_state();
+        }
+        deleted
     }
 }
 

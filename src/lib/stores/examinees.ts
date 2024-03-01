@@ -21,8 +21,7 @@ export const store = (() => {
 		info('Loading examinees into store');
 		state = StoreState.LOADING;
 		try {
-			const result = await ipc_invoke<Examinee[]>('get_all_examinee');
-			await new Promise((res) => setTimeout(res, 1000));
+			const result = await ipc_invoke<Examinee[]>('get_all_examinees');
 			update((map) => {
 				const newMap = new Map(map);
 				for (let i = 0; i < result.length; i++) {
@@ -55,7 +54,7 @@ export const store = (() => {
 
 	async function createExaminee(values: ExamineeForCreate) {
 		if (!isLoaded()) await loadExaminees();
-		const result = await ipc_invoke<Examinee>('examinee_create', values);
+		const result = await ipc_invoke<Examinee>('create_examinee', {values});
 		info(`Created new examinee: ${JSON.stringify(result)}`);
 		update((map) => {
 			const newMap = new Map(map);

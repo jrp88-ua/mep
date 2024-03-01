@@ -1,34 +1,32 @@
-use log::warn;
-use serde::Serialize;
-use std::sync::Arc;
-use std::{fmt::Debug, sync::Mutex};
-use tauri::{AppHandle, Manager, Wry};
+use crate::models::examinee::Examinee;
+use crate::models::Repository;
 
-use crate::event::ApplicationEvent;
-use crate::models::examinee::ExamineeService;
-
-pub struct ApplicationContext {
-    app_handle: AppHandle<Wry>,
-    examinees: Arc<Mutex<ExamineeService>>,
+pub struct ApplicationState {
+    is_saved: bool,
+    examinees: Repository<Examinee>,
 }
 
-impl ApplicationContext {
-    pub fn from_app(app: AppHandle<Wry>) -> Arc<ApplicationContext> {
-        Arc::new(ApplicationContext::new(app))
-    }
-
-    pub fn new(app_handle: AppHandle<Wry>) -> Self {
-        ApplicationContext {
-            app_handle,
-            examinees: Arc::new(Mutex::new(ExamineeService::new())),
+impl ApplicationState {
+    pub fn new() -> Self {
+        ApplicationState {
+            is_saved: true,
+            examinees: Repository::new(),
         }
     }
 
-    pub fn emmit_event<D: Serialize + Clone + Debug>(&self, event: ApplicationEvent<D>) {
-        let result = self.app_handle.emit_all(event.event.as_str(), &event);
+    pub fn get_examinees(&self) -> &Repository<Examinee> {
+        &self.examinees
+    }
 
-        if let Err(error) = result {
-            warn!("Error emmiting event {event:?}: {error}");
-        }
+    pub fn get_examinees_mut(&mut self) -> &mut Repository<Examinee> {
+        &mut self.examinees
+    }
+
+    pub fn is_saved(&self) -> bool {
+        self.is_saved
+    }
+
+    pub fn modified_state(&mut self) {
+        self.is_saved = false
     }
 }

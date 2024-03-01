@@ -31,3 +31,15 @@ where
         }
     }
 }
+
+impl<D> IpcResponse<D>
+where
+    D: Serialize,
+{
+    pub fn ok(value: D) -> Self {
+        IpcResponse {
+            error: None,
+            result: Some(value),
+        }
+    }
+}

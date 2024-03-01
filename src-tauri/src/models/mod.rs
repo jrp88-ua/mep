@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::hash_map::HashMap;
 use ts_rs::TS;
 
-pub mod Examinee;
 pub mod academic_centre;
 pub mod examinee;
 
@@ -39,10 +38,6 @@ where
     entities: HashMap<EntityId, T>,
 }
 
-pub enum CreateEntityError {
-    IdNotAssignedCorrectly,
-}
-
 impl<T> Repository<T>
 where
     T: RepositoryEntity,
@@ -65,31 +60,28 @@ impl<T> Repository<T>
 where
     T: RepositoryEntity,
 {
-    fn create<V: WithAssignedId<T>>(&mut self, values: V) -> Result<&T, CreateEntityError> {
+    pub fn create<V: WithAssignedId<T>>(&mut self, values: V) -> &T {
         let next_id = self.next_id();
         let new = values.with_assigned_id(&next_id);
-        if new.id() != next_id {
-            return Err(CreateEntityError::IdNotAssignedCorrectly);
-        }
         self.entities.insert(next_id.clone(), new.clone());
-        Ok(&self.entities[&next_id])
+        &self.entities[&next_id]
     }
 
-    fn get(&self, id: EntityId) -> Option<&T> {
+    pub fn get(&self, id: EntityId) -> Option<&T> {
         self.entities.get(&id)
     }
 
-    fn get_all(&self) -> Vec<&T> {
+    pub fn get_all(&self) -> Vec<&T> {
         self.entities.values().collect()
     }
 
-    fn update<V: RepositoryEntityUpdater<T>>(&mut self, id: EntityId, values: V) -> Option<&T> {
+    pub fn update<V: RepositoryEntityUpdater<T>>(&mut self, id: EntityId, values: V) -> Option<&T> {
         let entity = self.entities.get_mut(&id)?;
         values.update_values(entity);
         Some(&self.entities[&id])
     }
 
-    fn delete(&mut self, id: EntityId) -> bool {
+    pub fn delete(&mut self, id: EntityId) -> bool {
         self.entities.remove(&id).is_some()
     }
 }
