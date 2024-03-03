@@ -89,35 +89,40 @@ pub struct ExamineeForUpdate {
 // region: --- ExamineeService
 
 impl ApplicationState {
-    pub fn create_examinee<V: WithAssignedId<Examinee>>(&mut self, values: V) -> &Examinee {
-        let result = self.get_examinees_mut().create(values);
+    pub fn create_examinee<V: WithAssignedId<Examinee>>(&mut self, values: V) -> Examinee {
+        let mut examinees = self.get_examinees();
+        let result = examinees.create(values);
         self.modified_state();
-        result
+        result.clone()
     }
 
-    pub fn get_examinee(&self, id: EntityId) -> Option<&Examinee> {
-        self.get_examinees().get(id)
+    pub fn get_examinee(&self, id: EntityId) -> Option<Examinee> {
+        let examinees = self.get_examinees();
+        let examinee = examinees.get(id)?;
+        Some(examinee.clone())
     }
 
-    pub fn get_all_examinees(&self) -> Vec<&Examinee> {
-        self.get_examinees().get_all()
+    pub fn get_all_examinees(&self) -> Vec<Examinee> {
+        self.get_examinees()
+            .get_all()
+            .iter()
+            .map(|examinee| Examinee::clone(&examinee))
+            .collect()
     }
 
     pub fn update_examinee<V: RepositoryEntityUpdater<Examinee>>(
         &mut self,
         id: EntityId,
         values: V,
-    ) -> Option<&Examinee> {
-        let examinees = self.get_examinees_mut();
-        let result = examinees.update(id, values);
-        if result.is_some() {
-            self.modified_state();
-        }
-        result
+    ) -> Option<Examinee> {
+        let mut examinees = self.get_examinees();
+        let result = examinees.update(id, values)?;
+        self.modified_state();
+        Some(result.clone())
     }
 
     pub fn delete_examinee(&mut self, id: EntityId) -> bool {
-        let deleted = self.get_examinees_mut().delete(id);
+        let deleted = self.get_examinees().delete(id);
         if deleted {
             self.modified_state();
         }
