@@ -2,11 +2,19 @@
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"navbar_settings": "Settings",
 	"navbar_examinees": "Examinees",
-	"settings_title": "Settings",
+	"settings_page_title": "Settings",
 	"examinees_page_title": "Examinees",
 	"settings_language": "Language",
 	"datatable_no_entries_found": "No entries found",
 	"datatable_show_amount": "Show",
 	"datatable_search_entry": "Search...",
-	"datatable_filter": "Filter"
+	"datatable_filter": "Filter",
+	"examenees_datatable_name": "Name",
+	"examenees_datatable_surenames": "Surenames",
+	"examenees_datatable_origin": "Origin",
+	"examenees_datatable_court": "Court",
+	"examinees_create_page_title": "Add examinee",
+	"import_examinees": "Import",
+	"export_examinees": "Export",
+	"create_examinee": "Add"
 }

@@ -13,5 +13,10 @@
 	],
 	"plugin.inlang.messageFormat": {
 		"pathPattern": "./messages/{languageTag}.json"
+	},
+	"messageLintRuleLevels": {
+		"messageLintRule.inlang.missingTranslation": "warning",
+		"messageLintRule.inlang.patternInvalid": "error",
+		"messageLintRule.inlang.validJsIdentifier": "error"
 	}
 }

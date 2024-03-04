@@ -6,7 +6,8 @@
 	let selectedLanguage = languageTag();
 </script>
 
-<h1 class="text-xl">{m.settings_language()}</h1>
+<h1 class="text-3xl mb-4">{m.settings_page_title()}</h1>
+<h2 class="text-xl">{m.settings_language()}</h2>
 <RadioGroup>
 	<a href="/settings" hreflang="es-ES">
 		<RadioItem bind:group={selectedLanguage} name="appLanguage" value={'es-ES'}>Español</RadioItem>

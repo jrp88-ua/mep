@@ -54,7 +54,7 @@ pub struct ExamineeForCreate {
     name: String,
     surenames: String,
     origin: ExamineeOrigin,
-    court: i16,
+    court_number: i16,
 }
 
 impl WithAssignedId<Examinee> for ExamineeForCreate {
@@ -64,7 +64,7 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
             name: self.name.clone(),
             surenames: self.surenames.clone(),
             origin: self.origin.clone(),
-            court: self.court,
+            court: self.court_number,
         }
     }
 }

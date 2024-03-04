@@ -2,7 +2,7 @@
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"navbar_settings": "Ajustes",
 	"navbar_examinees": "Examinados",
-	"settings_title": "Ajustes",
+	"settings_page_title": "Ajustes",
 	"examinees_page_title": "Examinados",
 	"settings_language": "Idioma",
 	"datatable_no_entries_found": "No hay datos",
@@ -13,5 +13,9 @@
 	"examenees_datatable_surenames": "Apellidos",
 	"examenees_datatable_orogin": "Origen",
 	"examenees_datatable_origin": "Origen",
-	"examenees_datatable_court": "Tribunal"
+	"examenees_datatable_court": "Tribunal",
+	"examinees_create_page_title": "Añadir examinado",
+	"import_examinees": "Importar",
+	"export_examinees": "Exportar",
+	"create_examinee": "Añadir"
 }

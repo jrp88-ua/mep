@@ -8,13 +8,13 @@
 </script>
 
 <AppRail>
-	<svelte:fragment slot="lead">
+	<!-- <svelte:fragment slot="lead">
 		<AppRailAnchor href="/">
 			<svelte:fragment slot="lead">
 				<i class="fa-solid fa-bars text-2xl" />
 			</svelte:fragment>
 		</AppRailAnchor>
-	</svelte:fragment>
+	</svelte:fragment> -->
 	<AppRailAnchor href="/examinees" title="examinees" selected={route.startsWith('/examinees')}>
 		<svelte:fragment slot="lead">
 			<i class="fa-solid fa-graduation-cap text-2xl" />
