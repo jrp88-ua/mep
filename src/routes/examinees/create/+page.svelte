@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { store } from '$lib/stores/examinees';
+	import { ExamineeForCreate } from '$lib/types/examinee';
 	import * as m from '$paraglide/messages';
-	import type { ExamineeForCreate } from '../../../types/ExamineeForCreate';
 
 	function submitForm(e: SubmitEvent) {
-		const data = Object.fromEntries(new FormData(e.target as HTMLFormElement)) as any as ExamineeForCreate;
-		store.createExaminee(data);
-		goto("/examinees");
+		const raw: unknown = Object.fromEntries(new FormData(e.target as HTMLFormElement));
+		const result = ExamineeForCreate.safeParse(raw);
+		if(result.success) {
+			store.createExaminee(result.data);
+			goto("/examinees");
+		} else {
+			console.error(result.error);
+		}
 	}
 </script>
 
@@ -52,7 +57,7 @@
 			<input
 				class="input"
 				title="Tribunal"
-				name="court_number"
+				name="court"
 				type="number"
 				min="-32768"
 				max="32767"

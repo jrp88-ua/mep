@@ -26,7 +26,6 @@ log = "^0.4"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1", features = [
     "colored",
 ] }
-ts-rs = "7.1.1"
 tokio = { version = "1.36.0", features = ["full"] }
 serde_with_macros = "3.6.1"
 

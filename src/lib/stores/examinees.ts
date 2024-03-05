@@ -1,9 +1,7 @@
 import { writable, get } from 'svelte/store';
-import type { Examinee } from '../../types/Examinee';
-import type { ExamineeForCreate } from '../../types/ExamineeForCreate';
 import { ipc_invoke } from '$lib/ipc';
-import type { ExamineeForUpdate } from '../../types/ExamineeForUpdate';
 import { info } from 'tauri-plugin-log-api';
+import type { Examinee, ExamineeForCreate, ExamineeForUpdate } from '$lib/types/examinee';
 
 enum StoreState {
 	TO_LOAD,

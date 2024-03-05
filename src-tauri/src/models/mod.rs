@@ -1,12 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::collections::hash_map::HashMap;
-use ts_rs::TS;
 
 pub mod academic_centre;
 pub mod examinee;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS, Hash)]
-#[ts(export, export_to = "../src/types/")]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct EntityId(i32);
 
 pub trait WithAssignedId<T>

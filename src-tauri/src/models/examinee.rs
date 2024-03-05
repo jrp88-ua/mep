@@ -2,24 +2,14 @@ use super::{EntityId, RepositoryEntity, RepositoryEntityUpdater, WithAssignedId}
 use crate::ctx::ApplicationState;
 use serde::{Deserialize, Serialize};
 use serde_with_macros::skip_serializing_none;
-use ts_rs::TS;
 
 // region: --- Examinee enums
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, TS)]
-#[ts(export, export_to = "../src/types/")]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub enum ExamineeOrigin {
     Baccalaureate,
     VocationalTraining,
     Other(String),
-}
-
-#[skip_serializing_none]
-#[derive(Deserialize, Debug, PartialEq, Eq, Clone, TS)]
-#[ts(export, export_to = "../src/types/")]
-pub enum AcademicCentreForExaminee {
-    Name(String),
-    Id(EntityId),
 }
 
 // endregion: --- Examinee enums
@@ -27,8 +17,7 @@ pub enum AcademicCentreForExaminee {
 // region: --- examinee
 
 #[skip_serializing_none]
-#[derive(Serialize, Debug, PartialEq, Eq, Clone, TS)]
-#[ts(export, export_to = "../src/types/")]
+#[derive(Serialize, Debug, PartialEq, Eq, Clone)]
 pub struct Examinee {
     id: EntityId,
     name: String,
@@ -48,13 +37,12 @@ impl RepositoryEntity for Examinee {
 // region: --- ExamineeForCreate
 
 #[skip_serializing_none]
-#[derive(Deserialize, Debug, PartialEq, Eq, Clone, TS)]
-#[ts(export, export_to = "../src/types/")]
+#[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct ExamineeForCreate {
     name: String,
     surenames: String,
     origin: ExamineeOrigin,
-    court_number: i16,
+    court: i16,
 }
 
 impl WithAssignedId<Examinee> for ExamineeForCreate {
@@ -64,7 +52,7 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
             name: self.name.clone(),
             surenames: self.surenames.clone(),
             origin: self.origin.clone(),
-            court: self.court_number,
+            court: self.court,
         }
     }
 }
@@ -74,14 +62,12 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
 // region: --- ExamineeForUpdate
 
 #[skip_serializing_none]
-#[derive(Deserialize, Debug, PartialEq, Eq, Clone, TS)]
-#[ts(export, export_to = "../src/types/")]
+#[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct ExamineeForUpdate {
     name: Option<String>,
     surenames: Option<String>,
     origin: Option<ExamineeOrigin>,
     court: Option<i16>,
-    academic_centre: Option<AcademicCentreForExaminee>,
 }
 
 // endregion: --- ExamineeForUpdate

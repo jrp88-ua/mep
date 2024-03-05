@@ -1,9 +1,7 @@
 use serde::Serialize;
 use std::fmt::Debug;
-use ts_rs::TS;
 
-#[derive(TS, Serialize, Clone, Debug)]
-#[ts(export, export_to = "../src/types/")]
+#[derive(Serialize, Clone, Debug)]
 pub struct ApplicationEvent<D: Serialize + Clone> {
     /**
      * Identifier for the event
