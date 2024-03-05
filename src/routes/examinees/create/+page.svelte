@@ -1,11 +1,19 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
+	import { store } from '$lib/stores/examinees';
 	import * as m from '$paraglide/messages';
+	import type { ExamineeForCreate } from '../../../types/ExamineeForCreate';
+
+	function submitForm(e: SubmitEvent) {
+		const data = Object.fromEntries(new FormData(e.target as HTMLFormElement)) as any as ExamineeForCreate;
+		store.createExaminee(data);
+		goto("/examinees");
+	}
 </script>
 
 <h1 class="text-3xl mb-4">{m.examinees_create_page_title()}</h1>
 
-<form class="card" method="post" use:enhance>
+<form class="card" method="post" on:submit|preventDefault={submitForm}>
 	<h2 class=" card-header text-2xl">Datos del nuevo examinado</h2>
 	<div class="p-4">
 		<label class="my-5">
@@ -44,7 +52,7 @@
 			<input
 				class="input"
 				title="Tribunal"
-				name="court"
+				name="court_number"
 				type="number"
 				min="-32768"
 				max="32767"
