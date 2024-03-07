@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { store } from '$lib/stores/examinees';
+	import { successToast } from '$lib/toast';
 	import { ExamineeForCreate } from '$lib/types/examinee';
 	import * as m from '$paraglide/messages';
 	import { getToastStore } from '@skeletonlabs/skeleton';
@@ -12,15 +13,15 @@
 		const result = ExamineeForCreate.safeParse(raw);
 		if (result.success) {
 			const examinee = await store.createExaminee(result.data);
-			toast.trigger({
-				message: 'Examinado creado',
-				background: 'variant-filled-success',
-				action: {
-					label: 'Ver examinado',
-					response: () => goto('/examinees/' + examinee.id)
-				},
-				timeout: 10000
-			});
+			toast.trigger(
+				successToast({
+					message: 'Examinado creado',
+					action: {
+						label: 'Ver examinado',
+						response: () => goto('/examinees/' + examinee.id)
+					}
+				})
+			);
 			goto('/examinees');
 		} else {
 			console.error(result.error);
