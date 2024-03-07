@@ -3,13 +3,25 @@
 	import { store } from '$lib/stores/examinees';
 	import { ExamineeForCreate } from '$lib/types/examinee';
 	import * as m from '$paraglide/messages';
+	import { getToastStore } from '@skeletonlabs/skeleton';
 
-	function submitForm(e: SubmitEvent) {
+	const toast = getToastStore();
+
+	async function submitForm(e: SubmitEvent) {
 		const raw: unknown = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = ExamineeForCreate.safeParse(raw);
-		if(result.success) {
-			store.createExaminee(result.data);
-			goto("/examinees");
+		if (result.success) {
+			const examinee = await store.createExaminee(result.data);
+			toast.trigger({
+				message: 'Examinado creado',
+				background: 'variant-filled-success',
+				action: {
+					label: 'Ver examinado',
+					response: () => goto('/examinees/' + examinee.id)
+				},
+				timeout: 10000
+			});
+			goto('/examinees');
 		} else {
 			console.error(result.error);
 		}
