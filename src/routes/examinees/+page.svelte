@@ -8,7 +8,7 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import type { Examinee } from '../../types/Examinee';
+	import type { Examinee } from '$lib/types/examinee';
 
 	const getExaminees = store.getExaminees().then((examinees) => {
 		handler.setRows(examinees);
@@ -28,10 +28,10 @@
 				<span>{m.create_examinee()}</span>
 			</a>
 			<div class="btn-group variant-filled-secondary">
-				<button on:click={() => alert('Aún no se ha implementado')}>
+				<a href="/examinees/import">
 					<span><i class="fa-solid fa-file-export" /></span>
 					<span>{m.import_examinees()}</span>
-				</button>
+				</a>
 				<button on:click={() => alert('Aún no se ha implementado')}>
 					<span><i class="fa-solid fa-file-import" /></span>
 					<span>{m.export_examinees()}</span>

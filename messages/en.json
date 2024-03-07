@@ -16,5 +16,8 @@
 	"examinees_create_page_title": "Add examinee",
 	"import_examinees": "Import",
 	"export_examinees": "Export",
-	"create_examinee": "Add"
+	"create_examinee": "Add",
+	"stepper_step": "Step",
+	"stepper_next": "Next",
+	"stepper_back": "Back"
 }

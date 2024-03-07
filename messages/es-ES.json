@@ -17,5 +17,8 @@
 	"examinees_create_page_title": "Añadir examinado",
 	"import_examinees": "Importar",
 	"export_examinees": "Exportar",
-	"create_examinee": "Añadir"
+	"create_examinee": "Añadir",
+	"stepper_step": "Paso",
+	"stepper_next": "Siguente",
+	"stepper_back": "Anterior"
 }
