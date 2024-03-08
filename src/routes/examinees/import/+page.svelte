@@ -1,9 +1,23 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { FileDropzone, Step, Stepper } from '@skeletonlabs/skeleton';
+	import { Step, Stepper } from '@skeletonlabs/skeleton';
+	import SelectAndValidateFile from './SelectAndValidateFile.svelte';
+	import SelectSheetToImport from './SelectSheetToImport.svelte';
 
-	let selectedFile: FileList | undefined;
-	$: stepOneCompleted = selectedFile !== undefined;
+	let selectAndValidateFile: SelectAndValidateFile;
+
+	let selectedFile: string | undefined;
+	let sheets: string[] | undefined;
+	let selectedSheet: string | undefined;
+
+	function onFileReady(e: CustomEvent<{ selectedFile: string; sheets: string[] }>) {
+		selectedFile = e.detail.selectedFile;
+		sheets = e.detail.sheets;
+	}
+
+	function onSelectedSheet(e: CustomEvent<string>) {
+		selectedSheet = e.detail;
+	}
 </script>
 
 <h1 class="text-3xl mb-4">Importar examinados</h1>
@@ -13,22 +27,22 @@
 		buttonNextLabel={m.stepper_next()}
 		buttonBackLabel={m.stepper_back()}
 	>
-		<Step locked={!stepOneCompleted}>
+		<Step locked={selectedFile === undefined}>
 			<svelte:fragment slot="header">Elegir origen de datos a importar</svelte:fragment>
-			<FileDropzone name="files" bind:files={selectedFile}>
-				<svelte:fragment slot="lead">
-					<i class="fa-solid fa-file-arrow-up text-4xl" />
-				</svelte:fragment>
-				<svelte:fragment slot="message">Elije un archivo o arrastra y suelta</svelte:fragment>
-				<svelte:fragment slot="meta">
-					Se permiten los formatos xls, xlsx, xlsm, xlsb, xla, xlam y ods
-				</svelte:fragment>
-			</FileDropzone>
-
-			<div class={selectedFile === undefined ? 'hidden' : ''}>
-				<h3>Comprobando archivo</h3>
-			</div>
+			<SelectAndValidateFile {selectedFile} on:fileready={onFileReady} />
 		</Step>
-		<Step>paso 2</Step>
+		<Step locked={selectedSheet === undefined}>
+			<svelte:fragment slot="header">Indicar la hoja con los datos</svelte:fragment>
+			{#if sheets !== undefined}
+				<SelectSheetToImport {selectedSheet} on:sheetselected={onSelectedSheet} {sheets} />
+			{/if}
+		</Step>
+		<Step>paso 3</Step>
+		<Step>paso 4</Step>
+		<Step>paso 5</Step>
 	</Stepper>
+	<a href="/examinees" class="btn variant-filled-tertiary mt-4">
+		<i class="fa-solid fa-xmark" />
+		<span>Cancelar</span>
+	</a>
 </div>

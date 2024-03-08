@@ -42,4 +42,11 @@ where
             result: Some(value),
         }
     }
+
+    pub fn error<S: AsRef<str>>(error: S) -> Self {
+        IpcResponse {
+            error: Some(error.as_ref().to_owned()),
+            result: None,
+        }
+    }
 }
