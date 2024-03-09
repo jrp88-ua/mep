@@ -1,14 +1,13 @@
-use super::response::IpcResponse;
 use calamine::{Data, DataType, Reader};
 use serde::Serialize;
 use tauri::command;
 
 #[command]
-pub fn examinees_import_verify_file(file_path: String) -> IpcResponse<Vec<SheetData>> {
+pub fn import_verify_excel(file_path: String) -> Result<Vec<SheetData>, String> {
     use calamine::Error;
     let open_result = calamine::open_workbook_auto(file_path);
     if let Err(err) = open_result {
-        return IpcResponse::error(match err {
+        return Err(match err {
             Error::Io(_) => "IO",
             Error::De(_) => "DE",
             Error::Msg(_) => "MSG",
@@ -17,7 +16,8 @@ pub fn examinees_import_verify_file(file_path: String) -> IpcResponse<Vec<SheetD
             Error::Xls(_) => "XLS",
             Error::Xlsb(_) => "XLSB",
             Error::Xlsx(_) => "XLSX",
-        });
+        }
+        .to_owned());
     }
     let mut sheets = open_result.unwrap();
     let work_sheets = sheets.worksheets();
@@ -44,17 +44,15 @@ pub fn examinees_import_verify_file(file_path: String) -> IpcResponse<Vec<SheetD
                     row[cell.1] = cell.2;
                     acc
                 });
-            SheetData {
-                sheet_name: name,
-                sheet_values: values,
-            }
+            SheetData { name, values }
         })
         .collect();
-    IpcResponse::ok(sheet_data)
+    Ok(sheet_data)
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SheetData {
-    sheet_name: String,
-    sheet_values: Vec<Vec<String>>,
+    name: String,
+    values: Vec<Vec<String>>,
 }

@@ -3,6 +3,7 @@
 	import { FileDropzone, ProgressBar } from '@skeletonlabs/skeleton';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { ipc_invoke } from '$lib/ipc';
+	import type { ExcelSheet as ExcelSheet } from '$lib/types/sheetsImport';
 	enum States {
 		WAITING_FOR_FILE,
 		VERIFYING_FILE,
@@ -17,6 +18,8 @@
 
 	export let selectedFile: string | undefined = undefined;
 
+	$: canShooseFile = state === States.WAITING_FOR_FILE || state === States.INVALID_FILE;
+
 	onMount(() => {
 		if (selectedFile !== undefined) {
 			state = States.FILE_OK;
@@ -25,7 +28,7 @@
 
 	async function promptSelectFile(e: MouseEvent) {
 		e.preventDefault();
-		if (state !== States.WAITING_FOR_FILE) return;
+		if (!canShooseFile) return;
 		const selected = await open({
 			multiple: false,
 			filters: [
@@ -45,12 +48,16 @@
 		if (selectedFile === undefined) return;
 		state = States.VERIFYING_FILE;
 		try {
-			const sheets = await ipc_invoke('examinees_import_verify_file', {
+			const sheets = (await ipc_invoke('import_verify_excel', {
 				filePath: selectedFile
-			});
-			console.log(sheets);
+			})) as ExcelSheet[];
 			if (sheets.length === 0) {
 				invalidFileMessage = 'No hay hojas en el archivo seleccioando';
+				state = States.INVALID_FILE;
+				return;
+			}
+			if (sheets.find((sheet) => sheet.values.length > 0) === undefined) {
+				invalidFileMessage = 'No hay hojas que tengan datos en el archivo seleccionado';
 				state = States.INVALID_FILE;
 				return;
 			}
@@ -66,11 +73,7 @@
 	}
 </script>
 
-<FileDropzone
-	name="fileToImport"
-	on:click={promptSelectFile}
-	disabled={state !== States.WAITING_FOR_FILE && state !== States.INVALID_FILE}
->
+<FileDropzone name="fileToImport" on:click={promptSelectFile} disabled={!canShooseFile}>
 	<svelte:fragment slot="lead">
 		<i class="fa-solid fa-file-arrow-up text-4xl" />
 	</svelte:fragment>

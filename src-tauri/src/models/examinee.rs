@@ -18,6 +18,7 @@ pub enum ExamineeOrigin {
 
 #[skip_serializing_none]
 #[derive(Serialize, Debug, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Examinee {
     id: EntityId,
     name: String,
@@ -38,6 +39,7 @@ impl RepositoryEntity for Examinee {
 
 #[skip_serializing_none]
 #[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ExamineeForCreate {
     name: String,
     surenames: String,
@@ -63,6 +65,7 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
 
 #[skip_serializing_none]
 #[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ExamineeForUpdate {
     name: Option<String>,
     surenames: Option<String>,

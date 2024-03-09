@@ -3,20 +3,38 @@
 	import { Step, Stepper } from '@skeletonlabs/skeleton';
 	import SelectAndValidateFile from './SelectAndValidateFile.svelte';
 	import SelectSheetToImport from './SelectSheetToImport.svelte';
-
-	let selectAndValidateFile: SelectAndValidateFile;
+	import type { ExcelSheet, ExamineeImportSettings } from '$lib/types/sheetsImport';
+	import IndicateHowToImport from './IndicateHowToImport.svelte';
 
 	let selectedFile: string | undefined;
-	let sheets: string[] | undefined;
-	let selectedSheet: string | undefined;
+	let sheets: ExcelSheet[] | undefined;
+	let selectedSheet: { name: string; valid: boolean } | undefined;
+	let importSettings: ExamineeImportSettings = defaultImputSettings();
+	let importSettingsAreValid: boolean = false;
 
-	function onFileReady(e: CustomEvent<{ selectedFile: string; sheets: string[] }>) {
+	function onFileReady(e: CustomEvent<{ selectedFile: string; sheets: ExcelSheet[] }>) {
 		selectedFile = e.detail.selectedFile;
 		sheets = e.detail.sheets;
 	}
 
-	function onSelectedSheet(e: CustomEvent<string>) {
+	function onSelectedSheet(e: CustomEvent<{ name: string; valid: boolean }>) {
+		if (selectedSheet?.name !== e.detail.name) importSettings = defaultImputSettings();
 		selectedSheet = e.detail;
+	}
+
+	function onImportSettingsValidity(e: CustomEvent<boolean>) {
+		importSettingsAreValid = e.detail;
+	}
+
+	function defaultImputSettings(): ExamineeImportSettings {
+		return {
+			firstRowIsHeader: true,
+			groupRowsByColumn: undefined,
+			courtColumn: undefined,
+			nameColumn: undefined,
+			originColumn: undefined,
+			surenamesColumn: undefined
+		};
 	}
 </script>
 
@@ -31,15 +49,24 @@
 			<svelte:fragment slot="header">Elegir origen de datos a importar</svelte:fragment>
 			<SelectAndValidateFile {selectedFile} on:fileready={onFileReady} />
 		</Step>
-		<Step locked={selectedSheet === undefined}>
+		<Step locked={selectedSheet === undefined || !selectedSheet.valid}>
 			<svelte:fragment slot="header">Indicar la hoja con los datos</svelte:fragment>
 			{#if sheets !== undefined}
-				<SelectSheetToImport {selectedSheet} on:sheetselected={onSelectedSheet} {sheets} />
+				<SelectSheetToImport
+					selectedSheet={selectedSheet?.name}
+					on:sheetselected={onSelectedSheet}
+					{sheets}
+				/>
 			{/if}
 		</Step>
-		<Step>paso 3</Step>
-		<Step>paso 4</Step>
-		<Step>paso 5</Step>
+		<Step locked={!importSettingsAreValid}>
+			<svelte:fragment slot="header">Indicar cómo se deben importar los datos</svelte:fragment>
+			<IndicateHowToImport
+				bind:importSettings
+				on:importsettingsvalidity={onImportSettingsValidity}
+				sheet={sheets?.find((sheet) => sheet.name === selectedSheet?.name)}
+			/>
+		</Step>
 	</Stepper>
 	<a href="/examinees" class="btn variant-filled-tertiary mt-4">
 		<i class="fa-solid fa-xmark" />

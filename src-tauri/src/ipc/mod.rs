@@ -1,4 +1,3 @@
 pub mod examinee;
-pub mod import_examinees;
+pub mod import;
 pub mod params;
-pub mod response;
