@@ -24,7 +24,7 @@ async fn main() -> Result<(), ()> {
         .invoke_handler(tauri::generate_handler![
             crate::ipc::examinee::get_all_examinees,
             crate::ipc::examinee::create_examinee,
-            crate::ipc::examinee::examinees_import_verify_file,
+            crate::ipc::import_examinees::examinees_import_verify_file,
         ])
         .plugin(
             tauri_plugin_log::Builder::default()

@@ -45,9 +45,10 @@
 		if (selectedFile === undefined) return;
 		state = States.VERIFYING_FILE;
 		try {
-			const sheets = (await ipc_invoke('examinees_import_verify_file', {
+			const sheets = await ipc_invoke('examinees_import_verify_file', {
 				filePath: selectedFile
-			})) as string[];
+			});
+			console.log(sheets);
 			if (sheets.length === 0) {
 				invalidFileMessage = 'No hay hojas en el archivo seleccioando';
 				state = States.INVALID_FILE;
