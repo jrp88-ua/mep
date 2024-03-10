@@ -24,7 +24,8 @@ async fn main() -> Result<(), ()> {
         .invoke_handler(tauri::generate_handler![
             crate::ipc::examinee::get_all_examinees,
             crate::ipc::examinee::create_examinee,
-            crate::ipc::import::import_verify_excel,
+            crate::ipc::import::start_examinee_import_process,
+            crate::ipc::import::perform_examinee_import,
         ])
         .plugin(
             tauri_plugin_log::Builder::default()
@@ -35,6 +36,9 @@ async fn main() -> Result<(), ()> {
                 .build(),
         )
         .manage(Arc::new(Mutex::new(ApplicationState::new())))
+        .manage(Arc::new(Mutex::new(
+            Option::<Vec<ipc::import::SheetData>>::None,
+        )))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
     Ok(())

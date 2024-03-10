@@ -25,3 +25,10 @@ export function showWarningToast(settings: ToastSettings): ToastSettings {
 		background: 'variant-filled-warning'
 	});
 }
+
+export function showErrorToast(settings: ToastSettings): ToastSettings {
+	return showToast({
+		...settings,
+		background: 'variant-filled-error'
+	});
+}

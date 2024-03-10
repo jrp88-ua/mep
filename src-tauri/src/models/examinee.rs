@@ -3,17 +3,6 @@ use crate::ctx::ApplicationState;
 use serde::{Deserialize, Serialize};
 use serde_with_macros::skip_serializing_none;
 
-// region: --- Examinee enums
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
-pub enum ExamineeOrigin {
-    Baccalaureate,
-    VocationalTraining,
-    Other(String),
-}
-
-// endregion: --- Examinee enums
-
 // region: --- examinee
 
 #[skip_serializing_none]
@@ -23,7 +12,7 @@ pub struct Examinee {
     id: EntityId,
     name: String,
     surenames: String,
-    origin: ExamineeOrigin,
+    origin: String,
     court: i16,
 }
 
@@ -41,10 +30,10 @@ impl RepositoryEntity for Examinee {
 #[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ExamineeForCreate {
-    name: String,
-    surenames: String,
-    origin: ExamineeOrigin,
-    court: i16,
+    pub name: String,
+    pub surenames: String,
+    pub origin: String,
+    pub court: i16,
 }
 
 impl WithAssignedId<Examinee> for ExamineeForCreate {
@@ -69,7 +58,7 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
 pub struct ExamineeForUpdate {
     name: Option<String>,
     surenames: Option<String>,
-    origin: Option<ExamineeOrigin>,
+    origin: Option<String>,
     court: Option<i16>,
 }
 

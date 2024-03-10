@@ -10,7 +10,7 @@ enum StoreState {
 }
 
 export const store = (() => {
-	const { subscribe, update } = writable(new Map<number, Examinee>());
+	const { set, subscribe, update } = writable(new Map<number, Examinee>());
 
 	let state = StoreState.TO_LOAD;
 	async function loadExaminees() {
@@ -36,6 +36,11 @@ export const store = (() => {
 		}
 	}
 
+	function clear() {
+		state = StoreState.TO_LOAD;
+		set(new Map<number, Examinee>());
+	}
+
 	function isLoaded() {
 		return state === StoreState.LOADED;
 	}
@@ -52,7 +57,7 @@ export const store = (() => {
 
 	async function createExaminee(values: ExamineeForCreate) {
 		if (!isLoaded()) await loadExaminees();
-		const result = await ipc_invoke<Examinee>('create_examinee', {values});
+		const result = await ipc_invoke<Examinee>('create_examinee', { values });
 		info(`Created new examinee: ${JSON.stringify(result)}`);
 		update((map) => {
 			const newMap = new Map(map);
@@ -94,6 +99,7 @@ export const store = (() => {
 		getExaminee,
 		createExaminee,
 		updateExaminee,
-		deleteExaminee
+		deleteExaminee,
+		clear
 	};
 })();

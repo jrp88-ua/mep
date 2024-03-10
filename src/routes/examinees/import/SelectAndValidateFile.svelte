@@ -48,7 +48,7 @@
 		if (selectedFile === undefined) return;
 		state = States.VERIFYING_FILE;
 		try {
-			const sheets = (await ipc_invoke('import_verify_excel', {
+			const sheets = (await ipc_invoke('start_examinee_import_process', {
 				filePath: selectedFile
 			})) as ExcelSheet[];
 			if (sheets.length === 0) {

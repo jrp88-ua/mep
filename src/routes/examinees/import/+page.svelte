@@ -8,7 +8,8 @@
 	import ImportResume from './ImportResume.svelte';
 	import { appState } from '$lib/stores/appState';
 	import { goto } from '$app/navigation';
-	import { showSuccessToast } from '$lib/toast';
+	import { showErrorToast, showSuccessToast } from '$lib/toast';
+	import { ipc_invoke } from '$lib/ipc';
 
 	const toast = getToastStore();
 
@@ -18,7 +19,7 @@
 	let importSettings: ExamineeImportSettings = defaultImputSettings();
 	let importSettingsAreValid: boolean = false;
 
-	let importPromise: Promise<boolean> | undefined;
+	let importPromise: Promise<void> | undefined;
 
 	function onFileReady(e: CustomEvent<{ selectedFile: string; sheets: ExcelSheet[] }>) {
 		selectedFile = e.detail.selectedFile;
@@ -36,19 +37,26 @@
 
 	function onComplete() {
 		appState.lockNavigation(m.locked_navigation_examinees_being_imported());
-		importPromise = new Promise<boolean>((res) =>
-			setTimeout(() => {
-				res(true);
-				appState.unlockNavigation();
-			}, 6000)
-		).then((result) => {
-			toast.trigger(
-				showSuccessToast({
-					message: m.examinees_imported_succesfully()
-				})
-			);
-			if (result) goto('/examinees');
-			return result;
+		importPromise = new Promise<void>(async (res) => {
+			try {
+				const result = await ipc_invoke<{ importedExaminees: number }>('perform_examinee_import', {
+					importSettings
+				});
+				toast.trigger(
+					showSuccessToast({
+						message: m.examinees_imported_succesfully({ amount: result.importedExaminees })
+					})
+				);
+			} catch (e) {
+				toast.trigger(
+					showErrorToast({
+						message: (e as Error).message
+					})
+				);
+			}
+			appState.unlockNavigation();
+			goto('/examinees');
+			res();
 		});
 	}
 
@@ -111,8 +119,6 @@
 		{#await importPromise}
 			<h2 class="text-2xl mb-5">Importando</h2>
 			<ProgressRadial />
-		{:then imported}
-			im
 		{/await}
 	</div>
 {/if}
