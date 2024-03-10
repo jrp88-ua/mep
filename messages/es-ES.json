@@ -25,5 +25,5 @@
 	"import_examinees_do_import": "Importar examinados",
 	"locked_navigation_examinees_being_imported": "Se están importando los examinados",
 	"locked_navigation_title": "No se puede navegar en estos momentos",
-	"examinees_imported_succesfully": "%amount% examinados importados con éxito"
+	"examinees_imported_succesfully": "{amount} examinados importados con éxito"
 }

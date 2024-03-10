@@ -10,6 +10,7 @@
 	import { goto } from '$app/navigation';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { ipc_invoke } from '$lib/ipc';
+	import { store as examineeStore } from '$lib/stores/examinees';
 
 	const toast = getToastStore();
 
@@ -39,8 +40,22 @@
 		appState.lockNavigation(m.locked_navigation_examinees_being_imported());
 		importPromise = new Promise<void>(async (res) => {
 			try {
+				if (selectedSheet === undefined) {
+					appState.unlockNavigation();
+					toast.trigger(
+						showErrorToast({
+							message: 'Estado del programa inválido, se ha cancelado el importado'
+						})
+					);
+					goto('/examinees');
+					res();
+					return;
+				}
 				const result = await ipc_invoke<{ importedExaminees: number }>('perform_examinee_import', {
-					importSettings
+					importSettings: {
+						...importSettings,
+						selectedSheet: selectedSheet.name
+					}
 				});
 				toast.trigger(
 					showSuccessToast({
@@ -54,6 +69,8 @@
 					})
 				);
 			}
+			examineeStore.clear();
+			await examineeStore.getExaminees();
 			appState.unlockNavigation();
 			goto('/examinees');
 			res();
