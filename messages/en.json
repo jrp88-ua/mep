@@ -23,5 +23,6 @@
 	"stepper_complete": "Complete",
 	"import_examinees_do_import": "Import examinees",
 	"locked_navigation_examinees_being_imported": "The examinees are being imported",
-	"locked_navigation_title": "Navigation is locked"
+	"locked_navigation_title": "Navigation is locked",
+	"examinees_imported_succesfully": "Examinees imported sucesfully"
 }

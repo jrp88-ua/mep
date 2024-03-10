@@ -1,12 +1,16 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { ProgressRadial, Step, Stepper } from '@skeletonlabs/skeleton';
+	import { ProgressRadial, Step, Stepper, getToastStore } from '@skeletonlabs/skeleton';
 	import SelectAndValidateFile from './SelectAndValidateFile.svelte';
 	import SelectSheetToImport from './SelectSheetToImport.svelte';
 	import type { ExcelSheet, ExamineeImportSettings } from '$lib/types/sheetsImport';
 	import IndicateHowToImport from './IndicateHowToImport.svelte';
 	import ImportResume from './ImportResume.svelte';
 	import { appState } from '$lib/stores/appState';
+	import { goto } from '$app/navigation';
+	import { showSuccessToast } from '$lib/toast';
+
+	const toast = getToastStore();
 
 	let selectedFile: string | undefined;
 	let sheets: ExcelSheet[] | undefined;
@@ -32,12 +36,20 @@
 
 	function onComplete() {
 		appState.lockNavigation(m.locked_navigation_examinees_being_imported());
-		importPromise = new Promise((res) =>
+		importPromise = new Promise<boolean>((res) =>
 			setTimeout(() => {
 				res(true);
 				appState.unlockNavigation();
 			}, 6000)
-		);
+		).then((result) => {
+			toast.trigger(
+				showSuccessToast({
+					message: m.examinees_imported_succesfully()
+				})
+			);
+			if (result) goto('/examinees');
+			return result;
+		});
 	}
 
 	function defaultImputSettings(): ExamineeImportSettings {
