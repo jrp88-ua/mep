@@ -19,5 +19,9 @@
 	"create_examinee": "Add",
 	"stepper_step": "Step",
 	"stepper_next": "Next",
-	"stepper_back": "Back"
+	"stepper_back": "Back",
+	"stepper_complete": "Complete",
+	"import_examinees_do_import": "Import examinees",
+	"locked_navigation_examinees_being_imported": "The examinees are being imported",
+	"locked_navigation_title": "Navigation is locked"
 }

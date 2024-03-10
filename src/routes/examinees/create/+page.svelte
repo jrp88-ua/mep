@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { store } from '$lib/stores/examinees';
-	import { successToast } from '$lib/toast';
+	import { showSuccessToast } from '$lib/toast';
 	import { ExamineeForCreate } from '$lib/types/examinee';
 	import * as m from '$paraglide/messages';
 	import { getToastStore } from '@skeletonlabs/skeleton';
@@ -14,7 +14,7 @@
 		if (result.success) {
 			const examinee = await store.createExaminee(result.data);
 			toast.trigger(
-				successToast({
+				showSuccessToast({
 					message: 'Examinado creado',
 					action: {
 						label: 'Ver examinado',

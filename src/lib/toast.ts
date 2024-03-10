@@ -12,8 +12,16 @@ export function showToast(settings: ToastSettings): ToastSettings {
 	return settings;
 }
 
-export function successToast(settings: ToastSettings): ToastSettings {
+export function showSuccessToast(settings: ToastSettings): ToastSettings {
 	return showToast({
-		...settings
+		...settings,
+		background: 'variant-filled-success'
+	});
+}
+
+export function showWarningToast(settings: ToastSettings): ToastSettings {
+	return showToast({
+		...settings,
+		background: 'variant-filled-warning'
 	});
 }

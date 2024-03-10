@@ -11,10 +11,18 @@
 
 	const dispatch = createEventDispatcher();
 
-	$: (function () {
-		if (sheet === undefined) return;
-		dispatch('importsettingsvalidity', false);
-	});
+	$: {
+		if (sheet !== undefined) {
+			dispatch(
+				'importsettingsvalidity',
+				importSettings.groupRowsByColumn !== undefined &&
+					importSettings.nameColumn !== undefined &&
+					importSettings.surenamesColumn !== undefined &&
+					importSettings.originColumn !== undefined &&
+					importSettings.courtColumn !== undefined
+			);
+		}
+	}
 
 	function updateHeaders() {
 		if (sheet === undefined) return;
@@ -23,7 +31,7 @@
 		} else {
 			columnNames = ['Columna A', 'Columna B', 'Columna C', 'Columna D'];
 		}
-		importSettings.groupRowsByColumn = columnNames[0];
+		importSettings.groupRowsByColumn = 0;
 		importSettings.courtColumn = undefined;
 		importSettings.nameColumn = undefined;
 		importSettings.originColumn = undefined;
@@ -33,7 +41,7 @@
 
 {#if sheet !== undefined && sheet.values.length > 0}
 	<form>
-		<label class=" my-4 flex items-center space-x-2">
+		<label class="my-4 flex items-center space-x-2">
 			<input
 				name="importSettings"
 				class="checkbox"
@@ -52,7 +60,7 @@
 						<option value={i}>{column}</option>
 					{/each}
 				</select>
-				<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>
+				<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
 			</div>
 		</div>
 
@@ -64,7 +72,7 @@
 					<option value={i}>{column}</option>
 				{/each}
 			</select>
-			<div class="variant-ghost-warning"><i class="fa-solid fa-circle-exclamation" /></div>
+			<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
 		</div>
 
 		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
@@ -74,7 +82,7 @@
 					<option value={i}>{column}</option>
 				{/each}
 			</select>
-			<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>
+			<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
 		</div>
 
 		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
@@ -84,7 +92,7 @@
 					<option value={i}>{column}</option>
 				{/each}
 			</select>
-			<div class="variant-ghost-warning"><i class="fa-solid fa-circle-exclamation" /></div>
+			<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
 		</div>
 
 		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
@@ -94,7 +102,7 @@
 					<option value={i}>{column}</option>
 				{/each}
 			</select>
-			<div class="variant-ghost-error"><i class="fa-solid fa-circle-exclamation" /></div>
+			<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
 		</div>
 	</form>
 {:else}

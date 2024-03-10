@@ -20,5 +20,9 @@
 	"create_examinee": "Añadir",
 	"stepper_step": "Paso",
 	"stepper_next": "Siguente",
-	"stepper_back": "Anterior"
+	"stepper_back": "Anterior",
+	"stepper_complete": "Finalizar",
+	"import_examinees_do_import": "Importar examinados",
+	"locked_navigation_examinees_being_imported": "Se están importando los examinados",
+	"locked_navigation_title": "No se puede navegar en estos momentos"
 }
