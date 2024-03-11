@@ -17,6 +17,13 @@ enum StoreState {
 	LOADED
 }
 
+export async function reloadAllStores() {
+	examineesStore.clear();
+	academicCentresStore.clear();
+	await examineesStore.getAllInstances();
+	await academicCentresStore.getAllInstances();
+}
+
 export const examineesStore = createStore<Examinee, ExamineeForCreate, ExamineeForUpdate>(
 	'examinee',
 	'examinees'

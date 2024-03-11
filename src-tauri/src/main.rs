@@ -26,6 +26,9 @@ async fn main() -> Result<(), ()> {
             crate::ipc::examinee::create_examinee,
             crate::ipc::import::start_examinee_import_process,
             crate::ipc::import::perform_examinee_import,
+            crate::ipc::import::cancel_examinee_import,
+            crate::ipc::academic_centre::get_all_academic_centres,
+            crate::ipc::academic_centre::create_academic_centre,
         ])
         .plugin(
             tauri_plugin_log::Builder::default()

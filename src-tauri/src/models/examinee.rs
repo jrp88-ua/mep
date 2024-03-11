@@ -14,6 +14,7 @@ pub struct Examinee {
     surenames: String,
     origin: String,
     court: i16,
+    academic_centre: Option<EntityId>,
 }
 
 impl RepositoryEntity for Examinee {
@@ -34,6 +35,7 @@ pub struct ExamineeForCreate {
     pub surenames: String,
     pub origin: String,
     pub court: i16,
+    pub academic_centre: Option<EntityId>,
 }
 
 impl WithAssignedId<Examinee> for ExamineeForCreate {
@@ -44,6 +46,7 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
             surenames: self.surenames.clone(),
             origin: self.origin.clone(),
             court: self.court,
+            academic_centre: self.academic_centre.clone(),
         }
     }
 }
@@ -60,6 +63,7 @@ pub struct ExamineeForUpdate {
     surenames: Option<String>,
     origin: Option<String>,
     court: Option<i16>,
+    academic_centre: Option<Option<EntityId>>,
 }
 
 // endregion: --- ExamineeForUpdate

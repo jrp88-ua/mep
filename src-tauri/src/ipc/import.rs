@@ -7,7 +7,10 @@ use calamine::{Data, DataType, Reader};
 use serde::{Deserialize, Serialize};
 use tauri::{command, AppHandle, Wry};
 
-use crate::{ctx::ApplicationContext, models::examinee::ExamineeForCreate};
+use crate::{
+    ctx::ApplicationContext,
+    models::{examinee::ExamineeForCreate, RepositoryEntity},
+};
 
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -26,6 +29,7 @@ pub struct ExamineeImportSettings {
     surenames_column: usize,
     origin_column: usize,
     court_column: usize,
+    academic_centre_column: usize,
 }
 
 #[derive(Serialize, Clone, Copy)]
@@ -40,6 +44,7 @@ struct ExamineeForImport {
     surenames: Option<String>,
     origin: Option<String>,
     court: Option<i16>,
+    academic_centre: Option<String>,
 }
 
 #[command]
@@ -139,6 +144,9 @@ pub async fn perform_examinee_import(
         let court = row
             .get(import_settings.court_column)
             .ok_or_else(|| "MISSING_COURT_COLUMN".to_owned())?;
+        let academic_centre = row
+            .get(import_settings.academic_centre_column)
+            .ok_or_else(|| "MISSING_ACADEMIC_CENTRE_COLUMN".to_owned())?;
 
         let mut examinee = examinees.get_mut(identifier);
         if let Option::None = examinee {
@@ -188,11 +196,29 @@ pub async fn perform_examinee_import(
             }
             None => examinee.court = Some(court),
         };
+
+        match &examinee.academic_centre {
+            Some(ex_academic_centre) => {
+                if academic_centre != ex_academic_centre {
+                    return Err("DIFFERENT_ACADEMIC_CENTRES".to_owned());
+                }
+            }
+            None => examinee.academic_centre = Some(academic_centre.clone()),
+        };
     }
 
     let context = ApplicationContext::from_app(app_handle);
     result.imported_examinees = examinees.len();
     for examinee in examinees {
+        let academic_centre_for_create = examinee.1.academic_centre.map(|academic_centre_name| {
+            context
+                .state()
+                .lock()
+                .unwrap()
+                .get_or_create_academic_centre(academic_centre_name)
+                .id()
+        });
+
         let to_create = ExamineeForCreate {
             name: examinee
                 .1
@@ -214,11 +240,17 @@ pub async fn perform_examinee_import(
                 .court
                 .clone()
                 .ok_or_else(|| "MISSING_COURT".to_owned())?,
+            academic_centre: academic_centre_for_create,
         };
         context.state().lock().unwrap().create_examinee(to_create);
     }
 
     Ok(result)
+}
+
+#[command]
+pub fn cancel_examinee_import(state: tauri::State<Arc<Mutex<Option<Vec<SheetData>>>>>) {
+    let _ = extract_import_examinees_state(state);
 }
 
 fn extract_import_examinees_state(

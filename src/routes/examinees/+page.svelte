@@ -10,9 +10,9 @@
 	import type { Examinee } from '$lib/types/models';
 	import { examineesStore } from '$lib/stores/models';
 
-	const getExaminees = examineesStore.getAllInstances().then((examinees) => {
-		handler.setRows(examinees);
-	});
+	const getExaminees = examineesStore
+		.getAllInstances()
+		.then((examinees) => handler.setRows(examinees));
 
 	let handler = new DataHandler<Examinee>([], { rowsPerPage: 5 });
 	const rows = handler.getRows();
@@ -32,10 +32,10 @@
 					<span><i class="fa-solid fa-file-export" /></span>
 					<span>{m.import_examinees()}</span>
 				</a>
-				<button on:click={() => alert('Aún no se ha implementado')}>
+				<!-- <button on:click={() => alert('Aún no se ha implementado')}>
 					<span><i class="fa-solid fa-file-import" /></span>
 					<span>{m.export_examinees()}</span>
-				</button>
+				</button> -->
 			</div>
 		</div>
 		<div class="flex gap-4">

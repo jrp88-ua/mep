@@ -28,5 +28,8 @@
 	"examinees_imported_succesfully": "{amount} examinados importados con éxito",
 	"navbar_academic_centre": "Centros académicos",
 	"academic_centres_page_title": "Centros académicos",
-	"sheet_column_name": "Columna {letter}"
+	"sheet_column_name": "Columna {letter}",
+	"create_academic_centre": "Añadir",
+	"academic_centre_datatable_id": "Id",
+	"academic_centre_datatable_name": "Nombre"
 }

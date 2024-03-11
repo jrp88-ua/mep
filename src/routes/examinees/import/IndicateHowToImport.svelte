@@ -20,7 +20,8 @@
 					importSettings.nameColumn !== undefined &&
 					importSettings.surenamesColumn !== undefined &&
 					importSettings.originColumn !== undefined &&
-					importSettings.courtColumn !== undefined
+					importSettings.courtColumn !== undefined &&
+					importSettings.academicCentreColumn !== undefined
 			);
 		}
 	}
@@ -37,6 +38,7 @@
 		importSettings.nameColumn = undefined;
 		importSettings.originColumn = undefined;
 		importSettings.surenamesColumn = undefined;
+		importSettings.academicCentreColumn = undefined;
 	}
 </script>
 
@@ -99,6 +101,16 @@
 		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
 			<div class="input-group-shim">Tribunal</div>
 			<select required bind:value={importSettings.courtColumn}>
+				{#each columnNames as column, i (column)}
+					<option value={i}>{column}</option>
+				{/each}
+			</select>
+			<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
+		</div>
+
+		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
+			<div class="input-group-shim">Centro académico</div>
+			<select required bind:value={importSettings.academicCentreColumn}>
 				{#each columnNames as column, i (column)}
 					<option value={i}>{column}</option>
 				{/each}

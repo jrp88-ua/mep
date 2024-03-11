@@ -8,8 +8,14 @@
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import type { AcademicCentre } from '$lib/types/models';
+	import { academicCentresStore } from '$lib/stores/models';
+
+	const getAcademicCentres = academicCentresStore
+		.getAllInstances()
+		.then((academicCentres) => handler.setRows(academicCentres));
 
 	let handler = new DataHandler<AcademicCentre>([], { rowsPerPage: 5 });
+	const rows = handler.getRows();
 </script>
 
 <h1 class="text-3xl mb-4">{m.academic_centres_page_title()}</h1>
@@ -17,20 +23,10 @@
 	<!-- Header -->
 	<header class="flex justify-between gap-4">
 		<div class="flex items-center gap-1">
-			<a href="/examinees/create" class="btn variant-filled-primary">
+			<!--<a href="/academic-centres/create" class="btn variant-filled-primary">
 				<span><i class="fa-solid fa-plus" /></span>
-				<span>{m.create_examinee()}</span>
-			</a>
-			<div class="btn-group variant-filled-secondary">
-				<a href="/examinees/import">
-					<span><i class="fa-solid fa-file-export" /></span>
-					<span>{m.import_examinees()}</span>
-				</a>
-				<button on:click={() => alert('Aún no se ha implementado')}>
-					<span><i class="fa-solid fa-file-import" /></span>
-					<span>{m.export_examinees()}</span>
-				</button>
-			</div>
+				<span>{m.create_academic_centre()}</span>
+			</a>-->
 		</div>
 		<div class="flex gap-4">
 			<Search {handler} />
@@ -41,27 +37,21 @@
 	<table class="table table-hover table-compact w-full table-auto">
 		<thead>
 			<tr>
-				<ThSort {handler} orderBy="name">{m.examenees_datatable_name()}</ThSort>
-				<ThSort {handler} orderBy="surenames">{m.examenees_datatable_surenames()}</ThSort>
-				<ThSort {handler} orderBy="origin">{m.examenees_datatable_origin()}</ThSort>
-				<ThSort {handler} orderBy="court">{m.examenees_datatable_court()}</ThSort>
+				<ThSort {handler} orderBy="id">{m.academic_centre_datatable_id()}</ThSort>
+				<ThSort {handler} orderBy="name">{m.academic_centre_datatable_name()}</ThSort>
 			</tr>
 			<tr>
+				<ThFilter {handler} filterBy="id" />
 				<ThFilter {handler} filterBy="name" />
-				<ThFilter {handler} filterBy="surenames" />
-				<ThFilter {handler} filterBy="origin" />
-				<ThFilter {handler} filterBy="court" />
 			</tr>
 		</thead>
 		<tbody>
-			<!-- {#each $rows as row}
+			{#each $rows as row}
 				<tr>
+					<td>{row.id}</td>
 					<td>{row.name}</td>
-					<td>{row.surenames}</td>
-					<td>{row.origin}</td>
-					<td>{row.court}</td>
 				</tr>
-			{/each}-->
+			{/each}
 		</tbody>
 	</table>
 	<!-- Footer -->

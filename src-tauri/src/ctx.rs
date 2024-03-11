@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex, MutexGuard};
 
 use tauri::{AppHandle, Manager, Wry};
 
+use crate::models::academic_centre::AcademicCentre;
 use crate::models::examinee::Examinee;
 use crate::models::Repository;
 
@@ -24,6 +25,7 @@ impl ApplicationContext {
 pub struct ApplicationState {
     is_saved: Arc<Mutex<bool>>,
     examinees: Arc<Mutex<Repository<Examinee>>>,
+    academic_centres: Arc<Mutex<Repository<AcademicCentre>>>,
 }
 
 impl ApplicationState {
@@ -31,11 +33,16 @@ impl ApplicationState {
         ApplicationState {
             is_saved: Arc::new(Mutex::new(true)),
             examinees: Arc::new(Mutex::new(Repository::new())),
+            academic_centres: Arc::new(Mutex::new(Repository::new())),
         }
     }
 
     pub fn get_examinees(&self) -> MutexGuard<'_, Repository<Examinee>> {
         self.examinees.lock().unwrap()
+    }
+
+    pub fn get_academic_centres(&self) -> MutexGuard<'_, Repository<AcademicCentre>> {
+        self.academic_centres.lock().unwrap()
     }
 
     pub fn is_saved(&self) -> bool {

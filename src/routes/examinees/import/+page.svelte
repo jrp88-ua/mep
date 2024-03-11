@@ -10,7 +10,8 @@
 	import { goto } from '$app/navigation';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { ipc_invoke } from '$lib/ipc';
-	import { examineesStore } from '$lib/stores/models';
+	import { examineesStore, reloadAllStores } from '$lib/stores/models';
+	import { onDestroy } from 'svelte';
 
 	const toast = getToastStore();
 
@@ -21,6 +22,8 @@
 	let importSettingsAreValid: boolean = false;
 
 	let importPromise: Promise<void> | undefined;
+
+	onDestroy(() => ipc_invoke('cancel_examinee_import'));
 
 	function onFileReady(e: CustomEvent<{ selectedFile: string; sheets: ExcelSheet[] }>) {
 		selectedFile = e.detail.selectedFile;
@@ -57,20 +60,20 @@
 						selectedSheet: selectedSheet.name
 					}
 				});
+				await reloadAllStores();
 				toast.trigger(
 					showSuccessToast({
 						message: m.examinees_imported_succesfully({ amount: result.importedExaminees })
 					})
 				);
 			} catch (e) {
+				await reloadAllStores();
 				toast.trigger(
 					showErrorToast({
 						message: (e as Error).message
 					})
 				);
 			}
-			examineesStore.clear();
-			await examineesStore.getAllInstances();
 			appState.unlockNavigation();
 			goto('/examinees');
 			res();
