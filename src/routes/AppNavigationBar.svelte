@@ -21,6 +21,16 @@
 		</svelte:fragment>
 		{m.navbar_examinees()}
 	</AppRailAnchor>
+	<AppRailAnchor
+		href="/academic-centres"
+		title="academic-centres"
+		selected={route.startsWith('/academic-centres')}
+	>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-school text-2xl" />
+		</svelte:fragment>
+		{m.navbar_academic_centre()}
+	</AppRailAnchor>
 	<svelte:fragment slot="trail">
 		<AppRailAnchor href="/settings" title="settings" selected={route.startsWith('/settings')}>
 			<svelte:fragment slot="lead">

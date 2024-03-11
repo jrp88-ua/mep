@@ -10,7 +10,7 @@
 	import { goto } from '$app/navigation';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { ipc_invoke } from '$lib/ipc';
-	import { store as examineeStore } from '$lib/stores/examinees';
+	import { examineesStore } from '$lib/stores/models';
 
 	const toast = getToastStore();
 
@@ -69,8 +69,8 @@
 					})
 				);
 			}
-			examineeStore.clear();
-			await examineeStore.getExaminees();
+			examineesStore.clear();
+			await examineesStore.getAllInstances();
 			appState.unlockNavigation();
 			goto('/examinees');
 			res();

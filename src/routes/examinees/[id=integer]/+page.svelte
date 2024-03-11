@@ -1,9 +1,8 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import { page } from '$app/stores';
-	import { store } from '$lib/stores/examinees';
+	import { examineesStore } from '$lib/stores/models';
 
-	const examinee = store.getExaminee(Number($page.params.id));
+	const examinee = examineesStore.getInstance(Number($page.params.id));
 </script>
 
 {#await examinee}

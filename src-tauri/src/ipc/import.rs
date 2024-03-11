@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    ops::{Deref, DerefMut},
     sync::{Arc, Mutex},
 };
 
@@ -44,8 +43,8 @@ struct ExamineeForImport {
 }
 
 #[command]
-pub fn start_examinee_import_process(
-    state: tauri::State<Arc<Mutex<Option<Vec<SheetData>>>>>,
+pub async fn start_examinee_import_process(
+    state: tauri::State<'_, Arc<Mutex<Option<Vec<SheetData>>>>>,
     file_path: String,
 ) -> Result<Vec<SheetData>, String> {
     use calamine::Error;
@@ -101,8 +100,8 @@ pub fn start_examinee_import_process(
 }
 
 #[command]
-pub fn perform_examinee_import(
-    state: tauri::State<Arc<Mutex<Option<Vec<SheetData>>>>>,
+pub async fn perform_examinee_import(
+    state: tauri::State<'_, Arc<Mutex<Option<Vec<SheetData>>>>>,
     app_handle: AppHandle<Wry>,
     import_settings: ExamineeImportSettings,
 ) -> Result<ExamineeImportResult, String> {

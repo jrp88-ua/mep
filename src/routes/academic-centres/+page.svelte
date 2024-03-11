@@ -7,18 +7,12 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import type { Examinee } from '$lib/types/models';
-	import { examineesStore } from '$lib/stores/models';
+	import type { AcademicCentre } from '$lib/types/models';
 
-	const getExaminees = examineesStore.getAllInstances().then((examinees) => {
-		handler.setRows(examinees);
-	});
-
-	let handler = new DataHandler<Examinee>([], { rowsPerPage: 5 });
-	const rows = handler.getRows();
+	let handler = new DataHandler<AcademicCentre>([], { rowsPerPage: 5 });
 </script>
 
-<h1 class="text-3xl mb-4">{m.examinees_page_title()}</h1>
+<h1 class="text-3xl mb-4">{m.academic_centres_page_title()}</h1>
 <div class=" overflow-x-auto space-y-4">
 	<!-- Header -->
 	<header class="flex justify-between gap-4">
@@ -60,14 +54,14 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each $rows as row}
+			<!-- {#each $rows as row}
 				<tr>
 					<td>{row.name}</td>
 					<td>{row.surenames}</td>
 					<td>{row.origin}</td>
 					<td>{row.court}</td>
 				</tr>
-			{/each}
+			{/each}-->
 		</tbody>
 	</table>
 	<!-- Footer -->

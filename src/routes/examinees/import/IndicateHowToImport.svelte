@@ -1,11 +1,12 @@
 <script lang="ts">
 	import type { ExcelSheet, ExamineeImportSettings } from '$lib/types/sheetsImport';
+	import { createSheetColumns } from '$lib/util';
 	import { createEventDispatcher, onMount } from 'svelte';
 
 	export let sheet: ExcelSheet | undefined;
 	export let importSettings: ExamineeImportSettings;
 
-	let columnNames: string[] = ['Columna A', 'Columna B', 'Columna C', 'Columna D'];
+	let columnNames: string[] = [];
 
 	onMount(() => updateHeaders());
 
@@ -29,7 +30,7 @@
 		if (importSettings.firstRowIsHeader) {
 			columnNames = sheet.values[0];
 		} else {
-			columnNames = ['Columna A', 'Columna B', 'Columna C', 'Columna D'];
+			columnNames = createSheetColumns(sheet.values[0].length);
 		}
 		importSettings.groupRowsByColumn = 0;
 		importSettings.courtColumn = undefined;

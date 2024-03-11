@@ -24,5 +24,8 @@
 	"import_examinees_do_import": "Import examinees",
 	"locked_navigation_examinees_being_imported": "The examinees are being imported",
 	"locked_navigation_title": "Navigation is locked",
-	"examinees_imported_succesfully": "Examinees imported sucesfully"
+	"examinees_imported_succesfully": "Examinees imported sucesfully",
+	"navbar_academic_centre": "Academic centres",
+	"academic_centres_page_title": "Academic centres",
+	"sheet_column_name": "Column {letter}"
 }

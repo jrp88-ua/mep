@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { store } from '$lib/stores/examinees';
-	import { showSuccessToast } from '$lib/toast';
-	import { ExamineeForCreate } from '$lib/types/examinee';
 	import * as m from '$paraglide/messages';
+	import { goto } from '$app/navigation';
+	import { examineesStore } from '$lib/stores/models';
+	import { showSuccessToast } from '$lib/toast';
+	import { ExamineeForCreate } from '$lib/types/models';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 
 	const toast = getToastStore();
@@ -12,7 +12,7 @@
 		const raw: unknown = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = ExamineeForCreate.safeParse(raw);
 		if (result.success) {
-			const examinee = await store.createExaminee(result.data);
+			const examinee = await examineesStore.createInstance(result.data);
 			toast.trigger(
 				showSuccessToast({
 					message: 'Examinado creado',
@@ -59,11 +59,14 @@
 		</label>
 		<label class="my-5">
 			<span class="text-xl">Origen</span>
-			<select name="origin" title="Origen" class="select" size="3" required>
-				<option value="Baccalaureate">Bachillerato</option>
-				<option value="VocationalTraining">Formación profesional</option>
-				<option value="other" disabled>Otro</option>
-			</select>
+			<input
+				class="input"
+				title="Origen"
+				name="origin"
+				type="text"
+				placeholder="Origen del alumno..."
+				required
+			/>
 		</label>
 		<label class="my-5">
 			<span class="text-xl">Tribunal</span>
