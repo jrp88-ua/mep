@@ -1,14 +1,18 @@
 import { writable, get as getStore } from 'svelte/store';
 import { ipc_invoke } from '$lib/ipc';
 import { info } from 'tauri-plugin-log-api';
-import type {
-	AcademicCentre,
-	AcademicCentreForCreate,
-	AcademicCentreForUpdate,
-	Examinee,
-	ExamineeForCreate,
-	ExamineeForUpdate,
-	Model
+import {
+	Subject,
+	type AcademicCentre,
+	type AcademicCentreForCreate,
+	type AcademicCentreForUpdate,
+	type Examinee,
+	type ExamineeForCreate,
+	type ExamineeForUpdate,
+	type Model,
+	type ModelId,
+	SubjectForCreate,
+	SubjectForUpdate
 } from '$lib/types/models';
 
 enum StoreState {
@@ -34,6 +38,11 @@ export const academicCentresStore = createStore<
 	AcademicCentreForCreate,
 	AcademicCentreForUpdate
 >('academic_centre', 'academic_centres');
+
+export const subjectsStore = createStore<Subject, SubjectForCreate, SubjectForUpdate>(
+	'subject',
+	'subjects'
+);
 
 function createStore<M extends Model, MC, MU>(
 	modelIdentifierSingular: string,

@@ -24,11 +24,13 @@ async fn main() -> Result<(), ()> {
         .invoke_handler(tauri::generate_handler![
             crate::ipc::examinee::get_all_examinees,
             crate::ipc::examinee::create_examinee,
+            crate::ipc::academic_centre::get_all_academic_centres,
+            crate::ipc::academic_centre::create_academic_centre,
+            crate::ipc::subject::get_all_subjects,
+            crate::ipc::subject::create_subject,
             crate::ipc::import::start_examinee_import_process,
             crate::ipc::import::perform_examinee_import,
             crate::ipc::import::cancel_examinee_import,
-            crate::ipc::academic_centre::get_all_academic_centres,
-            crate::ipc::academic_centre::create_academic_centre,
         ])
         .plugin(
             tauri_plugin_log::Builder::default()

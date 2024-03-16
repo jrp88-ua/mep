@@ -117,6 +117,16 @@
 			</select>
 			<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
 		</div>
+
+		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
+			<div class="input-group-shim">Asignatura</div>
+			<select required bind:value={importSettings.subjectsColumn}>
+				{#each columnNames as column, i (column)}
+					<option value={i}>{column}</option>
+				{/each}
+			</select>
+			<!--<div class="variant-ghost-success"><i class="fa-solid fa-check" /></div>-->
+		</div>
 	</form>
 {:else}
 	<aside class="alert variant-ghost-error">

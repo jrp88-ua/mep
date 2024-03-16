@@ -11,4 +11,5 @@ export type ExamineeImportSettings = {
 	originColumn: number | undefined;
 	courtColumn: number | undefined;
 	academicCentreColumn: number | undefined;
+	subjectsColumn: number | undefined;
 };

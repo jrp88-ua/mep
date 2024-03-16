@@ -4,6 +4,7 @@ use tauri::{AppHandle, Manager, Wry};
 
 use crate::models::academic_centre::AcademicCentre;
 use crate::models::examinee::Examinee;
+use crate::models::subject::Subject;
 use crate::models::Repository;
 
 pub struct ApplicationContext {
@@ -26,6 +27,7 @@ pub struct ApplicationState {
     is_saved: Arc<Mutex<bool>>,
     examinees: Arc<Mutex<Repository<Examinee>>>,
     academic_centres: Arc<Mutex<Repository<AcademicCentre>>>,
+    subjects: Arc<Mutex<Repository<Subject>>>,
 }
 
 impl ApplicationState {
@@ -34,6 +36,7 @@ impl ApplicationState {
             is_saved: Arc::new(Mutex::new(true)),
             examinees: Arc::new(Mutex::new(Repository::new())),
             academic_centres: Arc::new(Mutex::new(Repository::new())),
+            subjects: Arc::new(Mutex::new(Repository::new())),
         }
     }
 
@@ -45,8 +48,8 @@ impl ApplicationState {
         self.academic_centres.lock().unwrap()
     }
 
-    pub fn is_saved(&self) -> bool {
-        *self.is_saved.lock().unwrap()
+    pub fn get_subjects(&self) -> MutexGuard<'_, Repository<Subject>> {
+        self.subjects.lock().unwrap()
     }
 
     pub fn modified_state(&self) {

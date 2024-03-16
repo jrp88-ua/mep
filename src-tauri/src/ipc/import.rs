@@ -9,7 +9,7 @@ use tauri::{command, AppHandle, Wry};
 
 use crate::{
     ctx::ApplicationContext,
-    models::{examinee::ExamineeForCreate, RepositoryEntity},
+    models::{examinee::ExamineeForCreate, subject::SubjectForCreate, RepositoryEntity},
 };
 
 #[derive(Serialize, Clone)]
@@ -30,6 +30,7 @@ pub struct ExamineeImportSettings {
     origin_column: usize,
     court_column: usize,
     academic_centre_column: usize,
+    subjects_column: usize,
 }
 
 #[derive(Serialize, Clone, Copy)]
@@ -126,9 +127,30 @@ pub async fn perform_examinee_import(
         0
     };
 
+    let context = ApplicationContext::from_app(app_handle);
+
+    let mut subjects = context.state().lock().unwrap().get_all_subjects();
+
     let mut examinees = HashMap::<String, ExamineeForImport>::new();
     for i in start_index..sheet.values.len() {
         let row = &sheet.values[i];
+
+        let row_subject_name = row
+            .get(import_settings.subjects_column)
+            .ok_or_else(|| "MISSUNG_SUBJECT_COLUMN".to_owned())?;
+        let found_subject = subjects.iter().find(|s| &s.name == row_subject_name);
+        if let None = found_subject {
+            subjects.push(
+                context
+                    .state()
+                    .lock()
+                    .unwrap()
+                    .create_subject(SubjectForCreate {
+                        name: row_subject_name.clone(),
+                    }),
+            );
+        }
+
         let identifier = row
             .get(import_settings.group_rows_by_column)
             .ok_or_else(|| "MISSING_GROUP_BY_COLUMN".to_owned())?;
@@ -207,7 +229,6 @@ pub async fn perform_examinee_import(
         };
     }
 
-    let context = ApplicationContext::from_app(app_handle);
     result.imported_examinees = examinees.len();
     for examinee in examinees {
         let academic_centre_for_create = examinee.1.academic_centre.map(|academic_centre_name| {

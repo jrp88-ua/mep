@@ -3,6 +3,7 @@ use std::collections::hash_map::HashMap;
 
 pub mod academic_centre;
 pub mod examinee;
+pub mod subject;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct EntityId(i32);

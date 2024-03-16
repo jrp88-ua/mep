@@ -7,6 +7,8 @@ export type Model = {
 	id: ModelId;
 };
 
+///
+
 export const Examinee = z.object({
 	id: ModelId,
 	name: z.string().trim().min(1),
@@ -32,6 +34,8 @@ export const ExamineeForUpdate = z.object({
 });
 export type ExamineeForUpdate = z.infer<typeof ExamineeForUpdate>;
 
+///
+
 export const AcademicCentre = z.object({
 	id: ModelId,
 	name: z.string().trim().min(1)
@@ -47,3 +51,23 @@ export const AcademicCentreForUpdate = z.object({
 	name: z.string().trim().min(1).optional()
 });
 export type AcademicCentreForUpdate = z.infer<typeof AcademicCentreForUpdate>;
+
+///
+
+export const Subject = z.object({
+	id: ModelId,
+	name: z.string().trim().min(1)
+});
+export type Subject = z.infer<typeof Subject>;
+
+export const SubjectForCreate = z.object({
+	name: z.string().trim().min(1)
+});
+export type SubjectForCreate = z.infer<typeof SubjectForCreate>;
+
+export const SubjectForUpdate = z.object({
+	name: z.string().trim().min(1).optional()
+});
+export type SubjectForUpdate = z.infer<typeof SubjectForUpdate>;
+
+///

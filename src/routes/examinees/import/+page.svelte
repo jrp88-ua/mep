@@ -87,7 +87,9 @@
 			courtColumn: undefined,
 			nameColumn: undefined,
 			originColumn: undefined,
-			surenamesColumn: undefined
+			surenamesColumn: undefined,
+			academicCentreColumn: undefined,
+			subjectsColumn: undefined
 		};
 	}
 </script>

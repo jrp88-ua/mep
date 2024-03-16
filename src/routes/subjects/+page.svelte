@@ -8,24 +8,22 @@
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import type { AcademicCentre } from '$lib/types/models';
-	import { academicCentresStore } from '$lib/stores/models';
+	import { subjectsStore } from '$lib/stores/models';
 
-	const getAcademicCentres = academicCentresStore
-		.getAllInstances()
-		.then((academicCentres) => handler.setRows(academicCentres));
+	const getSubjects = subjectsStore.getAllInstances().then((subjects) => handler.setRows(subjects));
 
 	let handler = new DataHandler<AcademicCentre>([], { rowsPerPage: 5 });
 	const rows = handler.getRows();
 </script>
 
-<h1 class="text-3xl mb-4">{m.academic_centres_page_title()}</h1>
+<h1 class="text-3xl mb-4">{m.subjects_page_title()}</h1>
 <div class=" overflow-x-auto space-y-4">
 	<!-- Header -->
 	<header class="flex justify-between gap-4">
 		<div class="flex items-center gap-1">
-			<!--<a href="/academic-centres/create" class="btn variant-filled-primary">
+			<!--<a href="/subjects/create" class="btn variant-filled-primary">
 				<span><i class="fa-solid fa-plus" /></span>
-				<span>{m.create_academic_centre()}</span>
+				<span>Crear</span>
 			</a>-->
 		</div>
 		<div class="flex gap-4">

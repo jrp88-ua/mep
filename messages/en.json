@@ -30,5 +30,7 @@
 	"sheet_column_name": "Column {letter}",
 	"create_academic_centre": "Add",
 	"academic_centre_datatable_id": "Id",
-	"academic_centre_datatable_name": "Name"
+	"academic_centre_datatable_name": "Name",
+	"navbar_subjects": "Subjects",
+	"subjects_page_title": "Subjects"
 }
