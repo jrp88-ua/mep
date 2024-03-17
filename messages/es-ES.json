@@ -33,5 +33,12 @@
 	"academic_centre_datatable_id": "Id",
 	"academic_centre_datatable_name": "Nombre",
 	"navbar_subjects": "Asignaturas",
-	"subjects_page_title": "Asignaturas"
+	"subjects_page_title": "Asignaturas",
+	"subject_datatable_name": "Nombre",
+	"subject_datatable_kind": "Tipo",
+	"datatable_enum_filter_none": "Sin filtrar",
+	"datatable_enum_filter_separator": "Optiones para filtrar",
+	"subject_kind_obligatory": "Obligatoria",
+	"subject_kind_voluntary": "Voluntaria",
+	"subject_kind_unknown": "Desconocido"
 }

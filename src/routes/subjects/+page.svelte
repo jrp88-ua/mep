@@ -7,13 +7,16 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import type { AcademicCentre } from '$lib/types/models';
+	import { subjectKindValues, type Subject, subjectKindValuesTranslate } from '$lib/types/models';
 	import { subjectsStore } from '$lib/stores/models';
+	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
 
 	const getSubjects = subjectsStore.getAllInstances().then((subjects) => handler.setRows(subjects));
 
-	let handler = new DataHandler<AcademicCentre>([], { rowsPerPage: 5 });
+	let handler = new DataHandler<Subject>([], { rowsPerPage: 5 });
 	const rows = handler.getRows();
+
+	const t = subjectKindValuesTranslate as (v: string) => string;
 </script>
 
 <h1 class="text-3xl mb-4">{m.subjects_page_title()}</h1>
@@ -35,16 +38,19 @@
 	<table class="table table-hover table-compact w-full table-auto">
 		<thead>
 			<tr>
-				<ThSort {handler} orderBy="name">{m.academic_centre_datatable_name()}</ThSort>
+				<ThSort {handler} orderBy="name">{m.subject_datatable_name()}</ThSort>
+				<ThSort {handler} orderBy="kind">{m.subject_datatable_kind()}</ThSort>
 			</tr>
 			<tr>
 				<ThFilter {handler} filterBy="name" />
+				<ThEnumFilter {handler} values={subjectKindValues} valueTranslator={t} filterBy="kind" />
 			</tr>
 		</thead>
 		<tbody>
 			{#each $rows as row}
 				<tr>
 					<td>{row.name}</td>
+					<td>{t(row.kind)}</td>
 				</tr>
 			{/each}
 		</tbody>

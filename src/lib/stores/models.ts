@@ -24,8 +24,10 @@ enum StoreState {
 export async function reloadAllStores() {
 	examineesStore.clear();
 	academicCentresStore.clear();
+	subjectsStore.clear();
 	await examineesStore.getAllInstances();
 	await academicCentresStore.getAllInstances();
+	await subjectsStore.getAllInstances();
 }
 
 export const examineesStore = createStore<Examinee, ExamineeForCreate, ExamineeForUpdate>(

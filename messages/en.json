@@ -32,5 +32,15 @@
 	"academic_centre_datatable_id": "Id",
 	"academic_centre_datatable_name": "Name",
 	"navbar_subjects": "Subjects",
-	"subjects_page_title": "Subjects"
+	"subjects_page_title": "Subjects",
+	"subject_datatable_name": "Name",
+	"subject_datatable_kind": "Kind",
+	"subject_datatable_obligatory": "Obligatory",
+	"subject_datatable_volunteer": "Volunteer",
+	"subject_datatable_unknown": "Unknown",
+	"datatable_enum_filter_none": "No filter",
+	"datatable_enum_filter_separator": "Options to filter",
+	"subject_kind_obligatory": "Obligatory",
+	"subject_kind_voluntary": "Voluntary",
+	"subject_kind_unknown": "Unknown"
 }

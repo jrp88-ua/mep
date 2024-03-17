@@ -9,7 +9,11 @@ use tauri::{command, AppHandle, Wry};
 
 use crate::{
     ctx::ApplicationContext,
-    models::{examinee::ExamineeForCreate, subject::SubjectForCreate, RepositoryEntity},
+    models::{
+        examinee::ExamineeForCreate,
+        subject::{SubjectForCreate, SubjectKind},
+        RepositoryEntity,
+    },
 };
 
 #[derive(Serialize, Clone)]
@@ -129,7 +133,14 @@ pub async fn perform_examinee_import(
 
     let context = ApplicationContext::from_app(app_handle);
 
-    let mut subjects = context.state().lock().unwrap().get_all_subjects();
+    let mut subjects: Vec<String> = context
+        .state()
+        .lock()
+        .unwrap()
+        .get_all_subjects()
+        .iter()
+        .map(|subject| subject.name.clone())
+        .collect();
 
     let mut examinees = HashMap::<String, ExamineeForImport>::new();
     for i in start_index..sheet.values.len() {
@@ -138,16 +149,18 @@ pub async fn perform_examinee_import(
         let row_subject_name = row
             .get(import_settings.subjects_column)
             .ok_or_else(|| "MISSUNG_SUBJECT_COLUMN".to_owned())?;
-        let found_subject = subjects.iter().find(|s| &s.name == row_subject_name);
-        if let None = found_subject {
+        let found_subject = subjects.contains(row_subject_name);
+        if !found_subject {
             subjects.push(
                 context
                     .state()
                     .lock()
                     .unwrap()
-                    .create_subject(SubjectForCreate {
+                    .get_or_create_subject(SubjectForCreate {
                         name: row_subject_name.clone(),
-                    }),
+                        kind: SubjectKind::UNKNOWN,
+                    })
+                    .name,
             );
         }
 

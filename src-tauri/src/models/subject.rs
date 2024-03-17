@@ -8,11 +8,21 @@ use super::{EntityId, RepositoryEntity, WithAssignedId};
 // region: --- subject
 
 #[skip_serializing_none]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
+// kind instead of type because type is a reserved keyword
+pub enum SubjectKind {
+    OBLIGATORY,
+    VOLUNTARY,
+    UNKNOWN,
+}
+
+#[skip_serializing_none]
 #[derive(Serialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Subject {
     pub id: EntityId,
     pub name: String,
+    pub kind: SubjectKind,
 }
 
 impl RepositoryEntity for Subject {
@@ -30,6 +40,7 @@ impl RepositoryEntity for Subject {
 #[serde(rename_all = "camelCase")]
 pub struct SubjectForCreate {
     pub name: String,
+    pub kind: SubjectKind,
 }
 
 impl WithAssignedId<Subject> for SubjectForCreate {
@@ -37,6 +48,7 @@ impl WithAssignedId<Subject> for SubjectForCreate {
         Subject {
             id: id.clone(),
             name: self.name.clone(),
+            kind: self.kind.clone(),
         }
     }
 }
@@ -50,6 +62,7 @@ impl WithAssignedId<Subject> for SubjectForCreate {
 #[serde(rename_all = "camelCase")]
 pub struct SubjectForUpdate {
     pub name: Option<String>,
+    pub kind: Option<SubjectKind>,
 }
 
 // endregion: --- subject for update
@@ -57,13 +70,6 @@ pub struct SubjectForUpdate {
 // region: --- subject service
 
 impl ApplicationState {
-    pub fn create_subject<V: WithAssignedId<Subject>>(&mut self, values: V) -> Subject {
-        let mut subjects = self.get_subjects();
-        let result = subjects.create(values);
-        self.modified_state();
-        result.clone()
-    }
-
     pub fn get_all_subjects(&self) -> Vec<Subject> {
         self.get_subjects()
             .get_all()

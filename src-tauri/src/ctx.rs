@@ -40,15 +40,15 @@ impl ApplicationState {
         }
     }
 
-    pub fn get_examinees(&self) -> MutexGuard<'_, Repository<Examinee>> {
+    pub(super) fn get_examinees(&self) -> MutexGuard<'_, Repository<Examinee>> {
         self.examinees.lock().unwrap()
     }
 
-    pub fn get_academic_centres(&self) -> MutexGuard<'_, Repository<AcademicCentre>> {
+    pub(super) fn get_academic_centres(&self) -> MutexGuard<'_, Repository<AcademicCentre>> {
         self.academic_centres.lock().unwrap()
     }
 
-    pub fn get_subjects(&self) -> MutexGuard<'_, Repository<Subject>> {
+    pub(super) fn get_subjects(&self) -> MutexGuard<'_, Repository<Subject>> {
         self.subjects.lock().unwrap()
     }
 
