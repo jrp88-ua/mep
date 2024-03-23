@@ -10,9 +10,10 @@
 	import type { Examinee } from '$lib/types/models';
 	import { examineesStore } from '$lib/stores/models';
 
-	const getExaminees = examineesStore
-		.getAllInstances()
-		.then((examinees) => handler.setRows(examinees));
+	const getExaminees = examineesStore.getAllInstances().then((examinees) => {
+		examinees.forEach((examinee) => examinee.getAcademicCentre());
+		handler.setRows(examinees);
+	});
 
 	let handler = new DataHandler<Examinee>([], { rowsPerPage: 5 });
 	const rows = handler.getRows();
@@ -51,12 +52,14 @@
 				<ThSort {handler} orderBy="surenames">{m.examenees_datatable_surenames()}</ThSort>
 				<ThSort {handler} orderBy="origin">{m.examenees_datatable_origin()}</ThSort>
 				<ThSort {handler} orderBy="court">{m.examenees_datatable_court()}</ThSort>
+				<ThSort {handler} orderBy="court">{m.examenees_datatable_academic_centre()}</ThSort>
 			</tr>
 			<tr>
 				<ThFilter {handler} filterBy="name" />
 				<ThFilter {handler} filterBy="surenames" />
 				<ThFilter {handler} filterBy="origin" />
 				<ThFilter {handler} filterBy="court" />
+				<ThFilter {handler} filterBy="lazyAcademicCentreName" />
 			</tr>
 		</thead>
 		<tbody>
@@ -66,6 +69,13 @@
 					<td>{row.surenames}</td>
 					<td>{row.origin}</td>
 					<td>{row.court}</td>
+					<td>
+						{#await row.getAcademicCentre()}
+							Loading
+						{:then centre}
+							{centre?.name}
+						{/await}
+					</td>
 				</tr>
 			{/each}
 		</tbody>

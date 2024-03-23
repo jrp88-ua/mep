@@ -1,12 +1,12 @@
 import { writable, get as getStore } from 'svelte/store';
 import { ipc_invoke } from '$lib/ipc';
-import { info } from 'tauri-plugin-log-api';
+import { error, info } from 'tauri-plugin-log-api';
 import {
 	Subject,
-	type AcademicCentre,
+	AcademicCentre,
 	type AcademicCentreForCreate,
 	type AcademicCentreForUpdate,
-	type Examinee,
+	Examinee,
 	type ExamineeForCreate,
 	type ExamineeForUpdate,
 	type Model,
@@ -31,6 +31,7 @@ export async function reloadAllStores() {
 }
 
 export const examineesStore = createStore<Examinee, ExamineeForCreate, ExamineeForUpdate>(
+	Examinee,
 	'examinee',
 	'examinees'
 );
@@ -39,32 +40,70 @@ export const academicCentresStore = createStore<
 	AcademicCentre,
 	AcademicCentreForCreate,
 	AcademicCentreForUpdate
->('academic_centre', 'academic_centres');
+>(AcademicCentre, 'academic_centre', 'academic_centres');
 
 export const subjectsStore = createStore<Subject, SubjectForCreate, SubjectForUpdate>(
+	Subject,
 	'subject',
 	'subjects'
 );
 
+function createPromise(): {
+	resolve: (value: void | PromiseLike<void>) => void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	reject: (reason?: any) => void;
+	promise: Promise<void>;
+} {
+	let resolveFn: (value: void | PromiseLike<void>) => void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let rejectFn: (reason?: any) => void;
+	const promise = new Promise<void>((resolve, reject) => {
+		resolveFn = resolve;
+		rejectFn = reject;
+	});
+
+	return {
+		resolve: resolveFn!,
+		reject: rejectFn!,
+		promise
+	};
+}
+
 function createStore<M extends Model, MC, MU>(
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	modelFactory: { new (...args: any[]): M },
 	modelIdentifierSingular: string,
 	modelIdentifierPlural: string
 ) {
 	const store = writable(new Map<ModelId, M>());
 
 	let state = StoreState.TO_LOAD;
+
+	let { resolve, reject, promise } = createPromise();
+
 	async function load() {
-		if (state !== StoreState.TO_LOAD) return;
+		if (state === StoreState.LOADING) return await promise;
+		if (state === StoreState.LOADED) return;
+		state = StoreState.LOADING;
 		const startTime = Date.now();
 		info(`Loading ${modelIdentifierPlural} into store`);
-		state = StoreState.LOADING;
 		try {
 			const result = await ipc_invoke<M[]>(`get_all_${modelIdentifierPlural}`);
 			store.update((map) => {
 				const newMap = new Map(map);
 				for (let i = 0; i < result.length; i++) {
-					const instance = result[i];
-					newMap.set(instance.id, Object.freeze(instance));
+					try {
+						const instance = new modelFactory(result[i]);
+						newMap.set(instance.id, instance);
+					} catch (e) {
+						error(
+							`Could not create a ${modelIdentifierSingular} instance from ${JSON.stringify(
+								result[i]
+							)}: ${JSON.stringify(e)}`
+						);
+						console.error(e);
+						// TODO smth idk
+					}
 				}
 				return newMap;
 			});
@@ -74,8 +113,10 @@ function createStore<M extends Model, MC, MU>(
 				}ms.`
 			);
 			state = StoreState.LOADED;
+			resolve();
 		} catch (e) {
 			state = StoreState.TO_LOAD;
+			reject(e);
 			throw e;
 		}
 	}
@@ -83,6 +124,10 @@ function createStore<M extends Model, MC, MU>(
 	function clear() {
 		state = StoreState.TO_LOAD;
 		store.set(new Map<ModelId, M>());
+		const p = createPromise();
+		resolve = p.resolve;
+		reject = p.reject;
+		promise = p.promise;
 	}
 
 	function isLoaded() {
@@ -102,10 +147,24 @@ function createStore<M extends Model, MC, MU>(
 	async function createInstance(values: MC) {
 		if (!isLoaded()) await load();
 		const result = await ipc_invoke<M>(`create_${modelIdentifierSingular}`, { values });
-		info(`Created new ${modelIdentifierSingular}: ${JSON.stringify(result)}`);
+
+		let instance: M;
+		try {
+			instance = new modelFactory(result);
+		} catch (e) {
+			error(
+				`Could not create a ${modelIdentifierSingular} instance from ${JSON.stringify(
+					result
+				)}: ${JSON.stringify(e)}`
+			);
+			console.error(e);
+			throw e;
+		}
+
+		info(`Created new ${modelIdentifierSingular}: ${instance?.toString()}`);
 		store.update((map) => {
 			const newMap = new Map(map);
-			newMap.set(result.id, Object.freeze(result));
+			newMap.set(instance.id, instance);
 			return newMap;
 		});
 		return result;
@@ -114,10 +173,24 @@ function createStore<M extends Model, MC, MU>(
 	async function updateInstance(id: ModelId, values: MU) {
 		if (!isLoaded()) await load();
 		const result = await ipc_invoke<M>(`${modelIdentifierSingular}_update`, { id, values });
+
+		let instance: M;
+		try {
+			instance = new modelFactory(result);
+		} catch (e) {
+			error(
+				`Could not update a ${modelIdentifierSingular} instance from ${JSON.stringify(
+					result
+				)}: ${JSON.stringify(e)}`
+			);
+			console.error(e);
+			throw e;
+		}
+
 		info(`Updated ${modelIdentifierSingular}: ${JSON.stringify(result)}`);
 		store.update((map) => {
 			const newMap = new Map(map);
-			newMap.set(result.id, Object.freeze(result));
+			newMap.set(instance.id, instance);
 			return newMap;
 		});
 		return result;

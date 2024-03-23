@@ -274,7 +274,7 @@ pub async fn perform_examinee_import(
                 .court
                 .clone()
                 .ok_or_else(|| "MISSING_COURT".to_owned())?,
-            academic_centre: academic_centre_for_create,
+            academic_centre_id: academic_centre_for_create,
         };
         context.state().lock().unwrap().create_examinee(to_create);
     }
