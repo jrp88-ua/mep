@@ -6,10 +6,13 @@ export type ExcelSheet = {
 export type ExamineeImportSettings = {
 	firstRowIsHeader: boolean;
 	groupRowsByColumn: number | undefined;
-	nameColumn: number | undefined;
-	surenamesColumn: number | undefined;
-	originColumn: number | undefined;
+
 	courtColumn: number | undefined;
+	subjectNameColumn: number | undefined;
+	surenamesColumn: number | undefined;
+	nameColumn: number | undefined;
+	nifColumn: number | undefined;
+	subjectKindColumn: number | undefined;
+	originColumn: number | undefined;
 	academicCentreColumn: number | undefined;
-	subjectsColumn: number | undefined;
 };

@@ -33,12 +33,6 @@
 		} else {
 			columnNames = createSheetColumns(sheet.values[0].length);
 		}
-		importSettings.groupRowsByColumn = 0;
-		importSettings.courtColumn = undefined;
-		importSettings.nameColumn = undefined;
-		importSettings.originColumn = undefined;
-		importSettings.surenamesColumn = undefined;
-		importSettings.academicCentreColumn = undefined;
 	}
 </script>
 
@@ -120,7 +114,7 @@
 
 		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
 			<div class="input-group-shim">Asignatura</div>
-			<select required bind:value={importSettings.subjectsColumn}>
+			<select required bind:value={importSettings.subjectNameColumn}>
 				{#each columnNames as column, i (column)}
 					<option value={i}>{column}</option>
 				{/each}

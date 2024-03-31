@@ -33,10 +33,10 @@ pub struct AcademicCentreForCreate {
 }
 
 impl WithAssignedId<AcademicCentre> for AcademicCentreForCreate {
-    fn with_assigned_id(&self, id: &EntityId) -> AcademicCentre {
+    fn with_assigned_id(self, id: &EntityId) -> AcademicCentre {
         AcademicCentre {
             id: id.clone(),
-            name: self.name.clone(),
+            name: self.name,
         }
     }
 }

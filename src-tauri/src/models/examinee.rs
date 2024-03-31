@@ -9,12 +9,13 @@ use serde_with_macros::skip_serializing_none;
 #[derive(Serialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Examinee {
-    id: EntityId,
-    name: String,
-    surenames: String,
-    origin: String,
-    court: i16,
-    academic_centre_id: Option<EntityId>,
+    pub id: EntityId,
+    pub nif: String,
+    pub name: String,
+    pub surenames: String,
+    pub origin: String,
+    pub court: i16,
+    pub academic_centre_id: Option<EntityId>,
 }
 
 impl RepositoryEntity for Examinee {
@@ -31,6 +32,7 @@ impl RepositoryEntity for Examinee {
 #[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ExamineeForCreate {
+    pub nif: String,
     pub name: String,
     pub surenames: String,
     pub origin: String,
@@ -39,14 +41,15 @@ pub struct ExamineeForCreate {
 }
 
 impl WithAssignedId<Examinee> for ExamineeForCreate {
-    fn with_assigned_id(&self, id: &EntityId) -> Examinee {
+    fn with_assigned_id(self, id: &EntityId) -> Examinee {
         Examinee {
             id: id.clone(),
-            name: self.name.clone(),
-            surenames: self.surenames.clone(),
-            origin: self.origin.clone(),
+            nif: self.nif,
+            name: self.name,
+            surenames: self.surenames,
+            origin: self.origin,
             court: self.court,
-            academic_centre_id: self.academic_centre_id.clone(),
+            academic_centre_id: self.academic_centre_id,
         }
     }
 }
@@ -59,11 +62,12 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
 #[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ExamineeForUpdate {
-    name: Option<String>,
-    surenames: Option<String>,
-    origin: Option<String>,
-    court: Option<i16>,
-    academic_centre_id: Option<Option<EntityId>>,
+    pub nif: Option<String>,
+    pub name: Option<String>,
+    pub surenames: Option<String>,
+    pub origin: Option<String>,
+    pub court: Option<i16>,
+    pub academic_centre_id: Option<Option<EntityId>>,
 }
 
 // endregion: --- ExamineeForUpdate

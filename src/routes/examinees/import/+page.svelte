@@ -83,13 +83,15 @@
 	function defaultImputSettings(): ExamineeImportSettings {
 		return {
 			firstRowIsHeader: true,
-			groupRowsByColumn: undefined,
-			courtColumn: undefined,
-			nameColumn: undefined,
-			originColumn: undefined,
-			surenamesColumn: undefined,
-			academicCentreColumn: undefined,
-			subjectsColumn: undefined
+			groupRowsByColumn: 4,
+			nifColumn: 4,
+			subjectKindColumn: 7,
+			courtColumn: 0,
+			nameColumn: 3,
+			originColumn: 7,
+			surenamesColumn: 2,
+			academicCentreColumn: 8,
+			subjectNameColumn: 1
 		};
 	}
 </script>

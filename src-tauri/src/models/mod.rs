@@ -12,7 +12,7 @@ pub trait WithAssignedId<T>
 where
     T: RepositoryEntity,
 {
-    fn with_assigned_id(&self, id: &EntityId) -> T;
+    fn with_assigned_id(self, id: &EntityId) -> T;
 }
 
 pub trait RepositoryEntityUpdater<T>

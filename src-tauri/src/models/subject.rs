@@ -44,11 +44,11 @@ pub struct SubjectForCreate {
 }
 
 impl WithAssignedId<Subject> for SubjectForCreate {
-    fn with_assigned_id(&self, id: &EntityId) -> Subject {
+    fn with_assigned_id(self, id: &EntityId) -> Subject {
         Subject {
             id: id.clone(),
-            name: self.name.clone(),
-            kind: self.kind.clone(),
+            name: self.name,
+            kind: self.kind,
         }
     }
 }
