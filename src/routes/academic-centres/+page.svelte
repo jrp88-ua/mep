@@ -7,8 +7,7 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import type { AcademicCentre } from '$lib/types/models';
-	import { academicCentresStore } from '$lib/stores/models';
+	import { academicCentresStore, type AcademicCentre } from '$lib/stores/academicCentres';
 
 	const getAcademicCentres = academicCentresStore
 		.getAllInstances()

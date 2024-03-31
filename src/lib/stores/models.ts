@@ -1,19 +1,7 @@
 import { writable, get as getStore } from 'svelte/store';
 import { ipc_invoke } from '$lib/ipc';
 import { error, info } from 'tauri-plugin-log-api';
-import {
-	Subject,
-	AcademicCentre,
-	type AcademicCentreForCreate,
-	type AcademicCentreForUpdate,
-	Examinee,
-	type ExamineeForCreate,
-	type ExamineeForUpdate,
-	type Model,
-	type ModelId,
-	SubjectForCreate,
-	SubjectForUpdate
-} from '$lib/types/models';
+import { z } from 'zod';
 
 enum StoreState {
 	TO_LOAD,
@@ -21,32 +9,12 @@ enum StoreState {
 	LOADED
 }
 
-export async function reloadAllStores() {
-	examineesStore.clear();
-	academicCentresStore.clear();
-	subjectsStore.clear();
-	await examineesStore.getAllInstances();
-	await academicCentresStore.getAllInstances();
-	await subjectsStore.getAllInstances();
-}
+export const ModelId = z.number().min(-2_147_483_648).max(2_147_483_647);
+export type ModelId = z.infer<typeof ModelId>;
 
-export const examineesStore = createStore<Examinee, ExamineeForCreate, ExamineeForUpdate>(
-	Examinee,
-	'examinee',
-	'examinees'
-);
-
-export const academicCentresStore = createStore<
-	AcademicCentre,
-	AcademicCentreForCreate,
-	AcademicCentreForUpdate
->(AcademicCentre, 'academic_centre', 'academic_centres');
-
-export const subjectsStore = createStore<Subject, SubjectForCreate, SubjectForUpdate>(
-	Subject,
-	'subject',
-	'subjects'
-);
+export type Model = {
+	id: ModelId;
+};
 
 function createPromise(): {
 	resolve: (value: void | PromiseLike<void>) => void;
@@ -69,7 +37,7 @@ function createPromise(): {
 	};
 }
 
-function createStore<M extends Model, MC, MU>(
+export function createStore<M extends Model, MC, MU>(
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	modelFactory: { new (...args: any[]): M },
 	modelIdentifierSingular: string,

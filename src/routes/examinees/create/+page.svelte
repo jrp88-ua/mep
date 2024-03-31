@@ -1,10 +1,9 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
 	import { goto } from '$app/navigation';
-	import { examineesStore } from '$lib/stores/models';
 	import { showSuccessToast } from '$lib/toast';
-	import { ExamineeForCreate } from '$lib/types/models';
 	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { ExamineeForCreate, examineesStore } from '$lib/stores/examinees';
 
 	const toast = getToastStore();
 

@@ -7,8 +7,7 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import type { Examinee } from '$lib/types/models';
-	import { examineesStore } from '$lib/stores/models';
+	import { examineesStore, Examinee } from '$lib/stores/examinees';
 
 	const getExaminees = examineesStore.getAllInstances().then((examinees) => {
 		examinees.forEach((examinee) => examinee.getAcademicCentre());

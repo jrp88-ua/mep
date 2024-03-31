@@ -1,5 +1,8 @@
-import type { AppState } from '$lib/types/appState';
 import { get, writable } from 'svelte/store';
+
+export type AppState = {
+	navigationBlockedReason: string | undefined;
+};
 
 export const appState = (() => {
 	const { update, subscribe } = writable<AppState>({

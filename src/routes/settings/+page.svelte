@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { languageTag, setLanguageTag } from '$paraglide/runtime';
+	import { languageTag } from '$paraglide/runtime';
 	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 
 	let selectedLanguage = languageTag();

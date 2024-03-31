@@ -7,9 +7,9 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import { subjectKindValues, type Subject, subjectKindValuesTranslate } from '$lib/types/models';
-	import { subjectsStore } from '$lib/stores/models';
 	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
+	import { Subject, SUBJECT_KIND_VALUES, subjectsStore } from '$lib/stores/subjects';
+	import { subjectKindValuesTranslate } from '$lib/services/subjects';
 
 	const getSubjects = subjectsStore.getAllInstances().then((subjects) => handler.setRows(subjects));
 
@@ -43,7 +43,7 @@
 			</tr>
 			<tr>
 				<ThFilter {handler} filterBy="name" />
-				<ThEnumFilter {handler} values={subjectKindValues} valueTranslator={t} filterBy="kind" />
+				<ThEnumFilter {handler} values={SUBJECT_KIND_VALUES} valueTranslator={t} filterBy="kind" />
 			</tr>
 		</thead>
 		<tbody>

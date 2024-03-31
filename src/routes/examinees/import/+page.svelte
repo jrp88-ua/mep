@@ -10,8 +10,8 @@
 	import { goto } from '$app/navigation';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { ipc_invoke } from '$lib/ipc';
-	import { examineesStore, reloadAllStores } from '$lib/stores/models';
 	import { onDestroy } from 'svelte';
+	import { reloadAllStores } from '$lib/services/common';
 
 	const toast = getToastStore();
 
