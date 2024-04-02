@@ -16,6 +16,16 @@ pub enum SubjectKind {
     UNKNOWN,
 }
 
+impl From<&str> for SubjectKind {
+    fn from(value: &str) -> Self {
+        match value {
+            "OBLIGATORY" => Self::OBLIGATORY,
+            "VOLUNTARY" => Self::VOLUNTARY,
+            _ => Self::UNKNOWN,
+        }
+    }
+}
+
 #[skip_serializing_none]
 #[derive(Serialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]

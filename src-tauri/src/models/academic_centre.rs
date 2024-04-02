@@ -11,8 +11,8 @@ use super::{EntityId, RepositoryEntity, WithAssignedId};
 #[derive(Serialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AcademicCentre {
-    id: EntityId,
-    name: String,
+    pub id: EntityId,
+    pub name: String,
 }
 
 impl RepositoryEntity for AcademicCentre {
@@ -29,7 +29,7 @@ impl RepositoryEntity for AcademicCentre {
 #[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AcademicCentreForCreate {
-    name: String,
+    pub name: String,
 }
 
 impl WithAssignedId<AcademicCentre> for AcademicCentreForCreate {
@@ -49,7 +49,7 @@ impl WithAssignedId<AcademicCentre> for AcademicCentreForCreate {
 #[derive(Deserialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AcademicCentreForUpdate {
-    name: Option<String>,
+    pub name: Option<String>,
 }
 
 // endregion: --- academic centre for update
