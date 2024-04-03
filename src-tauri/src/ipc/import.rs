@@ -5,11 +5,16 @@ use std::{
 
 use calamine::{Data, DataType, Reader};
 use serde::{Deserialize, Serialize};
+use serde_with_macros::skip_serializing_none;
 use tauri::{command, AppHandle, Wry};
 
 use crate::{
-    ctx::ApplicationContext,
-    models::subject::{SubjectForCreate, SubjectKind},
+    ctx::{ApplicationContext, ApplicationState},
+    models::{
+        academic_centre::AcademicCentreForCreate,
+        examinee::ExamineeForCreate,
+        subject::{SubjectForCreate, SubjectKind},
+    },
 };
 
 #[derive(Serialize, Clone)]
@@ -46,7 +51,7 @@ pub struct ExamineeImportResult {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub enum ExamineeImportMissingError {
+pub enum ExamineeImportMissingValueError {
     SubjectName,
     RowIdentifier,
     ExamineeNif,
@@ -80,7 +85,7 @@ pub enum ExamineeImportError {
     NoSheet,
     MissingValue {
         row: usize,
-        missing: ExamineeImportMissingError,
+        missing: ExamineeImportMissingValueError,
     },
     MissmatchValue {
         row: usize,
@@ -93,10 +98,15 @@ pub enum ExamineeImportError {
         reason: ExamineeImportInvalidValueError,
         invalid_value: String,
     },
+    MissingExamineeValue {
+        examinee: ExamineeForImport,
+    },
 }
 
-#[derive(Default)]
-struct ExamineeForImport {
+#[skip_serializing_none]
+#[derive(Serialize, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ExamineeForImport {
     nif: Option<String>,
     name: Option<String>,
     surenames: Option<String>,
@@ -104,6 +114,56 @@ struct ExamineeForImport {
     court: Option<i16>,
     academic_centre: Option<String>,
     subjects: HashSet<String>,
+}
+
+impl ExamineeForImport {
+    fn into_create(
+        self,
+        state: &ApplicationState,
+    ) -> Result<ExamineeForCreate, ExamineeImportError> {
+        let nif = self
+            .clone()
+            .nif
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+            })?
+            .clone();
+        let name = self
+            .clone()
+            .name
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+            })?
+            .clone();
+        let surenames = self.clone().surenames.unwrap_or_default();
+        let origin = self
+            .clone()
+            .origin
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+            })?
+            .clone();
+        let court = self
+            .clone()
+            .court
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+            })?
+            .clone();
+        let academic_centre_id = self
+            .clone()
+            .academic_centre
+            .and_then(|name| state.get_academic_centre_by_name(name))
+            .map(|ac| ac.id.clone());
+        Ok(ExamineeForCreate {
+            nif,
+            name,
+            surenames,
+            origin,
+            court,
+            academic_centre_id,
+        })
+    }
 }
 
 #[command]
@@ -217,14 +277,30 @@ pub async fn perform_examinee_import(
         )?;
     }
 
-    let undo_subjects = context
-        .state()
-        .lock()
-        .unwrap()
-        .bulk_create_or_update_subjects(subjects.iter().map(|(name, kind)| SubjectForCreate {
-            name: name.clone(),
-            kind: kind.clone(),
-        }));
+    if let Ok(mut state) = context.state().lock() {
+        let undo_subjects =
+            state.bulk_create_subjects(subjects.iter().map(|(name, kind)| SubjectForCreate {
+                name: name.clone(),
+                kind: kind.clone(),
+            }));
+
+        let undo_academic_centres = state.bulk_create_academic_centres(
+            academic_centres
+                .iter()
+                .map(|name| AcademicCentreForCreate { name: name.clone() }),
+        );
+
+        let examinees = examinees
+            .into_values()
+            .map(|e| {
+                let r: Result<ExamineeForCreate, ExamineeImportError> = e.into_create(&*state);
+                r
+            })
+            .collect::<Result<Vec<ExamineeForCreate>, _>>()?;
+        let undo_examinees = state.bulk_create_examinees(examinees.into_iter());
+    } else {
+        return Err(ExamineeImportError::Lock);
+    }
 
     Ok(result)
 }
@@ -241,7 +317,7 @@ fn update_subjects_list(
         .filter(|s| !s.is_empty())
         .ok_or(ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingError::SubjectName,
+            missing: ExamineeImportMissingValueError::SubjectName,
         })?;
 
     if *subjects.get(subject_name).unwrap_or(&SubjectKind::UNKNOWN) == SubjectKind::UNKNOWN {
@@ -295,20 +371,20 @@ fn extract_examinee_values_from_row<'a>(
     let identifier = row.get(settings.group_rows_by_column).ok_or_else(|| {
         ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingError::RowIdentifier,
+            missing: ExamineeImportMissingValueError::RowIdentifier,
         }
     })?;
     let nif = row
         .get(settings.nif_column)
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingError::ExamineeNif,
+            missing: ExamineeImportMissingValueError::ExamineeNif,
         })?;
     let name = row
         .get(settings.name_column)
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingError::ExamineeName,
+            missing: ExamineeImportMissingValueError::ExamineeName,
         })?;
     let surenames = match row.get(settings.surenames_column) {
         Some(surenames) => surenames,
@@ -319,13 +395,13 @@ fn extract_examinee_values_from_row<'a>(
         row.get(settings.origin_column)
             .ok_or_else(|| ExamineeImportError::MissingValue {
                 row: index,
-                missing: ExamineeImportMissingError::ExamineeOrigin,
+                missing: ExamineeImportMissingValueError::ExamineeOrigin,
             })?;
     let court = row
         .get(settings.court_column)
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingError::ExamineeCourt,
+            missing: ExamineeImportMissingValueError::ExamineeCourt,
         })?
         .parse::<i16>()
         .map_err(|_| ExamineeImportError::InvalidValue {

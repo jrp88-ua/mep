@@ -114,6 +114,25 @@ impl ApplicationState {
         }
         deleted
     }
+
+    pub fn bulk_create_examinees(
+        &mut self,
+        examinees: impl Iterator<Item = ExamineeForCreate>,
+    ) -> Box<dyn FnOnce(&ApplicationState) -> ()> {
+        let mut created = Vec::new();
+        let start_id = self.get_examinees().current_id.clone();
+
+        examinees.for_each(|values| created.push(self.get_examinees().create(values).id.clone()));
+        self.modified_state();
+
+        Box::new(move |state: &ApplicationState| {
+            state.get_examinees().current_id = start_id;
+            created.iter().for_each(|id| {
+                state.get_examinees().delete(id.clone());
+            });
+            state.modified_state();
+        })
+    }
 }
 
 // endregion: --- ExamineeService

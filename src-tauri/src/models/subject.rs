@@ -41,15 +41,6 @@ impl RepositoryEntity for Subject {
     }
 }
 
-impl Into<SubjectForUpdate> for &Subject {
-    fn into(self) -> SubjectForUpdate {
-        SubjectForUpdate {
-            name: Some(self.name.clone()),
-            kind: Some(self.kind.clone()),
-        }
-    }
-}
-
 // endregion: --- subject
 
 // region: --- subject for create
@@ -68,15 +59,6 @@ impl WithAssignedId<Subject> for SubjectForCreate {
             id: id.clone(),
             name: self.name,
             kind: self.kind,
-        }
-    }
-}
-
-impl Into<SubjectForUpdate> for SubjectForCreate {
-    fn into(self) -> SubjectForUpdate {
-        SubjectForUpdate {
-            name: Some(self.name),
-            kind: Some(self.kind),
         }
     }
 }
@@ -117,49 +99,22 @@ impl ApplicationState {
             .collect()
     }
 
-    pub fn bulk_create_or_update_subjects(
+    pub fn bulk_create_subjects(
         &mut self,
         subjects: impl Iterator<Item = SubjectForCreate>,
     ) -> Box<dyn FnOnce(&ApplicationState) -> ()> {
-        enum Undo {
-            Created { id: EntityId },
-            Updated { id: EntityId, old_values: Subject },
-        }
-        let mut operations: Vec<Undo> = Vec::new();
+        let mut created = Vec::new();
         let start_id = self.get_subjects().current_id.clone();
 
-        for values in subjects {
-            if let Some(s) = self
-                .get_subjects()
-                .any_match(&|subject| subject.name == values.name)
-            {
-                let old_values = s.clone();
-                let update_values: SubjectForUpdate = values.into();
-                if self
-                    .get_subjects()
-                    .update(s.id.clone(), update_values)
-                    .is_some()
-                {
-                    operations.push(Undo::Updated {
-                        id: s.id.clone(),
-                        old_values,
-                    })
-                }
-            } else {
-            }
-        }
+        subjects.for_each(|values| created.push(self.get_subjects().create(values).id.clone()));
+        self.modified_state();
 
         Box::new(move |state: &ApplicationState| {
             state.get_subjects().current_id = start_id;
-            operations.iter().for_each(|undo| match undo {
-                Undo::Created { id } => {
-                    state.get_subjects().delete(id.clone());
-                }
-                Undo::Updated { id, old_values } => {
-                    let old_values: SubjectForUpdate = old_values.into();
-                    state.get_subjects().update(id.clone(), old_values);
-                }
+            created.iter().for_each(|id| {
+                state.get_subjects().delete(id.clone());
             });
+            state.modified_state();
         })
     }
 }
