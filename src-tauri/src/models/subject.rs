@@ -3,7 +3,7 @@ use serde_with_macros::skip_serializing_none;
 
 use crate::ctx::ApplicationState;
 
-use super::{EntityId, RepositoryEntity, WithAssignedId};
+use super::{EntityId, RepositoryEntity, RepositoryEntityUpdater, WithAssignedId};
 
 // region: --- subject
 
@@ -41,6 +41,15 @@ impl RepositoryEntity for Subject {
     }
 }
 
+impl Into<SubjectForUpdate> for &Subject {
+    fn into(self) -> SubjectForUpdate {
+        SubjectForUpdate {
+            name: Some(self.name.clone()),
+            kind: Some(self.kind.clone()),
+        }
+    }
+}
+
 // endregion: --- subject
 
 // region: --- subject for create
@@ -63,6 +72,15 @@ impl WithAssignedId<Subject> for SubjectForCreate {
     }
 }
 
+impl Into<SubjectForUpdate> for SubjectForCreate {
+    fn into(self) -> SubjectForUpdate {
+        SubjectForUpdate {
+            name: Some(self.name),
+            kind: Some(self.kind),
+        }
+    }
+}
+
 // endregion: --- subject for create
 
 // region: --- subject for update
@@ -73,6 +91,17 @@ impl WithAssignedId<Subject> for SubjectForCreate {
 pub struct SubjectForUpdate {
     pub name: Option<String>,
     pub kind: Option<SubjectKind>,
+}
+
+impl RepositoryEntityUpdater<Subject> for SubjectForUpdate {
+    fn update_values(self, entity: &mut Subject) {
+        if let Some(name) = self.name {
+            entity.name = name;
+        }
+        if let Some(kind) = self.kind {
+            entity.kind = kind;
+        }
+    }
 }
 
 // endregion: --- subject for update
@@ -88,18 +117,50 @@ impl ApplicationState {
             .collect()
     }
 
-    pub fn get_or_create_subject(&mut self, values: SubjectForCreate) -> Subject {
-        let mut subjects = self.get_subjects();
-        let all = subjects.get_all();
-        let subject = all.iter().find(|sub| sub.name == values.name);
-        match subject {
-            Some(subject) => Subject::clone(subject),
-            None => {
-                let result = subjects.create(values);
-                self.modified_state();
-                result.clone()
+    pub fn bulk_create_or_update_subjects(
+        &mut self,
+        subjects: impl Iterator<Item = SubjectForCreate>,
+    ) -> Box<dyn FnOnce(&ApplicationState) -> ()> {
+        enum Undo {
+            Created { id: EntityId },
+            Updated { id: EntityId, old_values: Subject },
+        }
+        let mut operations: Vec<Undo> = Vec::new();
+        let start_id = self.get_subjects().current_id.clone();
+
+        for values in subjects {
+            if let Some(s) = self
+                .get_subjects()
+                .any_match(&|subject| subject.name == values.name)
+            {
+                let old_values = s.clone();
+                let update_values: SubjectForUpdate = values.into();
+                if self
+                    .get_subjects()
+                    .update(s.id.clone(), update_values)
+                    .is_some()
+                {
+                    operations.push(Undo::Updated {
+                        id: s.id.clone(),
+                        old_values,
+                    })
+                }
+            } else {
             }
         }
+
+        Box::new(move |state: &ApplicationState| {
+            state.get_subjects().current_id = start_id;
+            operations.iter().for_each(|undo| match undo {
+                Undo::Created { id } => {
+                    state.get_subjects().delete(id.clone());
+                }
+                Undo::Updated { id, old_values } => {
+                    let old_values: SubjectForUpdate = old_values.into();
+                    state.get_subjects().update(id.clone(), old_values);
+                }
+            });
+        })
     }
 }
 

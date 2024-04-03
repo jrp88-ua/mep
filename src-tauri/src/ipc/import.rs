@@ -7,7 +7,10 @@ use calamine::{Data, DataType, Reader};
 use serde::{Deserialize, Serialize};
 use tauri::{command, AppHandle, Wry};
 
-use crate::{ctx::ApplicationContext, models::subject::SubjectKind};
+use crate::{
+    ctx::ApplicationContext,
+    models::subject::{SubjectForCreate, SubjectKind},
+};
 
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -213,6 +216,15 @@ pub async fn perform_examinee_import(
             &import_settings,
         )?;
     }
+
+    let undo_subjects = context
+        .state()
+        .lock()
+        .unwrap()
+        .bulk_create_or_update_subjects(subjects.iter().map(|(name, kind)| SubjectForCreate {
+            name: name.clone(),
+            kind: kind.clone(),
+        }));
 
     Ok(result)
 }

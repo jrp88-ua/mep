@@ -19,7 +19,7 @@ pub trait RepositoryEntityUpdater<T>
 where
     T: RepositoryEntity,
 {
-    fn update_values(&self, entity: &mut T);
+    fn update_values(self, entity: &mut T);
 }
 
 pub trait RepositoryEntity
@@ -82,5 +82,9 @@ where
 
     pub fn delete(&mut self, id: EntityId) -> bool {
         self.entities.remove(&id).is_some()
+    }
+
+    pub fn any_match(&self, matcher: &impl Fn(&&T) -> bool) -> Option<&T> {
+        self.entities.values().find(matcher)
     }
 }
