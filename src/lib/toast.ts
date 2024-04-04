@@ -1,7 +1,9 @@
 import type { ToastSettings } from '@skeletonlabs/skeleton';
 import { appConfiguration } from './stores/configuration';
 
-export function showToast(settings: ToastSettings): ToastSettings {
+export type CustomToastSettings = ToastSettings & { title?: string | undefined };
+
+export function showToast(settings: CustomToastSettings): ToastSettings {
 	if (settings.autohide !== false) {
 		settings = {
 			autohide: true,
@@ -9,24 +11,28 @@ export function showToast(settings: ToastSettings): ToastSettings {
 			...settings
 		};
 	}
+	if (settings.title !== undefined) {
+		const { title, message } = settings;
+		settings.message = `<strong>${title}</strong><br>${message}`;
+	}
 	return settings;
 }
 
-export function showSuccessToast(settings: ToastSettings): ToastSettings {
+export function showSuccessToast(settings: CustomToastSettings): ToastSettings {
 	return showToast({
 		...settings,
 		background: 'variant-filled-success'
 	});
 }
 
-export function showWarningToast(settings: ToastSettings): ToastSettings {
+export function showWarningToast(settings: CustomToastSettings): ToastSettings {
 	return showToast({
 		...settings,
 		background: 'variant-filled-warning'
 	});
 }
 
-export function showErrorToast(settings: ToastSettings): ToastSettings {
+export function showErrorToast(settings: CustomToastSettings): ToastSettings {
 	return showToast({
 		...settings,
 		background: 'variant-filled-error'

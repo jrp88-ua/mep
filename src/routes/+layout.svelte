@@ -19,10 +19,8 @@
 		if (!appState.allowsNavigation()) {
 			toast.trigger(
 				showWarningToast({
-					message: `
-					<strong>${m.locked_navigation_title()}</strong><br>
-					${appState.lockedNavigationReason() as string}
-					`
+					title: m.locked_navigation_title(),
+					message: appState.lockedNavigationReason() as string
 				})
 			);
 			e.cancel();

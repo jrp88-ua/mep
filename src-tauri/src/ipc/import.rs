@@ -54,19 +54,9 @@ pub struct ExamineeImportResult {
 #[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
-pub enum ExamineeImportMissingValueError {
+pub enum ExamineeImportColumn {
     SubjectName,
     RowIdentifier,
-    ExamineeNif,
-    ExamineeName,
-    ExamineeOrigin,
-    ExamineeCourt,
-}
-
-#[derive(Serialize, TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export, export_to = "../../src/lib/types/generated/")]
-pub enum ExamineeImportMissmatchError {
     ExamineeNif,
     ExamineeName,
     ExamineeSurenames,
@@ -83,7 +73,7 @@ pub enum ExamineeImportInvalidValueError {
 }
 
 #[derive(Serialize, TS)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", tag = "type")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
 pub enum ExamineeImportError {
     Lock,
@@ -91,12 +81,13 @@ pub enum ExamineeImportError {
     NoSheet,
     MissingValue {
         row: usize,
-        missing: ExamineeImportMissingValueError,
+        missing: ExamineeImportColumn,
     },
     #[serde(rename_all = "camelCase")]
     MissmatchValue {
         row: usize,
-        missmatch: ExamineeImportMissmatchError,
+        identifier: String,
+        missmatch: ExamineeImportColumn,
         established_value: String,
         found_value: String,
     },
@@ -108,6 +99,8 @@ pub enum ExamineeImportError {
     },
     MissingExamineeValue {
         examinee: ExamineeForImport,
+        identifier: String,
+        missing: ExamineeImportColumn,
     },
 }
 
@@ -116,6 +109,7 @@ pub enum ExamineeImportError {
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct ExamineeForImport {
+    identifier: String,
     nif: Option<String>,
     name: Option<String>,
     surenames: Option<String>,
@@ -135,6 +129,8 @@ impl ExamineeForImport {
             .nif
             .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
                 examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeNif,
             })?
             .clone();
         let name = self
@@ -142,6 +138,8 @@ impl ExamineeForImport {
             .name
             .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
                 examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeName,
             })?
             .clone();
         let surenames = self.clone().surenames.unwrap_or_default();
@@ -150,6 +148,8 @@ impl ExamineeForImport {
             .origin
             .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
                 examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeOrigin,
             })?
             .clone();
         let court = self
@@ -157,6 +157,8 @@ impl ExamineeForImport {
             .court
             .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
                 examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeCourt,
             })?
             .clone();
         let academic_centre_id = self
@@ -326,7 +328,7 @@ fn update_subjects_list(
         .filter(|s| !s.is_empty())
         .ok_or(ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingValueError::SubjectName,
+            missing: ExamineeImportColumn::SubjectName,
         })?;
 
     if *subjects.get(subject_name).unwrap_or(&SubjectKind::UNKNOWN) == SubjectKind::UNKNOWN {
@@ -380,20 +382,20 @@ fn extract_examinee_values_from_row<'a>(
     let identifier = row.get(settings.group_rows_by_column).ok_or_else(|| {
         ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingValueError::RowIdentifier,
+            missing: ExamineeImportColumn::RowIdentifier,
         }
     })?;
     let nif = row
         .get(settings.nif_column)
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingValueError::ExamineeNif,
+            missing: ExamineeImportColumn::ExamineeNif,
         })?;
     let name = row
         .get(settings.name_column)
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingValueError::ExamineeName,
+            missing: ExamineeImportColumn::ExamineeName,
         })?;
     let surenames = match row.get(settings.surenames_column) {
         Some(surenames) => surenames,
@@ -404,13 +406,13 @@ fn extract_examinee_values_from_row<'a>(
         row.get(settings.origin_column)
             .ok_or_else(|| ExamineeImportError::MissingValue {
                 row: index,
-                missing: ExamineeImportMissingValueError::ExamineeOrigin,
+                missing: ExamineeImportColumn::ExamineeOrigin,
             })?;
     let court = row
         .get(settings.court_column)
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
-            missing: ExamineeImportMissingValueError::ExamineeCourt,
+            missing: ExamineeImportColumn::ExamineeCourt,
         })?
         .parse::<i16>()
         .map_err(|_| ExamineeImportError::InvalidValue {
@@ -442,7 +444,8 @@ fn check_and_update_examinee(
     {
         return Err(ExamineeImportError::MissmatchValue {
             row: index,
-            missmatch: ExamineeImportMissmatchError::ExamineeNif,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeNif,
             established_value: row_examinee.nif.clone().unwrap(),
             found_value: row_values.nif.clone(),
         });
@@ -454,7 +457,8 @@ fn check_and_update_examinee(
     {
         return Err(ExamineeImportError::MissmatchValue {
             row: index,
-            missmatch: ExamineeImportMissmatchError::ExamineeName,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeName,
             established_value: row_examinee.name.clone().unwrap(),
             found_value: row_values.name.clone(),
         });
@@ -467,7 +471,8 @@ fn check_and_update_examinee(
     {
         return Err(ExamineeImportError::MissmatchValue {
             row: index,
-            missmatch: ExamineeImportMissmatchError::ExamineeSurenames,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeSurenames,
             established_value: row_examinee.surenames.clone().unwrap(),
             found_value: row_values.surenames.to_owned(),
         });
@@ -480,7 +485,8 @@ fn check_and_update_examinee(
     {
         return Err(ExamineeImportError::MissmatchValue {
             row: index,
-            missmatch: ExamineeImportMissmatchError::ExamineeOrigin,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeOrigin,
             established_value: row_examinee.origin.clone().unwrap(),
             found_value: row_values.origin.clone(),
         });
@@ -493,7 +499,8 @@ fn check_and_update_examinee(
     {
         return Err(ExamineeImportError::MissmatchValue {
             row: index,
-            missmatch: ExamineeImportMissmatchError::ExamineeCourt,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeCourt,
             established_value: row_examinee.court.unwrap().to_string(),
             found_value: row_values.court.to_string(),
         });
@@ -507,7 +514,8 @@ fn check_and_update_examinee(
         {
             return Err(ExamineeImportError::MissmatchValue {
                 row: index,
-                missmatch: ExamineeImportMissmatchError::ExamineeAcademicCentre,
+                identifier: row_values.identifier.clone(),
+                missmatch: ExamineeImportColumn::ExamineeAcademicCentre,
                 established_value: row_examinee.academic_centre.clone().unwrap(),
                 found_value: row_academic_centre.clone(),
             });
@@ -531,10 +539,9 @@ fn update_examinee_list(
 
     let mut row_examinee = examinees.get_mut(row_values.identifier);
     if row_examinee.is_none() {
-        examinees.insert(
-            row_values.identifier.to_owned(),
-            ExamineeForImport::default(),
-        );
+        let mut examinee = ExamineeForImport::default();
+        examinee.identifier = row_values.identifier.clone();
+        examinees.insert(row_values.identifier.to_owned(), examinee);
         row_examinee = examinees.get_mut(row_values.identifier);
     }
     let row_examinee = row_examinee.unwrap();
