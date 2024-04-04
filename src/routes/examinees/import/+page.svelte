@@ -75,7 +75,12 @@
 						})
 					);
 				} else {
-					toast.trigger(showErrorToast(getExamineeImportErrorMessage(result.error)));
+					toast.trigger(
+						showErrorToast({
+							...getExamineeImportErrorMessage(result.error),
+							autohide: false
+						})
+					);
 				}
 			} catch (e) {
 				await reloadAllStores();

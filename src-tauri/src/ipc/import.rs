@@ -379,20 +379,23 @@ fn extract_examinee_values_from_row<'a>(
     index: usize,
     settings: &ExamineeImportSettings,
 ) -> Result<ExamineeRowValues<'a>, ExamineeImportError> {
-    let identifier = row.get(settings.group_rows_by_column).ok_or_else(|| {
-        ExamineeImportError::MissingValue {
+    let identifier = row
+        .get(settings.group_rows_by_column)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
             missing: ExamineeImportColumn::RowIdentifier,
-        }
-    })?;
+        })?;
     let nif = row
         .get(settings.nif_column)
+        .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
             missing: ExamineeImportColumn::ExamineeNif,
         })?;
     let name = row
         .get(settings.name_column)
+        .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
             missing: ExamineeImportColumn::ExamineeName,
@@ -402,14 +405,16 @@ fn extract_examinee_values_from_row<'a>(
         None => "",
     }
     .to_owned();
-    let origin =
-        row.get(settings.origin_column)
-            .ok_or_else(|| ExamineeImportError::MissingValue {
-                row: index,
-                missing: ExamineeImportColumn::ExamineeOrigin,
-            })?;
+    let origin = row
+        .get(settings.origin_column)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ExamineeImportError::MissingValue {
+            row: index,
+            missing: ExamineeImportColumn::ExamineeOrigin,
+        })?;
     let court = row
         .get(settings.court_column)
+        .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
             row: index,
             missing: ExamineeImportColumn::ExamineeCourt,
