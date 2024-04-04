@@ -327,7 +327,7 @@ fn update_subjects_list(
         .map(|s| s.trim())
         .filter(|s| !s.is_empty())
         .ok_or(ExamineeImportError::MissingValue {
-            row: index,
+            row: index + 1,
             missing: ExamineeImportColumn::SubjectName,
         })?;
 
@@ -383,21 +383,21 @@ fn extract_examinee_values_from_row<'a>(
         .get(settings.group_rows_by_column)
         .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
-            row: index,
+            row: index + 1,
             missing: ExamineeImportColumn::RowIdentifier,
         })?;
     let nif = row
         .get(settings.nif_column)
         .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
-            row: index,
+            row: index + 1,
             missing: ExamineeImportColumn::ExamineeNif,
         })?;
     let name = row
         .get(settings.name_column)
         .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
-            row: index,
+            row: index + 1,
             missing: ExamineeImportColumn::ExamineeName,
         })?;
     let surenames = match row.get(settings.surenames_column) {
@@ -409,19 +409,19 @@ fn extract_examinee_values_from_row<'a>(
         .get(settings.origin_column)
         .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
-            row: index,
+            row: index + 1,
             missing: ExamineeImportColumn::ExamineeOrigin,
         })?;
     let court = row
         .get(settings.court_column)
         .filter(|s| !s.is_empty())
         .ok_or_else(|| ExamineeImportError::MissingValue {
-            row: index,
+            row: index + 1,
             missing: ExamineeImportColumn::ExamineeCourt,
         })?
         .parse::<i16>()
         .map_err(|_| ExamineeImportError::InvalidValue {
-            row: index,
+            row: index + 1,
             invalid_value: row[settings.court_column].to_owned(),
             reason: ExamineeImportInvalidValueError::CourtIsNotNumber,
         })?;
@@ -448,7 +448,7 @@ fn check_and_update_examinee(
         != row_values.nif
     {
         return Err(ExamineeImportError::MissmatchValue {
-            row: index,
+            row: index + 1,
             identifier: row_values.identifier.clone(),
             missmatch: ExamineeImportColumn::ExamineeNif,
             established_value: row_examinee.nif.clone().unwrap(),
@@ -461,7 +461,7 @@ fn check_and_update_examinee(
         != row_values.name
     {
         return Err(ExamineeImportError::MissmatchValue {
-            row: index,
+            row: index + 1,
             identifier: row_values.identifier.clone(),
             missmatch: ExamineeImportColumn::ExamineeName,
             established_value: row_examinee.name.clone().unwrap(),
@@ -475,7 +475,7 @@ fn check_and_update_examinee(
         != row_values.surenames
     {
         return Err(ExamineeImportError::MissmatchValue {
-            row: index,
+            row: index + 1,
             identifier: row_values.identifier.clone(),
             missmatch: ExamineeImportColumn::ExamineeSurenames,
             established_value: row_examinee.surenames.clone().unwrap(),
@@ -489,7 +489,7 @@ fn check_and_update_examinee(
         != row_values.origin
     {
         return Err(ExamineeImportError::MissmatchValue {
-            row: index,
+            row: index + 1,
             identifier: row_values.identifier.clone(),
             missmatch: ExamineeImportColumn::ExamineeOrigin,
             established_value: row_examinee.origin.clone().unwrap(),
@@ -503,7 +503,7 @@ fn check_and_update_examinee(
         != row_values.court
     {
         return Err(ExamineeImportError::MissmatchValue {
-            row: index,
+            row: index + 1,
             identifier: row_values.identifier.clone(),
             missmatch: ExamineeImportColumn::ExamineeCourt,
             established_value: row_examinee.court.unwrap().to_string(),
@@ -518,7 +518,7 @@ fn check_and_update_examinee(
             != row_academic_centre
         {
             return Err(ExamineeImportError::MissmatchValue {
-                row: index,
+                row: index + 1,
                 identifier: row_values.identifier.clone(),
                 missmatch: ExamineeImportColumn::ExamineeAcademicCentre,
                 established_value: row_examinee.academic_centre.clone().unwrap(),
