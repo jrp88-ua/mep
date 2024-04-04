@@ -4,9 +4,23 @@ import { debug } from 'tauri-plugin-log-api';
 
 export async function ipc_invoke<T>(method: string, params?: InvokeArgs | undefined): Promise<T> {
 	debug(`Calling ${method}`);
+	return invoke(method, params);
+}
+
+export async function ipc_invoke_result<T, E>(
+	method: string,
+	params?: InvokeArgs | undefined
+): Promise<{ success: true; value: T } | { success: false; error: E }> {
+	debug(`Calling ${method} with result`);
 	try {
-		return await invoke(method, params);
+		return {
+			success: true,
+			value: await invoke(method, params)
+		};
 	} catch (e) {
-		throw new Error(e as string);
+		return {
+			success: false,
+			error: e as E
+		};
 	}
 }

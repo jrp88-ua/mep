@@ -60,6 +60,7 @@
 						selectedSheet: selectedSheet.name
 					}
 				});
+				console.log(result);
 				await reloadAllStores();
 				toast.trigger(
 					showSuccessToast({

@@ -7,6 +7,7 @@ use calamine::{Data, DataType, Reader};
 use serde::{Deserialize, Serialize};
 use serde_with_macros::skip_serializing_none;
 use tauri::{command, AppHandle, Wry};
+use ts_rs::TS;
 
 use crate::{
     ctx::{ApplicationContext, ApplicationState},
@@ -41,16 +42,18 @@ pub struct ExamineeImportSettings {
     academic_centre_column: usize,
 }
 
-#[derive(Serialize, Clone, Copy)]
+#[derive(Serialize, Clone, Copy, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct ExamineeImportResult {
     imported_examinees: usize,
     imported_subjects: usize,
     imported_academic_centres: usize,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub enum ExamineeImportMissingValueError {
     SubjectName,
     RowIdentifier,
@@ -60,8 +63,9 @@ pub enum ExamineeImportMissingValueError {
     ExamineeCourt,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub enum ExamineeImportMissmatchError {
     ExamineeNif,
     ExamineeName,
@@ -71,14 +75,16 @@ pub enum ExamineeImportMissmatchError {
     ExamineeAcademicCentre,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub enum ExamineeImportInvalidValueError {
     CourtIsNotNumber,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub enum ExamineeImportError {
     Lock,
     NoValuesLoaded,
@@ -87,12 +93,14 @@ pub enum ExamineeImportError {
         row: usize,
         missing: ExamineeImportMissingValueError,
     },
+    #[serde(rename_all = "camelCase")]
     MissmatchValue {
         row: usize,
         missmatch: ExamineeImportMissmatchError,
         established_value: String,
         found_value: String,
     },
+    #[serde(rename_all = "camelCase")]
     InvalidValue {
         row: usize,
         reason: ExamineeImportInvalidValueError,
@@ -104,8 +112,9 @@ pub enum ExamineeImportError {
 }
 
 #[skip_serializing_none]
-#[derive(Serialize, Default, Clone)]
+#[derive(Serialize, Default, Clone, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct ExamineeForImport {
     nif: Option<String>,
     name: Option<String>,
