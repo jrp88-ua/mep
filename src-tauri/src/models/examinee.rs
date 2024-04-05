@@ -1,5 +1,7 @@
+use std::collections::HashSet;
+
 use super::{EntityId, RepositoryEntity, RepositoryEntityUpdater, WithAssignedId};
-use crate::ctx::ApplicationState;
+use crate::{ctx::ApplicationState, models::subject::Subject};
 use serde::{Deserialize, Serialize};
 use serde_with_macros::skip_serializing_none;
 
@@ -16,6 +18,7 @@ pub struct Examinee {
     pub origin: String,
     pub court: i16,
     pub academic_centre_id: Option<EntityId>,
+    pub subjects_ids: HashSet<EntityId>,
 }
 
 impl RepositoryEntity for Examinee {
@@ -50,6 +53,7 @@ impl WithAssignedId<Examinee> for ExamineeForCreate {
             origin: self.origin,
             court: self.court,
             academic_centre_id: self.academic_centre_id,
+            subjects_ids: HashSet::new(),
         }
     }
 }
@@ -113,6 +117,23 @@ impl ApplicationState {
             self.modified_state();
         }
         deleted
+    }
+
+    pub fn add_subjects_to_examinee(
+        &mut self,
+        examinee_id: EntityId,
+        subjects: Vec<&'_ Subject>,
+    ) -> bool {
+        type AddSubjects<'a> = Vec<&'a Subject>;
+        impl RepositoryEntityUpdater<Examinee> for AddSubjects<'_> {
+            fn update_values(self, examine: &mut Examinee) {
+                self.into_iter().for_each(|s| {
+                    examine.subjects_ids.insert(s.id.clone());
+                });
+            }
+        }
+
+        self.update_examinee(examinee_id, subjects).is_some()
     }
 
     pub fn bulk_create_examinees(
