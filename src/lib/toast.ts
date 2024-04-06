@@ -1,13 +1,14 @@
 import type { ToastSettings } from '@skeletonlabs/skeleton';
-import { appConfiguration } from './stores/configuration';
+import { appConfiguration } from './models/configuration';
 
 export type CustomToastSettings = ToastSettings & { title?: string | undefined };
 
 export function showToast(settings: CustomToastSettings): ToastSettings {
 	if (settings.autohide !== false) {
+		const timeout = settings.message.split(' ').length * appConfiguration.getToastTime();
 		settings = {
 			autohide: true,
-			timeout: appConfiguration.getToastTime(),
+			timeout,
 			...settings
 		};
 	}

@@ -91,9 +91,9 @@ impl RepositoryEntityUpdater<Subject> for SubjectForUpdate {
 // region: --- subject service
 
 impl ApplicationState {
-    pub fn get_subject(&self, id: EntityId) -> Option<&'_ Subject> {
+    pub fn get_subject(&self, id: EntityId) -> Option<Subject> {
         let subjects = self.get_subjects();
-        subjects.get(id)
+        subjects.get(id).map(|s| Subject::clone(s))
     }
 
     pub fn get_all_subjects(&self) -> Vec<Subject> {

@@ -8,7 +8,7 @@
 	import AppNavigationBar from './AppNavigationBar.svelte';
 	import StatusBar from './StatusBar.svelte';
 	import { beforeNavigate } from '$app/navigation';
-	import { appState } from '$lib/stores/appState';
+	import { appState } from '$lib/models/appState';
 	import { showWarningToast } from '$lib/toast';
 
 	initializeStores();

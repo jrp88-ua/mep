@@ -7,13 +7,10 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import { academicCentresStore, type AcademicCentre } from '$lib/stores/academicCentres';
-
-	const getAcademicCentres = academicCentresStore
-		.getAllInstances()
-		.then((academicCentres) => handler.setRows(academicCentres));
+	import { academicCentresStore, type AcademicCentre } from '$lib/models/academicCentres';
 
 	let handler = new DataHandler<AcademicCentre>([], { rowsPerPage: 5 });
+	handler.setRows(academicCentresStore.getAllInstances());
 	const rows = handler.getRows();
 </script>
 

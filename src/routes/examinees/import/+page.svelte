@@ -6,12 +6,11 @@
 	import type { ExcelSheet, ExamineeImportSettings } from '$lib/types/sheetsImport';
 	import IndicateHowToImport from './IndicateHowToImport.svelte';
 	import ImportResume from './ImportResume.svelte';
-	import { appState } from '$lib/stores/appState';
+	import { appState } from '$lib/models/appState';
 	import { goto } from '$app/navigation';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { ipc_invoke, ipc_invoke_result } from '$lib/ipc';
 	import { onDestroy } from 'svelte';
-	import { reloadAllStores } from '$lib/services/common';
 	import type { ExamineeImportError } from '$lib/types/generated/ExamineeImportError';
 	import type { ExamineeImportResult } from '$lib/types/generated/ExamineeImportResult';
 	import { getExamineeImportErrorMessage } from '$lib/errors';
@@ -68,7 +67,6 @@
 				);
 				if (result.success) {
 					const imported = result.value;
-					await reloadAllStores();
 					toast.trigger(
 						showSuccessToast({
 							message: m.examinees_imported_succesfully({ amount: imported.importedExaminees })
@@ -83,7 +81,6 @@
 					);
 				}
 			} catch (e) {
-				await reloadAllStores();
 				toast.trigger(
 					showErrorToast({
 						message: (e as Error).message

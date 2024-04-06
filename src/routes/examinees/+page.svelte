@@ -7,14 +7,12 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import { examineesStore, Examinee } from '$lib/stores/examinees';
-
-	const getExaminees = examineesStore.getAllInstances().then((examinees) => {
-		examinees.forEach((examinee) => examinee.getAcademicCentre());
-		handler.setRows(examinees);
-	});
+	import { examineesStore, Examinee } from '$lib/models/examinees';
 
 	let handler = new DataHandler<Examinee>([], { rowsPerPage: 5 });
+	const examinees = examineesStore.getAllInstances();
+	examinees.forEach((examinee) => examinee.getAcademicCentre());
+	handler.setRows(examinees);
 	const rows = handler.getRows();
 </script>
 
