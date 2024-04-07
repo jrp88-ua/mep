@@ -1,6 +1,6 @@
 import { Examinee, ExamineeForCreate, examineesStore } from '$lib/models/examinees';
 import type { ModelId } from '$lib/models/models';
-import { createAcademicCentre } from './academicCentres';
+import { getOrCreateAcademicCentre } from './academicCentres';
 
 let currentId = 0;
 
@@ -13,12 +13,14 @@ export function createExaminee(values: ExamineeForCreate) {
 		let academicCentreToCreate = values.academicCentre;
 		if (typeof academicCentreToCreate === 'string')
 			academicCentreToCreate = { name: academicCentreToCreate };
-		const ac = createAcademicCentre(academicCentreToCreate);
+		const ac = getOrCreateAcademicCentre(academicCentreToCreate);
 		if (!ac) return false;
 		values.academicCentre = ac.id;
 	}
-
-	const examinee = new Examinee({ id: currentId++, ...values });
+	const validValues = values as ExamineeForCreate & {
+		academicCentre?: number | undefined;
+	};
+	const examinee = new Examinee({ id: currentId++, ...validValues });
 
 	examineesStore.storeInstance(examinee);
 	return examinee;

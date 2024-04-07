@@ -10,7 +10,7 @@ export type Configuration = z.infer<typeof Configuration>;
 
 export const appConfiguration = (() => {
 	const { set, subscribe } = writable<Configuration>({
-		popupTime: 10000
+		popupTime: 1500
 	});
 
 	function getToastTime() {

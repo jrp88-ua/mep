@@ -18,6 +18,10 @@ export function createAcademicCentre(values: AcademicCentreForCreate) {
 	return academicCentre;
 }
 
+export function getOrCreateAcademicCentre(values: AcademicCentreForCreate) {
+	return findAcademicCentreByName(values.name) || createAcademicCentre(values);
+}
+
 export function findAcademicCentreByName(name: string) {
 	return getAllAcademicCentres().find((ac) => ac.name === name);
 }

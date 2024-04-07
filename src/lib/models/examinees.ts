@@ -37,7 +37,7 @@ export class Examinee implements Model {
 		surenames: string;
 		origin: string;
 		court: number;
-		academicCentreId?: ModelId;
+		academicCentre?: ModelId;
 	}) {
 		this.id = params.id;
 		this.nif = params.nif;
@@ -45,7 +45,7 @@ export class Examinee implements Model {
 		this.surenames = params.surenames;
 		this.origin = params.origin;
 		this.court = params.court;
-		this.academicCentreId = params.academicCentreId;
+		this.academicCentreId = params.academicCentre;
 	}
 
 	setNif(value: string): void {
