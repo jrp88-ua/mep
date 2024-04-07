@@ -10,12 +10,15 @@
 	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
 	import { Subject, SUBJECT_KIND_VALUES, subjectsStore } from '$lib/models/subjects';
 	import { subjectKindValuesTranslate } from '$lib/services/subjects';
+	import { getDrawerStore } from '@skeletonlabs/skeleton';
 
 	let handler = new DataHandler<Subject>([], { rowsPerPage: 5 });
 	handler.setRows(subjectsStore.getAllInstances());
 	const rows = handler.getRows();
 
 	const t = subjectKindValuesTranslate as (v: string) => string;
+
+	const drawerStore = getDrawerStore();
 </script>
 
 <h1 class="text-3xl mb-4">{m.subjects_page_title()}</h1>
@@ -46,8 +49,17 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each $rows as row}
-				<tr>
+			{#each $rows as row (row.id)}
+				<tr
+					on:click={(event) => {
+						const target = event.target;
+						if (target instanceof HTMLInputElement) return;
+						drawerStore.open({
+							id: 'edit-subject',
+							meta: row.id
+						});
+					}}
+				>
 					<td>{row.name}</td>
 					<td>{t(row.kind)}</td>
 				</tr>

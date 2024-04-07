@@ -3,13 +3,14 @@
 	import '../app.postcss';
 	import { i18n } from '$lib/i18n';
 	import { ParaglideJS } from '@inlang/paraglide-js-adapter-sveltekit';
-	import { AppShell, Toast, getToastStore } from '@skeletonlabs/skeleton';
+	import { AppShell, Modal, Toast, getToastStore } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import AppNavigationBar from './AppNavigationBar.svelte';
 	import StatusBar from './StatusBar.svelte';
 	import { beforeNavigate } from '$app/navigation';
 	import { appState } from '$lib/models/appState';
 	import { showWarningToast } from '$lib/toast';
+	import AppDrawers from '$lib/drawer/AppDrawers.svelte';
 
 	initializeStores();
 
@@ -30,6 +31,8 @@
 
 <ParaglideJS {i18n}>
 	<Toast position={'br'} />
+	<Modal />
+	<AppDrawers />
 	<AppShell>
 		<svelte:fragment slot="sidebarLeft">
 			<AppNavigationBar />

@@ -125,7 +125,6 @@
 				name="surenames"
 				type="text"
 				placeholder="Apellidos del alumno..."
-				required
 			/>
 		</label>
 		<label class="my-5">
@@ -239,7 +238,7 @@
 						{#if matchingExaminee?.getAcademicCentre() !== undefined}
 							{matchingExaminee.getAcademicCentre()?.name}
 						{:else}
-							<i>Sin centro académico</i>
+							<i>{m.no_academic_centre()}</i>
 						{/if}
 					</td>
 				</tr>

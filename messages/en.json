@@ -40,8 +40,10 @@
 	"subject_kind_obligatory": "Obligatory",
 	"subject_kind_voluntary": "Voluntary",
 	"subject_kind_unknown": "Unknown",
+	"examenees_datatable_academic_centre": "Academic centre",
 	"subject_datatable_obligatory": "Obligatory",
 	"subject_datatable_volunteer": "Volunteer",
 	"subject_datatable_unknown": "Unknown",
-	"examenees_datatable_academic_centre": "Academic centre"
+	"no_academic_centre": "No centre",
+	"examenees_datatable_nif": "Nif"
 }

@@ -8,12 +8,17 @@
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import { examineesStore, Examinee } from '$lib/models/examinees';
+	import { getDrawerStore } from '@skeletonlabs/skeleton';
 
 	let handler = new DataHandler<Examinee>([], { rowsPerPage: 5 });
 	const examinees = examineesStore.getAllInstances();
 	examinees.forEach((examinee) => examinee.getAcademicCentre());
 	handler.setRows(examinees);
 	const rows = handler.getRows();
+	const selected = handler.getSelected();
+	const isAllSelected = handler.isAllSelected();
+
+	const drawerStore = getDrawerStore();
 </script>
 
 <h1 class="text-3xl mb-4">{m.examinees_page_title()}</h1>
@@ -45,6 +50,14 @@
 	<table class="table table-hover table-compact w-full table-auto">
 		<thead>
 			<tr>
+				<th class="selection">
+					<input
+						type="checkbox"
+						on:click={() => handler.selectAll({ selectBy: 'id' })}
+						checked={$isAllSelected}
+					/>
+				</th>
+				<ThSort {handler} orderBy="nif">{m.examenees_datatable_nif()}</ThSort>
 				<ThSort {handler} orderBy="name">{m.examenees_datatable_name()}</ThSort>
 				<ThSort {handler} orderBy="surenames">{m.examenees_datatable_surenames()}</ThSort>
 				<ThSort {handler} orderBy="origin">{m.examenees_datatable_origin()}</ThSort>
@@ -52,6 +65,8 @@
 				<ThSort {handler} orderBy="court">{m.examenees_datatable_academic_centre()}</ThSort>
 			</tr>
 			<tr>
+				<th class="selection" />
+				<ThFilter {handler} filterBy="nif" />
 				<ThFilter {handler} filterBy="name" />
 				<ThFilter {handler} filterBy="surenames" />
 				<ThFilter {handler} filterBy="origin" />
@@ -60,18 +75,46 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each $rows as row}
-				<tr>
+			{#each $rows as row (row.id)}
+				<tr
+					on:click={(event) => {
+						const target = event.target;
+						if (target instanceof HTMLInputElement) return;
+						if (!(target instanceof HTMLElement)) return;
+						if (
+							target.getAttribute('data-row') === 'academic-centre' &&
+							row.academicCentreId !== undefined
+						) {
+							drawerStore.open({
+								id: 'edit-academic-centre',
+								meta: row.academicCentreId
+							});
+						} else {
+							drawerStore.open({
+								id: 'edit-examinee',
+								meta: row.id
+							});
+						}
+					}}
+				>
+					<td class="selection">
+						<input
+							type="checkbox"
+							on:click={() => handler.select(row.id)}
+							checked={$selected.includes(row.id)}
+						/>
+					</td>
+					<td>{row.nif}</td>
 					<td>{row.name}</td>
 					<td>{row.surenames}</td>
 					<td>{row.origin}</td>
 					<td>{row.court}</td>
-					<td>
-						{#await row.getAcademicCentre()}
-							Loading
-						{:then centre}
-							{centre?.name}
-						{/await}
+					<td data-row="academic-centre">
+						{#if row.getAcademicCentre() !== undefined}
+							{row.getAcademicCentre()?.name}
+						{:else}
+							<i>{m.no_academic_centre()}</i>
+						{/if}
 					</td>
 				</tr>
 			{/each}

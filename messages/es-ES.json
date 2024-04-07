@@ -41,5 +41,7 @@
 	"subject_kind_obligatory": "Obligatoria",
 	"subject_kind_voluntary": "Voluntaria",
 	"subject_kind_unknown": "Desconocido",
-	"examenees_datatable_academic_centre": "Centro académico"
+	"examenees_datatable_academic_centre": "Centro académico",
+	"no_academic_centre": "Sin centro académico",
+	"examenees_datatable_nif": "Nif"
 }
