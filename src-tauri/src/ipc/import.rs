@@ -6,16 +6,12 @@ use std::{
 use calamine::{Data, DataType, Reader};
 use serde::{Deserialize, Serialize};
 use serde_with_macros::skip_serializing_none;
-use tauri::{command, AppHandle, Wry};
+use tauri::command;
 use ts_rs::TS;
 
-use crate::{
-    ctx::{ApplicationContext, ApplicationState},
-    models::{
-        academic_centre::AcademicCentreForCreate,
-        examinee::ExamineeForCreate,
-        subject::{SubjectForCreate, SubjectKind},
-    },
+use crate::models::{
+    examinee::ExamineeForCreate,
+    subject::{SubjectForCreate, SubjectKind},
 };
 
 #[derive(Serialize, Clone)]
@@ -42,13 +38,12 @@ pub struct ExamineeImportSettings {
     academic_centre_column: usize,
 }
 
-#[derive(Serialize, Clone, Copy, TS)]
+#[derive(Serialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct ExamineeImportResult {
-    imported_examinees: usize,
-    imported_subjects: usize,
-    imported_academic_centres: usize,
+    subjects: Vec<SubjectForCreate>,
+    examinees: Vec<ExamineeForCreate>,
 }
 
 #[derive(Serialize, TS)]
@@ -120,10 +115,7 @@ pub struct ExamineeForImport {
 }
 
 impl ExamineeForImport {
-    fn into_create(
-        self,
-        state: &ApplicationState,
-    ) -> Result<ExamineeForCreate, ExamineeImportError> {
+    fn into_create(self) -> Result<ExamineeForCreate, ExamineeImportError> {
         let nif = self
             .clone()
             .nif
@@ -161,18 +153,14 @@ impl ExamineeForImport {
                 missing: ExamineeImportColumn::ExamineeCourt,
             })?
             .clone();
-        let academic_centre_id = self
-            .clone()
-            .academic_centre
-            .and_then(|name| state.get_academic_centre_by_name(name))
-            .map(|ac| ac.id.clone());
+        let academic_centre = self.academic_centre;
         Ok(ExamineeForCreate {
             nif,
             name,
             surenames,
             origin,
             court,
-            academic_centre_id,
+            academic_centre,
         })
     }
 }
@@ -237,7 +225,6 @@ pub async fn start_examinee_import_process(
 #[command]
 pub async fn perform_examinee_import(
     state: tauri::State<'_, Arc<Mutex<Option<Vec<SheetData>>>>>,
-    app_handle: AppHandle<Wry>,
     import_settings: ExamineeImportSettings,
 ) -> Result<ExamineeImportResult, ExamineeImportError> {
     let sheet = extract_import_examinees_state(state)?;
@@ -246,28 +233,15 @@ pub async fn perform_examinee_import(
         .find(|sheet| sheet.name == import_settings.selected_sheet)
         .ok_or(ExamineeImportError::NoSheet)?;
 
-    let mut result = ExamineeImportResult {
-        imported_examinees: 0,
-        imported_subjects: 0,
-        imported_academic_centres: 0,
-    };
     let start_index = if import_settings.first_row_is_header {
         1
     } else {
         0
     };
 
-    let context = ApplicationContext::from_app(app_handle);
-
     let mut subjects = HashMap::new();
-    for subject in context.state().lock().unwrap().get_all_subjects() {
-        subjects.insert(subject.name, subject.kind);
-    }
 
     let mut academic_centres = HashSet::new();
-    for academic_centre in context.state().lock().unwrap().get_all_academic_centres() {
-        academic_centres.insert(academic_centre.name);
-    }
 
     let mut examinees = HashMap::<String, ExamineeForImport>::new();
 
@@ -288,32 +262,16 @@ pub async fn perform_examinee_import(
         )?;
     }
 
-    if let Ok(mut state) = context.state().lock() {
-        let undo_subjects =
-            state.bulk_create_subjects(subjects.iter().map(|(name, kind)| SubjectForCreate {
-                name: name.clone(),
-                kind: kind.clone(),
-            }));
-
-        let undo_academic_centres = state.bulk_create_academic_centres(
-            academic_centres
-                .iter()
-                .map(|name| AcademicCentreForCreate { name: name.clone() }),
-        );
-
-        let examinees = examinees
+    Ok(ExamineeImportResult {
+        examinees: examinees
             .into_values()
-            .map(|e| {
-                let r: Result<ExamineeForCreate, ExamineeImportError> = e.into_create(&*state);
-                r
-            })
-            .collect::<Result<Vec<ExamineeForCreate>, _>>()?;
-        let undo_examinees = state.bulk_create_examinees(examinees.into_iter());
-    } else {
-        return Err(ExamineeImportError::Lock);
-    }
-
-    Ok(result)
+            .map(|examinee| examinee.into_create())
+            .collect::<Result<Vec<ExamineeForCreate>, ExamineeImportError>>()?,
+        subjects: subjects
+            .into_iter()
+            .map(|(name, kind)| SubjectForCreate { name, kind })
+            .collect(),
+    })
 }
 
 fn update_subjects_list(
