@@ -37,6 +37,7 @@
 				if (!doDelete) return;
 				get(selected).forEach((examineeId) => {
 					deleteExaminee(examineeId as ModelId);
+					handler.select(examineeId);
 				});
 			}
 		});

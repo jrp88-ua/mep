@@ -23,6 +23,7 @@ export type ImportValuesMoment = {
 export function* importValues(
 	values: ExamineeImportValues
 ): Generator<Promise<ImportValuesMoment>> {
+	console.log(values.subjects);
 	const imported: ImportValuesMoment = {
 		subjects: {
 			done: 0,

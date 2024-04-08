@@ -6,11 +6,11 @@
 
 <Drawer>
 	{#if $drawerStore.id === 'edit-examinee'}
-		examinadi {JSON.stringify($drawerStore.meta)}
+		examinado {JSON.stringify($drawerStore.meta)}
 	{:else if $drawerStore.id === 'edit-academic-centre'}
-		ac {JSON.stringify($drawerStore.meta)}
+		centro académico {JSON.stringify($drawerStore.meta)}
 	{:else if $drawerStore.id === 'edit-subject'}
-		ac {JSON.stringify($drawerStore.meta)}
+		asignatura {JSON.stringify($drawerStore.meta)}
 	{:else}
 		<div class="w-full h-full flex justify-center items-center">
 			<div class="text-center space-y-2">
