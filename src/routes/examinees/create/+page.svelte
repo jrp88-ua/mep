@@ -7,9 +7,10 @@
 	import { findAcademicCentreByName, getAllAcademicCentres } from '$lib/services/academicCentres';
 	import { createExaminee, findExamineeByNif } from '$lib/services/examinees';
 
-	const toast = getToastStore();
+	const toastStore = getToastStore();
+	const academicCentresStore = getAllAcademicCentres();
 
-	const allAcademicCentres = getAllAcademicCentres();
+	const allAcademicCentres = $academicCentresStore;
 
 	function submitForm(e: SubmitEvent) {
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
@@ -24,14 +25,14 @@
 			const willCreateAcademicCentre = showAcademicCentreWarning;
 			const examinee = createExaminee(result.data);
 			if (examinee === false) {
-				toast.trigger(
+				toastStore.trigger(
 					showErrorToast({
 						message: 'No se ha podido crear el examinado, los valores no son válidos'
 					})
 				);
 				return;
 			}
-			toast.trigger(
+			toastStore.trigger(
 				showSuccessToast({
 					message: willCreateAcademicCentre
 						? 'Examinado y centro académico creados'

@@ -1,4 +1,4 @@
-import { writable, get as getStore, get } from 'svelte/store';
+import { writable, get, derived } from 'svelte/store';
 import { error, info } from 'tauri-plugin-log-api';
 import { z } from 'zod';
 
@@ -12,17 +12,20 @@ export type Model = {
 
 export function createStore<M extends Model>(modelName: string) {
 	const store = writable(new Map<ModelId, M>());
+	const allInstances = derived(store, ($store) => {
+		return Array.from($store.values());
+	});
 
 	function clear() {
 		store.set(new Map<ModelId, M>());
 	}
 
 	function getAllInstances() {
-		return Array.from(getStore(store).values());
+		return allInstances;
 	}
 
 	function getInstance(id: ModelId) {
-		return getStore(store).get(id);
+		return derived(store, ($store) => $store.get(id));
 	}
 
 	function storeInstance(instance: M) {
@@ -42,7 +45,7 @@ export function createStore<M extends Model>(modelName: string) {
 
 	function updatedInstance(id: ModelId) {
 		try {
-			const instance = getInstance(id);
+			const instance = get(store).get(id);
 			if (instance === undefined) {
 				return false;
 			}

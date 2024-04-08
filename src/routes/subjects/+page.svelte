@@ -8,12 +8,14 @@
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
-	import { Subject, SUBJECT_KIND_VALUES, subjectsStore } from '$lib/models/subjects';
-	import { subjectKindValuesTranslate } from '$lib/services/subjects';
+	import { Subject, SUBJECT_KIND_VALUES } from '$lib/models/subjects';
+	import { getAllSubjects, subjectKindValuesTranslate } from '$lib/services/subjects';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 
+	const subjectsStore = getAllSubjects();
+
 	let handler = new DataHandler<Subject>([], { rowsPerPage: 5 });
-	handler.setRows(subjectsStore.getAllInstances());
+	handler.setRows($subjectsStore);
 	const rows = handler.getRows();
 
 	const t = subjectKindValuesTranslate as (v: string) => string;

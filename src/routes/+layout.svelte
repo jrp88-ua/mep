@@ -6,7 +6,6 @@
 	import { AppShell, Modal, Toast, getToastStore } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import AppNavigationBar from './AppNavigationBar.svelte';
-	import StatusBar from './StatusBar.svelte';
 	import { beforeNavigate } from '$app/navigation';
 	import { appState } from '$lib/models/appState';
 	import { showWarningToast } from '$lib/toast';
@@ -40,8 +39,5 @@
 		<div class="m-4">
 			<slot />
 		</div>
-		<svelte:fragment slot="footer">
-			<StatusBar />
-		</svelte:fragment>
 	</AppShell>
 </ParaglideJS>

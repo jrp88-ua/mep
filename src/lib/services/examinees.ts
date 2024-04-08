@@ -1,5 +1,6 @@
 import { Examinee, ExamineeForCreate, examineesStore } from '$lib/models/examinees';
 import type { ModelId } from '$lib/models/models';
+import { get } from 'svelte/store';
 import { getOrCreateAcademicCentre } from './academicCentres';
 
 let currentId = 0;
@@ -27,7 +28,7 @@ export function createExaminee(values: ExamineeForCreate) {
 }
 
 export function findExamineeByNif(nif: string) {
-	return getAllExaminees().find((e) => e.nif === nif);
+	return get(getAllExaminees()).find((e) => e.nif === nif);
 }
 
 export function getAllExaminees() {

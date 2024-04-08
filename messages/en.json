@@ -41,9 +41,15 @@
 	"subject_kind_voluntary": "Voluntary",
 	"subject_kind_unknown": "Unknown",
 	"examenees_datatable_academic_centre": "Academic centre",
+	"no_academic_centre": "No centre",
+	"examenees_datatable_nif": "Nif",
 	"subject_datatable_obligatory": "Obligatory",
 	"subject_datatable_volunteer": "Volunteer",
 	"subject_datatable_unknown": "Unknown",
-	"no_academic_centre": "No centre",
-	"examenees_datatable_nif": "Nif"
+	"delete_examinee": "Delete",
+	"confirm_delete_examinees": "Delete examinees",
+	"confirm_delete_selected_examinees": "Delete selected examinees",
+	"cancel_delete_selected_examinees": "Do not delete selected examinees",
+	"delete_examinee_modal_body": "If you accept, the selected examinees ({total} in total) will be deleted. <strong>This action cannot be undone.</strong>",
+	"delete_examinee_modal_title": "Delete selected examinees?"
 }

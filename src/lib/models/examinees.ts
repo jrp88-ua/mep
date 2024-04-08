@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { ModelId, createStore, type Model } from './models';
-import { AcademicCentre, AcademicCentreForCreate, academicCentresStore } from './academicCentres';
+import { AcademicCentre, AcademicCentreForCreate } from './academicCentres';
+import { get } from 'svelte/store';
+import { getAcademicCentre } from '$lib/services/academicCentres';
 
 export class Examinee implements Model {
 	static Id = ModelId;
@@ -79,7 +81,7 @@ export class Examinee implements Model {
 
 	public getAcademicCentre(): AcademicCentre | undefined {
 		if (this.academicCentreId === undefined) return undefined;
-		const academicCentre = academicCentresStore.getInstance(this.academicCentreId);
+		const academicCentre = get(getAcademicCentre(this.academicCentreId));
 		this.lazyAcademicCentreName = academicCentre?.name;
 		return academicCentre;
 	}

@@ -4,6 +4,7 @@ import {
 	academicCentresStore
 } from '$lib/models/academicCentres';
 import type { ModelId } from '$lib/models/models';
+import { get } from 'svelte/store';
 
 let currentId = 0;
 
@@ -23,7 +24,7 @@ export function getOrCreateAcademicCentre(values: AcademicCentreForCreate) {
 }
 
 export function findAcademicCentreByName(name: string) {
-	return getAllAcademicCentres().find((ac) => ac.name === name);
+	return get(getAllAcademicCentres()).find((ac) => ac.name === name);
 }
 
 export function getAllAcademicCentres() {

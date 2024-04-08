@@ -7,22 +7,44 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import { examineesStore, Examinee } from '$lib/models/examinees';
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import { Examinee } from '$lib/models/examinees';
+	import { getDrawerStore, getModalStore } from '@skeletonlabs/skeleton';
+	import { get } from 'svelte/store';
+	import type { ModelId } from '$lib/models/models';
+	import { deleteExaminee, getAllExaminees } from '$lib/services/examinees';
+
+	const examineesStore = getAllExaminees();
+	const modalStore = getModalStore();
+	const drawerStore = getDrawerStore();
 
 	let handler = new DataHandler<Examinee>([], { rowsPerPage: 5 });
-	const examinees = examineesStore.getAllInstances();
-	examinees.forEach((examinee) => examinee.getAcademicCentre());
-	handler.setRows(examinees);
+	$: handler.setRows($examineesStore);
 	const rows = handler.getRows();
 	const selected = handler.getSelected();
 	const isAllSelected = handler.isAllSelected();
 
-	const drawerStore = getDrawerStore();
+	$: disableDelete = $selected.length === 0;
+
+	function deleteSelection() {
+		if (disableDelete) return;
+		modalStore.trigger({
+			type: 'confirm',
+			title: m.delete_examinee_modal_title(),
+			body: m.delete_examinee_modal_body({ total: get(selected).length }),
+			buttonTextConfirm: m.confirm_delete_selected_examinees(),
+			buttonTextCancel: m.cancel_delete_selected_examinees(),
+			response: (doDelete: boolean) => {
+				if (!doDelete) return;
+				get(selected).forEach((examineeId) => {
+					deleteExaminee(examineeId as ModelId);
+				});
+			}
+		});
+	}
 </script>
 
 <h1 class="text-3xl mb-4">{m.examinees_page_title()}</h1>
-<div class=" overflow-x-auto space-y-4">
+<div class="overflow-x-auto space-y-4">
 	<!-- Header -->
 	<header class="flex justify-between gap-4">
 		<div class="flex items-center gap-1">
@@ -40,6 +62,10 @@
 					<span>{m.export_examinees()}</span>
 				</button> -->
 			</div>
+			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
+				<span><i class="fa-solid fa-trash" /></span>
+				<span>{m.delete_examinee()}</span>
+			</button>
 		</div>
 		<div class="flex gap-4">
 			<Search {handler} />

@@ -43,5 +43,11 @@
 	"subject_kind_unknown": "Desconocido",
 	"examenees_datatable_academic_centre": "Centro académico",
 	"no_academic_centre": "Sin centro académico",
-	"examenees_datatable_nif": "Nif"
+	"examenees_datatable_nif": "Nif",
+	"delete_examinee": "Eliminar",
+	"confirm_delete_examinees": "Borrar examinados seleccionados",
+	"confirm_delete_selected_examinees": "Eliminar examinados seleccionados",
+	"cancel_delete_selected_examinees": "No eliminar examinados seleccionados",
+	"delete_examinee_modal_body": "Si aceptas, se eliminarán los examinados seleccionados ({total} en total). <strong>Esta acción no se puede deshacer.</strong>",
+	"delete_examinee_modal_title": "¿Eliminar examinados seleccionados?"
 }
