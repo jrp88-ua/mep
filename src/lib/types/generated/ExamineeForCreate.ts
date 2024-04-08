@@ -6,5 +6,5 @@ export type ExamineeForCreate = {
 	surenames: string;
 	origin: string;
 	court: number;
-	academicCentre: string | null;
+	academicCentre: string | number | undefined;
 };

@@ -14,15 +14,9 @@ use crate::models::{
     subject::{SubjectForCreate, SubjectKind},
 };
 
-#[derive(Serialize, Clone)]
+#[derive(Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
-pub struct SheetData {
-    name: String,
-    values: Vec<Vec<String>>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct ExamineeImportSettings {
     selected_sheet: String,
     first_row_is_header: bool,
@@ -41,7 +35,7 @@ pub struct ExamineeImportSettings {
 #[derive(Serialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
-pub struct ExamineeImportResult {
+pub struct ExamineeImportValues {
     subjects: Vec<SubjectForCreate>,
     examinees: Vec<ExamineeForCreate>,
 }
@@ -165,11 +159,26 @@ impl ExamineeForImport {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct SheetData {
+    name: String,
+    values: Vec<Vec<String>>,
+}
+
+#[derive(Serialize, TS, Debug)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub struct ExcelSheet {
+    name: String,
+    first_row: Vec<String>,
+    empty: bool,
+}
+
 #[command]
 pub async fn start_examinee_import_process(
     state: tauri::State<'_, Arc<Mutex<Option<Vec<SheetData>>>>>,
     file_path: String,
-) -> Result<Vec<SheetData>, String> {
+) -> Result<Vec<ExcelSheet>, String> {
     use calamine::Error;
     let open_result = calamine::open_workbook_auto(file_path);
     if let Err(err) = open_result {
@@ -216,7 +225,14 @@ pub async fn start_examinee_import_process(
     match state.lock() {
         Ok(mut v) => {
             *v = Option::Some(sheet_data.clone());
-            Ok(sheet_data)
+            Ok(sheet_data
+                .into_iter()
+                .map(|sd| ExcelSheet {
+                    name: sd.name,
+                    empty: sd.values.len() == 0,
+                    first_row: sd.values.get(0).unwrap_or(&Vec::new()).clone(),
+                })
+                .collect())
         }
         Err(_) => Err("LOCK".to_owned()),
     }
@@ -226,7 +242,7 @@ pub async fn start_examinee_import_process(
 pub async fn perform_examinee_import(
     state: tauri::State<'_, Arc<Mutex<Option<Vec<SheetData>>>>>,
     import_settings: ExamineeImportSettings,
-) -> Result<ExamineeImportResult, ExamineeImportError> {
+) -> Result<ExamineeImportValues, ExamineeImportError> {
     let sheet = extract_import_examinees_state(state)?;
     let sheet = sheet
         .iter()
@@ -262,7 +278,7 @@ pub async fn perform_examinee_import(
         )?;
     }
 
-    Ok(ExamineeImportResult {
+    Ok(ExamineeImportValues {
         examinees: examinees
             .into_values()
             .map(|examinee| examinee.into_create())

@@ -3,7 +3,6 @@
 	import { ProgressRadial, Step, Stepper, getToastStore } from '@skeletonlabs/skeleton';
 	import SelectAndValidateFile from './SelectAndValidateFile.svelte';
 	import SelectSheetToImport from './SelectSheetToImport.svelte';
-	import type { ExcelSheet, ExamineeImportSettings } from '$lib/types/sheetsImport';
 	import IndicateHowToImport from './IndicateHowToImport.svelte';
 	import ImportResume from './ImportResume.svelte';
 	import { appState } from '$lib/models/appState';
@@ -12,8 +11,19 @@
 	import { ipc_invoke, ipc_invoke_result } from '$lib/ipc';
 	import { onDestroy } from 'svelte';
 	import type { ExamineeImportError } from '$lib/types/generated/ExamineeImportError';
-	import type { ExamineeImportResult } from '$lib/types/generated/ExamineeImportResult';
 	import { getExamineeImportErrorMessage } from '$lib/errors';
+	import type { ExamineeImportValues } from '$lib/types/generated/ExamineeImportValues';
+	import { importValues, type ImportValuesMoment } from '$lib/services/common';
+	import type { ExamineeImportSettings } from '$lib/types/generated/ExamineeImportSettings';
+	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
+
+	enum WhatToShow {
+		Indicate,
+		ProcessWaiting,
+		ProcessCreating
+	}
+
+	let whatToShow = WhatToShow.Indicate;
 
 	const toast = getToastStore();
 
@@ -23,78 +33,56 @@
 	let importSettings: ExamineeImportSettings = defaultImputSettings();
 	let importSettingsAreValid: boolean = false;
 
-	let importPromise: Promise<void> | undefined;
+	let importState: undefined | ImportValuesMoment;
 
 	onDestroy(() => ipc_invoke('cancel_examinee_import'));
 
-	function onFileReady(e: CustomEvent<{ selectedFile: string; sheets: ExcelSheet[] }>) {
-		selectedFile = e.detail.selectedFile;
-		sheets = e.detail.sheets;
-	}
-
-	function onSelectedSheet(e: CustomEvent<{ name: string; valid: boolean }>) {
-		if (selectedSheet?.name !== e.detail.name) importSettings = defaultImputSettings();
-		selectedSheet = e.detail;
-	}
-
-	function onImportSettingsValidity(e: CustomEvent<boolean>) {
-		importSettingsAreValid = e.detail;
-	}
-
-	function onComplete() {
+	async function onComplete() {
+		whatToShow = WhatToShow.ProcessWaiting;
 		appState.lockNavigation(m.locked_navigation_examinees_being_imported());
-		importPromise = new Promise<void>(async (res) => {
-			try {
-				if (selectedSheet === undefined) {
-					appState.unlockNavigation();
-					toast.trigger(
-						showErrorToast({
-							message: 'Estado del programa inválido, se ha cancelado el importado'
-						})
-					);
-					goto('/examinees');
-					res();
-					return;
-				}
-				const result = await ipc_invoke_result<ExamineeImportResult, ExamineeImportError>(
-					'perform_examinee_import',
-					{
-						importSettings: {
-							...importSettings,
-							selectedSheet: selectedSheet.name
-						}
-					}
-				);
-				if (result.success) {
-					const imported = result.value;
-					toast.trigger(
-						showSuccessToast({
-							message: m.examinees_imported_succesfully({ amount: imported.importedExaminees })
-						})
-					);
-				} else {
-					toast.trigger(
-						showErrorToast({
-							...getExamineeImportErrorMessage(result.error),
-							autohide: false
-						})
-					);
-				}
-			} catch (e) {
-				toast.trigger(
-					showErrorToast({
-						message: (e as Error).message
-					})
-				);
-			}
+		if (selectedSheet === undefined) {
+			toast.trigger(
+				showErrorToast({
+					message: 'Estado del programa inválido, se ha cancelado el importado'
+				})
+			);
 			appState.unlockNavigation();
 			goto('/examinees');
-			res();
-		});
+			return;
+		}
+		const result = await ipc_invoke_result<ExamineeImportValues, ExamineeImportError>(
+			'perform_examinee_import',
+			{
+				importSettings: {
+					...importSettings,
+					selectedSheet: selectedSheet.name
+				}
+			}
+		);
+		whatToShow = WhatToShow.ProcessCreating;
+		if (result.success) {
+			const importer = importValues(result.value);
+			for (const importMoment of importer) importState = await importMoment;
+			toast.trigger(
+				showSuccessToast({
+					message: m.examinees_imported_succesfully({ amount: importState?.examinees.total! })
+				})
+			);
+		} else {
+			toast.trigger(
+				showErrorToast({
+					...getExamineeImportErrorMessage(result.error),
+					autohide: false
+				})
+			);
+		}
+		appState.unlockNavigation();
+		goto('/examinees');
 	}
 
 	function defaultImputSettings(): ExamineeImportSettings {
 		return {
+			selectedSheet: '',
 			firstRowIsHeader: true,
 			groupRowsByColumn: 4,
 			nifColumn: 4,
@@ -110,7 +98,7 @@
 </script>
 
 <h1 class="text-3xl mb-4">Importar examinados</h1>
-{#if importPromise === undefined}
+{#if whatToShow === WhatToShow.Indicate}
 	<div class="w-full card p-4 text-token">
 		<Stepper
 			stepTerm={m.stepper_step()}
@@ -121,14 +109,23 @@
 		>
 			<Step locked={selectedFile === undefined}>
 				<svelte:fragment slot="header">Elegir origen de datos a importar</svelte:fragment>
-				<SelectAndValidateFile {selectedFile} on:fileready={onFileReady} />
+				<SelectAndValidateFile
+					{selectedFile}
+					on:fileready={(e) => {
+						selectedFile = e.detail.selectedFile;
+						sheets = e.detail.sheets;
+					}}
+				/>
 			</Step>
 			<Step locked={selectedSheet === undefined || !selectedSheet.valid}>
 				<svelte:fragment slot="header">Indicar la hoja con los datos</svelte:fragment>
 				{#if sheets !== undefined}
 					<SelectSheetToImport
 						selectedSheet={selectedSheet?.name}
-						on:sheetselected={onSelectedSheet}
+						on:sheetselected={(e) => {
+							if (selectedSheet?.name !== e.detail.name) importSettings = defaultImputSettings();
+							selectedSheet = e.detail;
+						}}
 						{sheets}
 					/>
 				{/if}
@@ -137,7 +134,7 @@
 				<svelte:fragment slot="header">Indicar cómo se deben importar los datos</svelte:fragment>
 				<IndicateHowToImport
 					bind:importSettings
-					on:importsettingsvalidity={onImportSettingsValidity}
+					on:importsettingsvalidity={(e) => (importSettingsAreValid = e.detail)}
 					sheet={sheets?.find((sheet) => sheet.name === selectedSheet?.name)}
 				/>
 			</Step>
@@ -151,11 +148,14 @@
 			<span>Cancelar</span>
 		</a>
 	</div>
+{:else if whatToShow === WhatToShow.ProcessWaiting}
+	<div class=" flex flex-col items-center">
+		<h2 class="text-2xl mb-5">Importando</h2>
+		<ProgressRadial />
+	</div>
 {:else}
 	<div class=" flex flex-col items-center">
-		{#await importPromise}
-			<h2 class="text-2xl mb-5">Importando</h2>
-			<ProgressRadial />
-		{/await}
+		<h2 class="text-2xl mb-5">Creando instancias</h2>
+		<progress max={importState?.total || 0} value={importState?.done || 0} />
 	</div>
 {/if}

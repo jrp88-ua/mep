@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ExcelSheet } from '$lib/types/sheetsImport';
+	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
 	import { createEventDispatcher, onMount } from 'svelte';
 
 	enum SelectedOption {
@@ -26,9 +26,8 @@
 			selectedOption = SelectedOption.NO_SELECTED;
 			return;
 		}
-		selectedOption =
-			sheet.values.length > 0 ? SelectedOption.SELECTED_OK : SelectedOption.SELECTED_NO_VALUES;
-		dispatch('sheetselected', { name: selectedSheet, valid: sheet.values.length > 0 });
+		selectedOption = sheet.empty ? SelectedOption.SELECTED_NO_VALUES : SelectedOption.SELECTED_OK;
+		dispatch('sheetselected', { name: selectedSheet, valid: !sheet.empty });
 	}
 </script>
 

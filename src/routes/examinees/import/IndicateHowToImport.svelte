@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { ExcelSheet, ExamineeImportSettings } from '$lib/types/sheetsImport';
+	import type { ExamineeImportSettings } from '$lib/types/generated/ExamineeImportSettings';
+	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
 	import { createSheetColumns } from '$lib/util';
 	import { createEventDispatcher, onMount } from 'svelte';
 
@@ -29,14 +30,14 @@
 	function updateHeaders() {
 		if (sheet === undefined) return;
 		if (importSettings.firstRowIsHeader) {
-			columnNames = sheet.values[0];
+			columnNames = sheet.firstRow;
 		} else {
-			columnNames = createSheetColumns(sheet.values[0].length);
+			columnNames = createSheetColumns(sheet.firstRow.length);
 		}
 	}
 </script>
 
-{#if sheet !== undefined && sheet.values.length > 0}
+{#if sheet !== undefined && !sheet.empty}
 	<form>
 		<label class="my-4 flex items-center space-x-2">
 			<input

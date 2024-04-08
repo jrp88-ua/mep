@@ -3,7 +3,7 @@
 	import { FileDropzone, ProgressBar } from '@skeletonlabs/skeleton';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { ipc_invoke } from '$lib/ipc';
-	import type { ExcelSheet as ExcelSheet } from '$lib/types/sheetsImport';
+	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
 	enum States {
 		WAITING_FOR_FILE,
 		VERIFYING_FILE,
@@ -56,7 +56,7 @@
 				state = States.INVALID_FILE;
 				return;
 			}
-			if (sheets.find((sheet) => sheet.values.length > 0) === undefined) {
+			if (sheets.find((sheet) => !sheet.empty) === undefined) {
 				invalidFileMessage = 'No hay hojas que tengan datos en el archivo seleccionado';
 				state = States.INVALID_FILE;
 				return;

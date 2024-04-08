@@ -2,7 +2,7 @@
 import type { ExamineeForCreate } from './ExamineeForCreate';
 import type { SubjectForCreate } from './SubjectForCreate';
 
-export type ExamineeImportResult = {
+export type ExamineeImportValues = {
 	subjects: Array<SubjectForCreate>;
 	examinees: Array<ExamineeForCreate>;
 };
