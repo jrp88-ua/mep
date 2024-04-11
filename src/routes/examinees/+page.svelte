@@ -89,7 +89,9 @@
 				<ThSort {handler} orderBy="surenames">{m.examenees_datatable_surenames()}</ThSort>
 				<ThSort {handler} orderBy="origin">{m.examenees_datatable_origin()}</ThSort>
 				<ThSort {handler} orderBy="court">{m.examenees_datatable_court()}</ThSort>
-				<ThSort {handler} orderBy="court">{m.examenees_datatable_academic_centre()}</ThSort>
+				<ThSort {handler} orderBy="lazyAcademicCentreName">
+					{m.examenees_datatable_academic_centre()}
+				</ThSort>
 			</tr>
 			<tr>
 				<th class="selection" />

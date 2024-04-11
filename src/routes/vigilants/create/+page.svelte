@@ -6,6 +6,8 @@
 	import { Examinee, ExamineeForCreate } from '$lib/models/examinees';
 	import { createExaminee, findExamineeByNif } from '$lib/services/examinees';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
+	import { VIGILANT_ROLE_VALUES } from '$lib/models/vigilant';
+	import { vigilantRoleValuesTranslate } from '$lib/services/vigilant';
 
 	const toastStore = getToastStore();
 	let academicCentreSelector: AcademicCentreSearch;
@@ -57,39 +59,15 @@
 			matchingExaminee = findExamineeByNif(nif);
 		}, 500);
 	}
+
+	const t = vigilantRoleValuesTranslate as (v: string) => string;
 </script>
 
-<h1 class="text-3xl mb-4">{m.examinees_create_page_title()}</h1>
+<h1 class="text-3xl mb-4">{m.vigilants_create_page_title()}</h1>
 
 <form class="card" method="post" on:submit|preventDefault={submitForm}>
-	<h2 class=" card-header text-2xl">Datos del nuevo examinado</h2>
+	<h2 class=" card-header text-2xl">Datos del nuevo vigilante</h2>
 	<div class="p-4">
-		<label class="my-5">
-			<span class="text-xl">Nif</span>
-			<div class="input-group input-group-divider grid-cols-[auto_1fr]">
-				{#if showExamineeWarning}
-					<div
-						class="input-group-shim"
-						use:popup={{
-							event: 'hover',
-							target: 'examinee-warning',
-							placement: 'top-start'
-						}}
-					>
-						<i class="fa-solid fa-circle-exclamation text-warning-500 animate-pulse" />
-					</div>
-				{/if}
-				<input
-					title="Nif"
-					name="nif"
-					type="text"
-					placeholder="Nif del alumno..."
-					tabindex="0"
-					on:input={checkExamineeNif}
-					required
-				/>
-			</div>
-		</label>
 		<label class="my-5">
 			<span class="text-xl">Nombre</span>
 			<input
@@ -97,7 +75,7 @@
 				title="Nombre"
 				name="name"
 				type="text"
-				placeholder="Nombre del alumno..."
+				placeholder="Nombre del vigilante..."
 				required
 			/>
 		</label>
@@ -108,19 +86,23 @@
 				title="Apellidos"
 				name="surenames"
 				type="text"
-				placeholder="Apellidos del alumno..."
+				placeholder="Apellidos del vigilante..."
 			/>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Origen</span>
-			<input
+			<span class="text-xl">Rol</span>
+			<select
 				class="input"
-				title="Origen"
-				name="origin"
-				type="text"
-				placeholder="Origen del alumno..."
+				title="Rol"
+				name="role"
+				placeholder="Rol del vigilante..."
+				value="MEMBER"
 				required
-			/>
+			>
+				{#each VIGILANT_ROLE_VALUES as role}
+					<option value={role}> {t(role)} </option>
+				{/each}
+			</select>
 		</label>
 		<label class="my-5">
 			<span class="text-xl">Tribunal</span>
@@ -146,48 +128,9 @@
 			<i class="fa-solid fa-broom" />
 			<span>Limpair</span>
 		</button>
-		<a href="/examinees" class="btn variant-filled-tertiary">
+		<a href="/vigilants" class="btn variant-filled-tertiary">
 			<i class="fa-solid fa-xmark" />
 			<span>Cancelar</span>
 		</a>
 	</div>
 </form>
-<div class="card p-4 variant-filled-surface" data-popup="examinee-warning">
-	<p><strong>Ya existe un examinado con el nif {matchingExaminee?.nif}</strong></p>
-	<div>
-		<table class="table">
-			<tbody>
-				<tr>
-					<td>Nif</td>
-					<td>{matchingExaminee?.nif}</td>
-				</tr>
-				<tr>
-					<td>Nombre</td>
-					<td>{matchingExaminee?.name}</td>
-				</tr>
-				<tr>
-					<td>Apellidos</td>
-					<td>{matchingExaminee?.surenames}</td>
-				</tr>
-				<tr>
-					<td>Origen</td>
-					<td>{matchingExaminee?.origin}</td>
-				</tr>
-				<tr>
-					<td>Tribunal</td>
-					<td>{matchingExaminee?.court}</td>
-				</tr>
-				<tr>
-					<td>Centro académico</td>
-					<td>
-						{#if matchingExaminee?.getAcademicCentre() !== undefined}
-							{matchingExaminee.getAcademicCentre()?.name}
-						{:else}
-							<i>{m.no_academic_centre()}</i>
-						{/if}
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-</div>

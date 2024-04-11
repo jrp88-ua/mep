@@ -21,6 +21,12 @@
 		</svelte:fragment>
 		{m.navbar_examinees()}
 	</AppRailAnchor>
+	<AppRailAnchor href="/vigilants" title="vigilants" selected={route.startsWith('/vigilants')}>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-binoculars text-2xl" />
+		</svelte:fragment>
+		{m.navbar_vigilants()}
+	</AppRailAnchor>
 	<AppRailAnchor
 		href="/academic-centres"
 		title="academic-centres"

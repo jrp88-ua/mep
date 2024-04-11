@@ -11,7 +11,7 @@ export class Examinee implements Model {
 	static Surenames = z.string().trim();
 	static Origin = z.string().trim().min(1);
 	static Court = z.coerce.number().finite().gte(-32768).lte(32767);
-	static AcademicCentreId = AcademicCentre.Id;
+	static AcademicCentreId = AcademicCentre.Id.optional();
 	static Type = z.object({
 		id: Examinee.Id,
 		nif: Examinee.Nif,
@@ -73,10 +73,11 @@ export class Examinee implements Model {
 	setAcademicCentreId(value: number | undefined): void {
 		if (value !== undefined) {
 			this.academicCentreId = ModelId.parse(value);
+			this.getAcademicCentre();
 		} else {
 			this.academicCentreId = undefined;
+			this.lazyAcademicCentreName = undefined;
 		}
-		this.getAcademicCentre();
 	}
 
 	public getAcademicCentre(): AcademicCentre | undefined {
