@@ -7,5 +7,6 @@ export type ImportedExaminee = {
 	origin: string;
 	court: number;
 	subjects: Array<string>;
+	subjectsIds: Array<number>;
 	academicCentre: string | number | undefined;
 };

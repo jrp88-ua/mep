@@ -15,7 +15,7 @@
 	function submitForm(e: SubmitEvent) {
 		const raw = {
 			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),
-			specialtyId: subjectsSelector.getSelection()
+			subjectsIds: subjectsSelector.getSelection()
 		};
 		if (
 			'academicCentre' in raw &&

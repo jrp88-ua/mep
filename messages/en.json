@@ -67,9 +67,10 @@
 	"academic_centre_field_warning_title": "Academic centre not registered",
 	"academic_centre_field_warning_message": "An academic centre with the name \"{academicCentreName}\" will be automatically created.",
 	"vigilants_create_page_title": "Add vigilants",
+	"subjects": "Subjects",
+	"no_registered_subjects": "There are no registeres subjects",
 	"subject_datatable_obligatory": "Obligatory",
 	"subject_datatable_volunteer": "Volunteer",
 	"subject_datatable_unknown": "Unknown",
-	"subjects": "Subjects",
-	"no_registered_subjects": "There are no registeres subjects"
+	"examinees_datatable_subjects": "Subjects"
 }

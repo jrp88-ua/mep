@@ -1,7 +1,7 @@
 import type { ExamineeImportValues } from '$lib/types/generated/ExamineeImportValues';
 import { createAcademicCentre, findAcademicCentreByName } from './academicCentres';
 import { createExaminee } from './examinees';
-import { createSubject, subjectExists } from './subjects';
+import { createSubject, getOrCreateSubject, subjectExists } from './subjects';
 
 export type ImportValuesMoment = {
 	subjects: {
@@ -68,6 +68,15 @@ export function* importValues(
 				academicCentre = created;
 			}
 			examineeValues.academicCentre = academicCentre.id;
+		}
+		examineeValues.subjectsIds = [];
+		for (const subjectName of examineeValues.subjects) {
+			const subject = getOrCreateSubject({ name: subjectName, kind: 'UNKNOWN' });
+			if (!subject) {
+				//todo
+				return;
+			}
+			examineeValues.subjectsIds.push(subject.id);
 		}
 
 		if (!createExaminee(examineeValues)) {

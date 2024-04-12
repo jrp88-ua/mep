@@ -21,6 +21,14 @@ export function createSubject(values: SubjectForCreate) {
 	return subject;
 }
 
+export function getOrCreateSubject(values: SubjectForCreate) {
+	return findSubjectByName(values.name) || createSubject(values);
+}
+
+export function findSubjectByName(name: string) {
+	return get(getAllSubjects()).find((s) => s.name === name);
+}
+
 export function subjectExists(predicate: (subject: Subject) => boolean) {
 	return get(getAllSubjects()).find(predicate) !== undefined;
 }

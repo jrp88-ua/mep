@@ -89,6 +89,7 @@
 				<ThSort {handler} orderBy="surenames">{m.examenees_datatable_surenames()}</ThSort>
 				<ThSort {handler} orderBy="origin">{m.examenees_datatable_origin()}</ThSort>
 				<ThSort {handler} orderBy="court">{m.examenees_datatable_court()}</ThSort>
+				<ThSort {handler} orderBy="lazySubjectsNames">{m.examinees_datatable_subjects()}</ThSort>
 				<ThSort {handler} orderBy="lazyAcademicCentreName">
 					{m.examenees_datatable_academic_centre()}
 				</ThSort>
@@ -100,6 +101,7 @@
 				<ThFilter {handler} filterBy="surenames" />
 				<ThFilter {handler} filterBy="origin" />
 				<ThFilter {handler} filterBy="court" />
+				<ThFilter {handler} filterBy="lazySubjectsNames" />
 				<ThFilter {handler} filterBy="lazyAcademicCentreName" />
 			</tr>
 		</thead>
@@ -138,6 +140,13 @@
 					<td>{row.surenames}</td>
 					<td>{row.origin}</td>
 					<td>{row.court}</td>
+					<td>
+						<ul>
+							{#each row.getSubjects() as subject}
+								<li>{subject.name}</li>
+							{/each}
+						</ul>
+					</td>
 					<td data-row="academic-centre">
 						{#if row.getAcademicCentre() !== undefined}
 							{row.getAcademicCentre()?.name}
