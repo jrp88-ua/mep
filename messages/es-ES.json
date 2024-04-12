@@ -67,5 +67,7 @@
 	"academic_centre_field_placeholder": "Centro académico...",
 	"academic_centre_field_warning_title": "Centro académico no registrado",
 	"academic_centre_field_warning_message": "Se creará automáticamente un centro académico con nombre \"{academicCentreName}\".",
-	"vigilants_create_page_title": "Añadir vigilante"
+	"vigilants_create_page_title": "Añadir vigilante",
+	"subjects": "Asignaturas",
+	"no_registered_subjects": "No hay asignaturas registradas"
 }

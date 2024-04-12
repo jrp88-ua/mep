@@ -3,31 +3,42 @@
 	import { goto } from '$app/navigation';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { getToastStore, popup } from '@skeletonlabs/skeleton';
-	import { Examinee, ExamineeForCreate } from '$lib/models/examinees';
-	import { createExaminee, findExamineeByNif } from '$lib/services/examinees';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
-	import { VIGILANT_ROLE_VALUES } from '$lib/models/vigilant';
-	import { vigilantRoleValuesTranslate } from '$lib/services/vigilant';
+	import { VIGILANT_ROLE_VALUES, Vigilant, VigilantForCreate } from '$lib/models/vigilant';
+	import {
+		createVigilant,
+		findCourtPresident,
+		findCourtSecretary,
+		vigilantRoleValuesTranslate
+	} from '$lib/services/vigilant';
+	import SubjectsSelector from '$lib/components/SubjectsSelector.svelte';
 
 	const toastStore = getToastStore();
 	let academicCentreSelector: AcademicCentreSearch;
+	let subjectsSelector: SubjectsSelector;
+	let selectedCourt: HTMLInputElement;
+	let selectedRole: HTMLSelectElement;
 
 	function submitForm(e: SubmitEvent) {
-		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
+		const raw = {
+			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),
+			specialtiesIds: subjectsSelector.getSelection()
+		};
+
 		if (
 			'academicCentre' in raw &&
 			typeof raw.academicCentre === 'string' &&
 			raw.academicCentre.trim() === ''
 		)
 			delete raw.academicCentre;
-		const result = ExamineeForCreate.safeParse(raw);
+		const result = VigilantForCreate.safeParse(raw);
 		if (result.success) {
 			const willCreateAcademicCentre = !academicCentreSelector.academicCentreExists();
-			const examinee = createExaminee(result.data);
-			if (examinee === false) {
+			const vigilant = createVigilant(result.data);
+			if (vigilant === false) {
 				toastStore.trigger(
 					showErrorToast({
-						message: 'No se ha podido crear el examinado, los valores no son válidos'
+						message: 'No se ha podido crear el vigilante, los valores no son válidos'
 					})
 				);
 				return;
@@ -35,28 +46,31 @@
 			toastStore.trigger(
 				showSuccessToast({
 					message: willCreateAcademicCentre
-						? 'Examinado y centro académico creados'
-						: 'Examinado creado'
+						? 'Vigilante y centro académico creados'
+						: 'Vigilante creado'
 				})
 			);
-			goto('/examinees');
+			goto('/vigilants');
 		} else {
 			console.error(result.error);
 		}
 	}
 
-	let matchingExaminee: undefined | Examinee = undefined;
-	let checkExamineeNifTask: string | number | NodeJS.Timeout | undefined = undefined;
-	$: showExamineeWarning = matchingExaminee !== undefined;
-	function checkExamineeNif(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
-		clearTimeout(checkExamineeNifTask);
-		let nif = event.currentTarget.value;
-		if (!nif) {
-			showExamineeWarning = false;
-			return;
-		}
-		checkExamineeNifTask = setTimeout(() => {
-			matchingExaminee = findExamineeByNif(nif);
+	let matchingVigilantRole: undefined | Vigilant = undefined;
+	let checkVigilantRoleTask: string | number | NodeJS.Timeout | undefined = undefined;
+	$: showVigilantWarning = matchingVigilantRole !== undefined;
+	function checkVigilantRole() {
+		clearTimeout(checkVigilantRoleTask);
+		if (!selectedCourt) return;
+		const parsedCourt = Vigilant.MainCourt.safeParse(selectedCourt.value);
+		const parsedRole = Vigilant.Role.safeParse(selectedRole.value);
+		if (!parsedCourt.success || !parsedRole.success) return;
+		const court = parsedCourt.data;
+		const role = parsedRole.data;
+		if (role === 'MEMBER') return;
+		checkVigilantRoleTask = setTimeout(() => {
+			if (role === 'PRESIDENT') matchingVigilantRole = findCourtPresident(court);
+			if (role === 'SECRETARY') matchingVigilantRole = findCourtSecretary(court);
 		}, 500);
 	}
 
@@ -91,33 +105,51 @@
 		</label>
 		<label class="my-5">
 			<span class="text-xl">Rol</span>
-			<select
-				class="input"
-				title="Rol"
-				name="role"
-				placeholder="Rol del vigilante..."
-				value="MEMBER"
-				required
-			>
-				{#each VIGILANT_ROLE_VALUES as role}
-					<option value={role}> {t(role)} </option>
-				{/each}
-			</select>
+			<div class="input-group input-group-divider grid-cols-[auto_1fr]">
+				{#if showVigilantWarning}
+					<div
+						class="input-group-shim"
+						use:popup={{
+							event: 'hover',
+							target: 'vigilant-warning',
+							placement: 'top-start'
+						}}
+					>
+						<i class="fa-solid fa-circle-exclamation text-warning-500 animate-pulse" />
+					</div>
+				{/if}
+				<select
+					title="Rol"
+					name="role"
+					placeholder="Rol del vigilante..."
+					value="MEMBER"
+					on:change={checkVigilantRole}
+					bind:this={selectedRole}
+					required
+				>
+					{#each VIGILANT_ROLE_VALUES as role}
+						<option value={role}> {t(role)} </option>
+					{/each}
+				</select>
+			</div>
 		</label>
 		<label class="my-5">
 			<span class="text-xl">Tribunal</span>
 			<input
 				class="input"
 				title="Tribunal"
-				name="court"
+				name="mainCourt"
 				type="number"
 				min="-32768"
 				max="32767"
-				placeholder="Tribunal del alumno..."
+				placeholder="Tribunal..."
+				on:input={checkVigilantRole}
+				bind:this={selectedCourt}
 				required
 			/>
 		</label>
 		<AcademicCentreSearch bind:this={academicCentreSelector} />
+		<SubjectsSelector bind:this={subjectsSelector} />
 	</div>
 	<div class="card-footer">
 		<button type="submit" class="btn variant-filled-primary">
@@ -134,3 +166,32 @@
 		</a>
 	</div>
 </form>
+<div class="card p-4 variant-filled-surface" data-popup="vigilant-warning">
+	<p>
+		<strong>Ya existe un vigilante con este rol en el tribunal</strong>
+	</p>
+	<div>
+		<table class="table">
+			<tbody>
+				<tr>
+					<td>Nombre</td>
+					<td>{matchingVigilantRole?.name}</td>
+				</tr>
+				<tr>
+					<td>Apellidos</td>
+					<td>{matchingVigilantRole?.surenames}</td>
+				</tr>
+				<tr>
+					<td>Centro académico</td>
+					<td>
+						{#if matchingVigilantRole?.getAcademicCentre() !== undefined}
+							{matchingVigilantRole.getAcademicCentre()?.name}
+						{:else}
+							<i>{m.no_academic_centre()}</i>
+						{/if}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

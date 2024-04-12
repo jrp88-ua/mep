@@ -23,11 +23,12 @@ pub struct Examinee {
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq, Clone, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
-pub struct ExamineeForCreate {
+pub struct ImportedExaminee {
     pub nif: String,
     pub name: String,
     pub surenames: String,
     pub origin: String,
     pub court: i16,
+    pub subjects: Vec<String>,
     pub academic_centre: Option<String>,
 }

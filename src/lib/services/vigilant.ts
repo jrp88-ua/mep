@@ -7,6 +7,7 @@ import {
 } from '$lib/models/vigilant';
 import * as m from '$paraglide/messages';
 import { get } from 'svelte/store';
+import { getOrCreateAcademicCentre } from './academicCentres';
 
 let currentId = 0;
 
@@ -15,13 +16,38 @@ export function createVigilant(values: VigilantForCreate) {
 	if (!parsed.success) return false;
 	values = parsed.data;
 
-	const vigilant = new Vigilant({ id: currentId++, ...values });
+	if (values.academicCentre !== undefined && typeof values.academicCentre !== 'number') {
+		let academicCentreToCreate = values.academicCentre;
+		if (typeof academicCentreToCreate === 'string')
+			academicCentreToCreate = { name: academicCentreToCreate };
+		const ac = getOrCreateAcademicCentre(academicCentreToCreate);
+		if (!ac) return false;
+		values.academicCentre = ac.id;
+	}
+
+	const validValues = values as VigilantForCreate & {
+		academicCentre?: number | undefined;
+	};
+
+	const vigilant = new Vigilant({ id: currentId++, ...validValues });
 
 	vigilantsStore.storeInstance(vigilant);
 	return vigilant;
 }
 
-export function VigilantExists(predicate: (vigilant: Vigilant) => boolean) {
+export function findCourtPresident(court: number) {
+	return get(getAllVigilants()).find(
+		(vigilant) => vigilant.mainCourt === court && vigilant.role === 'PRESIDENT'
+	);
+}
+
+export function findCourtSecretary(court: number) {
+	return get(getAllVigilants()).find(
+		(vigilant) => vigilant.mainCourt === court && vigilant.role === 'SECRETARY'
+	);
+}
+
+export function vigilantExists(predicate: (vigilant: Vigilant) => boolean) {
 	return get(getAllVigilants()).find(predicate) !== undefined;
 }
 

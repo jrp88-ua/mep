@@ -45,7 +45,7 @@
 				<ThSort {handler} orderBy="name">{m.vigilant_datatable_name()}</ThSort>
 				<ThSort {handler} orderBy="surenames">{m.vigilant_datatable_surenames()}</ThSort>
 				<ThSort {handler} orderBy="role">{m.vigilant_datatable_role()}</ThSort>
-				<ThSort {handler} orderBy="lazySpecialtyName">{m.vigilant_datatable_specialty()}</ThSort>
+				<ThSort {handler} orderBy="lazySpecialtiesNames">{m.vigilant_datatable_specialty()}</ThSort>
 				<ThSort {handler} orderBy="lazyAcademicCentreName">
 					{m.vigilant_datatable_academic_centre()}
 				</ThSort>
@@ -55,7 +55,7 @@
 				<ThFilter {handler} filterBy="name" />
 				<ThFilter {handler} filterBy="surenames" />
 				<ThEnumFilter {handler} values={VIGILANT_ROLE_VALUES} valueTranslator={t} filterBy="role" />
-				<ThFilter {handler} filterBy="lazySpecialtyName" />
+				<ThFilter {handler} filterBy="lazySpecialtiesNames" />
 				<ThFilter {handler} filterBy="lazyAcademicCentreName" />
 				<ThFilter {handler} filterBy="mainCourt" />
 			</tr>
@@ -66,18 +66,41 @@
 					on:click={(event) => {
 						const target = event.target;
 						if (target instanceof HTMLInputElement) return;
-						drawerStore.open({
-							id: 'edit-vigilant',
-							meta: row.id
-						});
+						if (!(target instanceof HTMLElement)) return;
+						if (
+							target.getAttribute('data-row') === 'academic-centre' &&
+							row.academicCentreId !== undefined
+						) {
+							drawerStore.open({
+								id: 'edit-academic-centre',
+								meta: row.academicCentreId
+							});
+						} else {
+							drawerStore.open({
+								id: 'edit-vigilant',
+								meta: row.id
+							});
+						}
 					}}
 				>
 					<td>{row.name}</td>
-					<id>{row.surenames}</id>
-					<id>{t(row.role)}</id>
-					<id>{row.lazySpecialtyName}</id>
-					<id>{row.lazyAcademicCentreName}</id>
-					<id>{row.mainCourt}</id>
+					<td>{row.surenames}</td>
+					<td>{t(row.role)}</td>
+					<td>
+						<ul>
+							{#each row.getSpecialties() as specialty}
+								<li>{specialty.name}</li>
+							{/each}
+						</ul>
+					</td>
+					<td data-row="academic-centre">
+						{#if row.getAcademicCentre() === undefined}
+							<i>{m.no_academic_centre}</i>
+						{:else}
+							{row.lazyAcademicCentreName}
+						{/if}
+					</td>
+					<td>{row.mainCourt}</td>
 				</tr>
 			{/each}
 		</tbody>

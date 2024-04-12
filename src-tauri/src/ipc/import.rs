@@ -10,8 +10,8 @@ use tauri::command;
 use ts_rs::TS;
 
 use crate::models::{
-    examinee::ExamineeForCreate,
-    subject::{SubjectForCreate, SubjectKind},
+    examinee::ImportedExaminee,
+    subject::{ImportedSubject, SubjectKind},
 };
 
 #[derive(Deserialize, TS)]
@@ -36,8 +36,8 @@ pub struct ExamineeImportSettings {
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct ExamineeImportValues {
-    subjects: Vec<SubjectForCreate>,
-    examinees: Vec<ExamineeForCreate>,
+    subjects: Vec<ImportedSubject>,
+    examinees: Vec<ImportedExaminee>,
 }
 
 #[derive(Serialize, TS)]
@@ -109,7 +109,7 @@ pub struct ExamineeForImport {
 }
 
 impl ExamineeForImport {
-    fn into_create(self) -> Result<ExamineeForCreate, ExamineeImportError> {
+    fn into_create(self) -> Result<ImportedExaminee, ExamineeImportError> {
         let nif = self
             .clone()
             .nif
@@ -147,13 +147,15 @@ impl ExamineeForImport {
                 missing: ExamineeImportColumn::ExamineeCourt,
             })?
             .clone();
+        let subjects = self.subjects.into_iter().collect();
         let academic_centre = self.academic_centre;
-        Ok(ExamineeForCreate {
+        Ok(ImportedExaminee {
             nif,
             name,
             surenames,
             origin,
             court,
+            subjects,
             academic_centre,
         })
     }
@@ -282,10 +284,10 @@ pub async fn perform_examinee_import(
         examinees: examinees
             .into_values()
             .map(|examinee| examinee.into_create())
-            .collect::<Result<Vec<ExamineeForCreate>, ExamineeImportError>>()?,
+            .collect::<Result<Vec<ImportedExaminee>, ExamineeImportError>>()?,
         subjects: subjects
             .into_iter()
-            .map(|(name, kind)| SubjectForCreate { name, kind })
+            .map(|(name, kind)| ImportedSubject { name, kind })
             .collect(),
     })
 }

@@ -37,7 +37,7 @@ pub struct Subject {
 #[derive(Serialize, Debug, PartialEq, Eq, Clone, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
-pub struct SubjectForCreate {
+pub struct ImportedSubject {
     pub name: String,
     pub kind: SubjectKind,
 }

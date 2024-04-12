@@ -6,12 +6,17 @@
 	import { Examinee, ExamineeForCreate } from '$lib/models/examinees';
 	import { createExaminee, findExamineeByNif } from '$lib/services/examinees';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
+	import SubjectsSelector from '$lib/components/SubjectsSelector.svelte';
 
 	const toastStore = getToastStore();
 	let academicCentreSelector: AcademicCentreSearch;
+	let subjectsSelector: SubjectsSelector;
 
 	function submitForm(e: SubmitEvent) {
-		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
+		const raw = {
+			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),
+			specialtyId: subjectsSelector.getSelection()
+		};
 		if (
 			'academicCentre' in raw &&
 			typeof raw.academicCentre === 'string' &&
@@ -136,6 +141,7 @@
 			/>
 		</label>
 		<AcademicCentreSearch bind:this={academicCentreSelector} />
+		<SubjectsSelector bind:this={subjectsSelector} />
 	</div>
 	<div class="card-footer">
 		<button type="submit" class="btn variant-filled-primary">
