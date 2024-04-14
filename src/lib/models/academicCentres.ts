@@ -10,12 +10,19 @@ export class AcademicCentre implements Model {
 	});
 
 	readonly id: ModelId;
-	readonly name: string;
+	name: string;
 
 	constructor(params: { id: ModelId; name: string }) {
-		params = AcademicCentre.Type.parse(params);
 		this.id = params.id;
 		this.name = params.name;
+	}
+
+	setName(value: string): void {
+		this.name = AcademicCentre.Name.parse(value);
+	}
+
+	toString(): string {
+		return `id: ${this.id}, name: ${this.name}`;
 	}
 }
 
@@ -24,13 +31,4 @@ export const AcademicCentreForCreate = z.object({
 });
 export type AcademicCentreForCreate = z.infer<typeof AcademicCentreForCreate>;
 
-export const AcademicCentreForUpdate = z.object({
-	name: AcademicCentre.Name.optional()
-});
-export type AcademicCentreForUpdate = z.infer<typeof AcademicCentreForUpdate>;
-
-export const academicCentresStore = createStore<
-	AcademicCentre,
-	AcademicCentreForCreate,
-	AcademicCentreForUpdate
->(AcademicCentre, 'academic_centre', 'academic_centres');
+export const academicCentresStore = createStore<AcademicCentre>('academic centre');

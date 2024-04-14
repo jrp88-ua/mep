@@ -1,62 +1,186 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     sync::{Arc, Mutex},
 };
 
 use calamine::{Data, DataType, Reader};
 use serde::{Deserialize, Serialize};
-use tauri::{command, AppHandle, Wry};
+use serde_with_macros::skip_serializing_none;
+use tauri::command;
+use ts_rs::TS;
 
-use crate::{
-    ctx::ApplicationContext,
-    models::{
-        examinee::ExamineeForCreate,
-        subject::{SubjectForCreate, SubjectKind},
-        RepositoryEntity,
-    },
+use crate::models::{
+    examinee::ImportedExaminee,
+    subject::{ImportedSubject, SubjectKind},
 };
 
-#[derive(Serialize, Clone)]
+#[derive(Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
-pub struct SheetData {
-    name: String,
-    values: Vec<Vec<String>>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct ExamineeImportSettings {
     selected_sheet: String,
     first_row_is_header: bool,
     group_rows_by_column: usize,
-    name_column: usize,
-    surenames_column: usize,
-    origin_column: usize,
+
     court_column: usize,
+    subject_name_column: usize,
+    surenames_column: usize,
+    name_column: usize,
+    nif_column: usize,
+    subject_kind_column: usize,
+    origin_column: usize,
     academic_centre_column: usize,
-    subjects_column: usize,
 }
 
-#[derive(Serialize, Clone, Copy)]
+#[derive(Serialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
-pub struct ExamineeImportResult {
-    imported_examinees: usize,
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub struct ExamineeImportValues {
+    subjects: Vec<ImportedSubject>,
+    examinees: Vec<ImportedExaminee>,
 }
 
-#[derive(Default)]
-struct ExamineeForImport {
+#[derive(Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub enum ExamineeImportColumn {
+    SubjectName,
+    RowIdentifier,
+    ExamineeNif,
+    ExamineeName,
+    ExamineeSurenames,
+    ExamineeOrigin,
+    ExamineeCourt,
+    ExamineeAcademicCentre,
+}
+
+#[derive(Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub enum ExamineeImportInvalidValueError {
+    CourtIsNotNumber,
+}
+
+#[derive(Serialize, TS)]
+#[serde(rename_all = "camelCase", tag = "type")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub enum ExamineeImportError {
+    Lock,
+    NoValuesLoaded,
+    NoSheet,
+    MissingValue {
+        row: usize,
+        missing: ExamineeImportColumn,
+    },
+    #[serde(rename_all = "camelCase")]
+    MissmatchValue {
+        row: usize,
+        identifier: String,
+        missmatch: ExamineeImportColumn,
+        established_value: String,
+        found_value: String,
+    },
+    #[serde(rename_all = "camelCase")]
+    InvalidValue {
+        row: usize,
+        reason: ExamineeImportInvalidValueError,
+        invalid_value: String,
+    },
+    MissingExamineeValue {
+        examinee: ExamineeForImport,
+        identifier: String,
+        missing: ExamineeImportColumn,
+    },
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Default, Clone, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub struct ExamineeForImport {
+    identifier: String,
+    nif: Option<String>,
     name: Option<String>,
     surenames: Option<String>,
     origin: Option<String>,
     court: Option<i16>,
     academic_centre: Option<String>,
+    subjects: HashSet<String>,
+}
+
+impl ExamineeForImport {
+    fn into_create(self) -> Result<ImportedExaminee, ExamineeImportError> {
+        let nif = self
+            .clone()
+            .nif
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeNif,
+            })?
+            .clone();
+        let name = self
+            .clone()
+            .name
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeName,
+            })?
+            .clone();
+        let surenames = self.clone().surenames.unwrap_or_default();
+        let origin = self
+            .clone()
+            .origin
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeOrigin,
+            })?
+            .clone();
+        let court = self
+            .clone()
+            .court
+            .ok_or_else(|| ExamineeImportError::MissingExamineeValue {
+                examinee: self.clone(),
+                identifier: self.clone().identifier,
+                missing: ExamineeImportColumn::ExamineeCourt,
+            })?
+            .clone();
+        let subjects = self.subjects.into_iter().collect();
+        let academic_centre = self.academic_centre;
+        Ok(ImportedExaminee {
+            nif,
+            name,
+            surenames,
+            origin,
+            court,
+            subjects,
+            academic_centre,
+        })
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct SheetData {
+    name: String,
+    values: Vec<Vec<String>>,
+}
+
+#[derive(Serialize, TS, Debug)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub struct ExcelSheet {
+    name: String,
+    first_row: Vec<String>,
+    empty: bool,
 }
 
 #[command]
 pub async fn start_examinee_import_process(
     state: tauri::State<'_, Arc<Mutex<Option<Vec<SheetData>>>>>,
     file_path: String,
-) -> Result<Vec<SheetData>, String> {
+) -> Result<Vec<ExcelSheet>, String> {
     use calamine::Error;
     let open_result = calamine::open_workbook_auto(file_path);
     if let Err(err) = open_result {
@@ -103,7 +227,14 @@ pub async fn start_examinee_import_process(
     match state.lock() {
         Ok(mut v) => {
             *v = Option::Some(sheet_data.clone());
-            Ok(sheet_data)
+            Ok(sheet_data
+                .into_iter()
+                .map(|sd| ExcelSheet {
+                    name: sd.name,
+                    empty: sd.values.len() == 0,
+                    first_row: sd.values.get(0).unwrap_or(&Vec::new()).clone(),
+                })
+                .collect())
         }
         Err(_) => Err("LOCK".to_owned()),
     }
@@ -112,174 +243,297 @@ pub async fn start_examinee_import_process(
 #[command]
 pub async fn perform_examinee_import(
     state: tauri::State<'_, Arc<Mutex<Option<Vec<SheetData>>>>>,
-    app_handle: AppHandle<Wry>,
     import_settings: ExamineeImportSettings,
-) -> Result<ExamineeImportResult, String> {
-    let values = extract_import_examinees_state(state)?;
-
-    let sheet = values
+) -> Result<ExamineeImportValues, ExamineeImportError> {
+    let sheet = extract_import_examinees_state(state)?;
+    let sheet = sheet
         .iter()
         .find(|sheet| sheet.name == import_settings.selected_sheet)
-        .ok_or_else(|| "NO_SHEET".to_owned())?;
+        .ok_or(ExamineeImportError::NoSheet)?;
 
-    let mut result = ExamineeImportResult {
-        imported_examinees: 0,
-    };
     let start_index = if import_settings.first_row_is_header {
         1
     } else {
         0
     };
 
-    let context = ApplicationContext::from_app(app_handle);
+    let mut subjects = HashMap::new();
 
-    let mut subjects: Vec<String> = context
-        .state()
-        .lock()
-        .unwrap()
-        .get_all_subjects()
-        .iter()
-        .map(|subject| subject.name.clone())
-        .collect();
+    let mut academic_centres = HashSet::new();
 
     let mut examinees = HashMap::<String, ExamineeForImport>::new();
+
     for i in start_index..sheet.values.len() {
         let row = &sheet.values[i];
 
-        let row_subject_name = row
-            .get(import_settings.subjects_column)
-            .ok_or_else(|| "MISSUNG_SUBJECT_COLUMN".to_owned())?;
-        let found_subject = subjects.contains(row_subject_name);
-        if !found_subject {
-            subjects.push(
-                context
-                    .state()
-                    .lock()
-                    .unwrap()
-                    .get_or_create_subject(SubjectForCreate {
-                        name: row_subject_name.clone(),
-                        kind: SubjectKind::UNKNOWN,
-                    })
-                    .name,
-            );
-        }
+        let row_subject = update_subjects_list(&mut subjects, &row, i, &import_settings)?;
+        let row_academic_centre =
+            update_academic_centres_list(&mut academic_centres, &row, &import_settings);
 
-        let identifier = row
-            .get(import_settings.group_rows_by_column)
-            .ok_or_else(|| "MISSING_GROUP_BY_COLUMN".to_owned())?;
-        let name = row
-            .get(import_settings.name_column)
-            .ok_or_else(|| "MISSING_NAME_COLUMN".to_owned())?;
-        let surenames = row
-            .get(import_settings.surenames_column)
-            .ok_or_else(|| "MISSING_SURENAMES_COLUMN".to_owned())?;
-        let origin = row
-            .get(import_settings.origin_column)
-            .ok_or_else(|| "MISSING_ORIGIN_COLUMN".to_owned())?;
-        let court = row
-            .get(import_settings.court_column)
-            .ok_or_else(|| "MISSING_COURT_COLUMN".to_owned())?;
-        let academic_centre = row
-            .get(import_settings.academic_centre_column)
-            .ok_or_else(|| "MISSING_ACADEMIC_CENTRE_COLUMN".to_owned())?;
-
-        let mut examinee = examinees.get_mut(identifier);
-        if let Option::None = examinee {
-            examinees.insert(identifier.clone(), ExamineeForImport::default());
-            examinee = examinees.get_mut(identifier);
-        }
-        let examinee = examinee.unwrap();
-
-        match &examinee.name {
-            Some(ex_name) => {
-                if name != ex_name {
-                    return Err("DIFFERENT_NAMES".to_owned());
-                }
-            }
-            None => examinee.name = Some(name.clone()),
-        };
-
-        match &examinee.surenames {
-            Some(ex_surenames) => {
-                if surenames != ex_surenames {
-                    return Err("DIFFERENT_SURENAMES".to_owned());
-                }
-            }
-            None => examinee.surenames = Some(surenames.clone()),
-        };
-
-        match &examinee.origin {
-            Some(ex_origin) => {
-                if origin != ex_origin {
-                    return Err("DIFFERENT_ORIGINS".to_owned());
-                }
-            }
-            None => examinee.origin = Some(origin.clone()),
-        };
-
-        let court = court.parse::<i16>();
-        let court = match court {
-            Ok(v) => Result::Ok(v),
-            Err(_) => Result::Err("COURT_NUMBER_IS_NOT_INT".to_owned()),
-        }?;
-
-        match &examinee.court {
-            Some(ex_court) => {
-                if &court != ex_court {
-                    return Err("DIFFERENT_COURTS".to_owned());
-                }
-            }
-            None => examinee.court = Some(court),
-        };
-
-        match &examinee.academic_centre {
-            Some(ex_academic_centre) => {
-                if academic_centre != ex_academic_centre {
-                    return Err("DIFFERENT_ACADEMIC_CENTRES".to_owned());
-                }
-            }
-            None => examinee.academic_centre = Some(academic_centre.clone()),
-        };
+        update_examinee_list(
+            &mut examinees,
+            &row_academic_centre,
+            &row_subject,
+            &row,
+            i,
+            &import_settings,
+        )?;
     }
 
-    result.imported_examinees = examinees.len();
-    for examinee in examinees {
-        let academic_centre_for_create = examinee.1.academic_centre.map(|academic_centre_name| {
-            context
-                .state()
-                .lock()
-                .unwrap()
-                .get_or_create_academic_centre(academic_centre_name)
-                .id()
+    Ok(ExamineeImportValues {
+        examinees: examinees
+            .into_values()
+            .map(|examinee| examinee.into_create())
+            .collect::<Result<Vec<ImportedExaminee>, ExamineeImportError>>()?,
+        subjects: subjects
+            .into_iter()
+            .map(|(name, kind)| ImportedSubject { name, kind })
+            .collect(),
+    })
+}
+
+fn update_subjects_list(
+    subjects: &mut HashMap<String, SubjectKind>,
+    row: &Vec<String>,
+    index: usize,
+    settings: &ExamineeImportSettings,
+) -> Result<String, ExamineeImportError> {
+    let subject_name = row
+        .get(settings.subject_name_column)
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .ok_or(ExamineeImportError::MissingValue {
+            row: index + 1,
+            missing: ExamineeImportColumn::SubjectName,
+        })?;
+
+    if *subjects.get(subject_name).unwrap_or(&SubjectKind::UNKNOWN) == SubjectKind::UNKNOWN {
+        let subject_kind = row
+            .get(settings.subject_kind_column)
+            .map(|s| s.trim())
+            .map_or(SubjectKind::UNKNOWN, SubjectKind::from);
+
+        subjects.insert(subject_name.to_owned(), subject_kind);
+    }
+
+    Ok(subject_name.to_owned())
+}
+
+fn update_academic_centres_list(
+    academic_centres: &mut HashSet<String>,
+    row: &Vec<String>,
+    settings: &ExamineeImportSettings,
+) -> Option<String> {
+    let academic_centre_name = row
+        .get(settings.academic_centre_column)
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty());
+
+    if academic_centre_name.is_none() {
+        return None;
+    }
+
+    let academic_centre_name = academic_centre_name.unwrap();
+
+    if !academic_centres.contains(academic_centre_name) {
+        academic_centres.insert(academic_centre_name.to_owned());
+    }
+
+    Some(academic_centre_name.to_owned())
+}
+
+struct ExamineeRowValues<'a> {
+    nif: &'a String,
+    name: &'a String,
+    surenames: String,
+    origin: &'a String,
+    court: i16,
+    identifier: &'a String,
+}
+fn extract_examinee_values_from_row<'a>(
+    row: &'a Vec<String>,
+    index: usize,
+    settings: &ExamineeImportSettings,
+) -> Result<ExamineeRowValues<'a>, ExamineeImportError> {
+    let identifier = row
+        .get(settings.group_rows_by_column)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ExamineeImportError::MissingValue {
+            row: index + 1,
+            missing: ExamineeImportColumn::RowIdentifier,
+        })?;
+    let nif = row
+        .get(settings.nif_column)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ExamineeImportError::MissingValue {
+            row: index + 1,
+            missing: ExamineeImportColumn::ExamineeNif,
+        })?;
+    let name = row
+        .get(settings.name_column)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ExamineeImportError::MissingValue {
+            row: index + 1,
+            missing: ExamineeImportColumn::ExamineeName,
+        })?;
+    let surenames = match row.get(settings.surenames_column) {
+        Some(surenames) => surenames,
+        None => "",
+    }
+    .to_owned();
+    let origin = row
+        .get(settings.origin_column)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ExamineeImportError::MissingValue {
+            row: index + 1,
+            missing: ExamineeImportColumn::ExamineeOrigin,
+        })?;
+    let court = row
+        .get(settings.court_column)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ExamineeImportError::MissingValue {
+            row: index + 1,
+            missing: ExamineeImportColumn::ExamineeCourt,
+        })?
+        .parse::<i16>()
+        .map_err(|_| ExamineeImportError::InvalidValue {
+            row: index + 1,
+            invalid_value: row[settings.court_column].to_owned(),
+            reason: ExamineeImportInvalidValueError::CourtIsNotNumber,
+        })?;
+    Ok(ExamineeRowValues {
+        identifier,
+        nif,
+        name,
+        surenames,
+        origin,
+        court,
+    })
+}
+
+fn check_and_update_examinee(
+    row_examinee: &mut ExamineeForImport,
+    row_values: ExamineeRowValues,
+    row_subject: &str,
+    row_academic_centre: &Option<String>,
+    index: usize,
+) -> Result<(), ExamineeImportError> {
+    if row_examinee
+        .nif
+        .get_or_insert_with(|| row_values.nif.clone())
+        != row_values.nif
+    {
+        return Err(ExamineeImportError::MissmatchValue {
+            row: index + 1,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeNif,
+            established_value: row_examinee.nif.clone().unwrap(),
+            found_value: row_values.nif.clone(),
         });
-
-        let to_create = ExamineeForCreate {
-            name: examinee
-                .1
-                .name
-                .clone()
-                .ok_or_else(|| "MISSING_NAME".to_owned())?,
-            surenames: examinee
-                .1
-                .surenames
-                .clone()
-                .ok_or_else(|| "MISSING_SURENAMES".to_owned())?,
-            origin: examinee
-                .1
-                .origin
-                .clone()
-                .ok_or_else(|| "MISSING_ORIGIN".to_owned())?,
-            court: examinee
-                .1
-                .court
-                .clone()
-                .ok_or_else(|| "MISSING_COURT".to_owned())?,
-            academic_centre_id: academic_centre_for_create,
-        };
-        context.state().lock().unwrap().create_examinee(to_create);
+    }
+    if row_examinee
+        .name
+        .get_or_insert_with(|| row_values.name.clone())
+        != row_values.name
+    {
+        return Err(ExamineeImportError::MissmatchValue {
+            row: index + 1,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeName,
+            established_value: row_examinee.name.clone().unwrap(),
+            found_value: row_values.name.clone(),
+        });
     }
 
-    Ok(result)
+    if *row_examinee
+        .surenames
+        .get_or_insert_with(|| row_values.surenames.to_owned())
+        != row_values.surenames
+    {
+        return Err(ExamineeImportError::MissmatchValue {
+            row: index + 1,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeSurenames,
+            established_value: row_examinee.surenames.clone().unwrap(),
+            found_value: row_values.surenames.to_owned(),
+        });
+    }
+
+    if row_examinee
+        .origin
+        .get_or_insert_with(|| row_values.origin.clone())
+        != row_values.origin
+    {
+        return Err(ExamineeImportError::MissmatchValue {
+            row: index + 1,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeOrigin,
+            established_value: row_examinee.origin.clone().unwrap(),
+            found_value: row_values.origin.clone(),
+        });
+    }
+
+    if *row_examinee
+        .court
+        .get_or_insert_with(|| row_values.court.clone())
+        != row_values.court
+    {
+        return Err(ExamineeImportError::MissmatchValue {
+            row: index + 1,
+            identifier: row_values.identifier.clone(),
+            missmatch: ExamineeImportColumn::ExamineeCourt,
+            established_value: row_examinee.court.unwrap().to_string(),
+            found_value: row_values.court.to_string(),
+        });
+    }
+
+    if let Option::Some(row_academic_centre) = row_academic_centre {
+        if row_examinee
+            .academic_centre
+            .get_or_insert_with(|| row_academic_centre.clone())
+            != row_academic_centre
+        {
+            return Err(ExamineeImportError::MissmatchValue {
+                row: index + 1,
+                identifier: row_values.identifier.clone(),
+                missmatch: ExamineeImportColumn::ExamineeAcademicCentre,
+                established_value: row_examinee.academic_centre.clone().unwrap(),
+                found_value: row_academic_centre.clone(),
+            });
+        }
+    }
+
+    row_examinee.subjects.insert(row_subject.to_owned());
+
+    Ok(())
+}
+
+fn update_examinee_list(
+    examinees: &mut HashMap<String, ExamineeForImport>,
+    row_academic_centre: &Option<String>,
+    row_subject: &str,
+    row: &Vec<String>,
+    index: usize,
+    settings: &ExamineeImportSettings,
+) -> Result<(), ExamineeImportError> {
+    let row_values = extract_examinee_values_from_row(row, index, settings)?;
+
+    let mut row_examinee = examinees.get_mut(row_values.identifier);
+    if row_examinee.is_none() {
+        let mut examinee = ExamineeForImport::default();
+        examinee.identifier = row_values.identifier.clone();
+        examinees.insert(row_values.identifier.to_owned(), examinee);
+        row_examinee = examinees.get_mut(row_values.identifier);
+    }
+    let row_examinee = row_examinee.unwrap();
+
+    check_and_update_examinee(
+        row_examinee,
+        row_values,
+        row_subject,
+        row_academic_centre,
+        index,
+    )
 }
 
 #[command]
@@ -289,12 +543,12 @@ pub fn cancel_examinee_import(state: tauri::State<Arc<Mutex<Option<Vec<SheetData
 
 fn extract_import_examinees_state(
     state: tauri::State<Arc<Mutex<Option<Vec<SheetData>>>>>,
-) -> Result<Vec<SheetData>, String> {
+) -> Result<Vec<SheetData>, ExamineeImportError> {
     match state.lock() {
         Ok(mut guard) => {
-            let values = guard.take().ok_or_else(|| "NO_VALUES".to_owned())?;
+            let values = guard.take().ok_or(ExamineeImportError::NoValuesLoaded)?;
             Ok(values)
         }
-        Err(_) => Err("LOCK".to_owned()),
+        Err(_) => Err(ExamineeImportError::Lock),
     }
 }

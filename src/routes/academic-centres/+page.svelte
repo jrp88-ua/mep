@@ -7,14 +7,17 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import { academicCentresStore, type AcademicCentre } from '$lib/stores/academicCentres';
+	import { type AcademicCentre } from '$lib/models/academicCentres';
+	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import { getAllAcademicCentres } from '$lib/services/academicCentres';
 
-	const getAcademicCentres = academicCentresStore
-		.getAllInstances()
-		.then((academicCentres) => handler.setRows(academicCentres));
+	const academicCentresStore = getAllAcademicCentres();
 
 	let handler = new DataHandler<AcademicCentre>([], { rowsPerPage: 5 });
+	handler.setRows($academicCentresStore);
 	const rows = handler.getRows();
+
+	const drawerStore = getDrawerStore();
 </script>
 
 <h1 class="text-3xl mb-4">{m.academic_centres_page_title()}</h1>
@@ -43,8 +46,17 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each $rows as row}
-				<tr>
+			{#each $rows as row (row.id)}
+				<tr
+					on:click={(event) => {
+						const target = event.target;
+						if (target instanceof HTMLInputElement) return;
+						drawerStore.open({
+							id: 'edit-academic-centre',
+							meta: row.id
+						});
+					}}
+				>
 					<td>{row.name}</td>
 				</tr>
 			{/each}

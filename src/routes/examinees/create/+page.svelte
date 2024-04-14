@@ -1,30 +1,66 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
 	import { goto } from '$app/navigation';
-	import { showSuccessToast } from '$lib/toast';
-	import { getToastStore } from '@skeletonlabs/skeleton';
-	import { ExamineeForCreate, examineesStore } from '$lib/stores/examinees';
+	import { showErrorToast, showSuccessToast } from '$lib/toast';
+	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { Examinee, ExamineeForCreate } from '$lib/models/examinees';
+	import { createExaminee, findExamineeByNif } from '$lib/services/examinees';
+	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
+	import SubjectsSelector from '$lib/components/SubjectsSelector.svelte';
 
-	const toast = getToastStore();
+	const toastStore = getToastStore();
+	let academicCentreSelector: AcademicCentreSearch;
+	let subjectsSelector: SubjectsSelector;
 
-	async function submitForm(e: SubmitEvent) {
-		const raw: unknown = Object.fromEntries(new FormData(e.target as HTMLFormElement));
+	function submitForm(e: SubmitEvent) {
+		const raw = {
+			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),
+			subjectsIds: subjectsSelector.getSelection()
+		};
+		if (
+			'academicCentre' in raw &&
+			typeof raw.academicCentre === 'string' &&
+			raw.academicCentre.trim() === ''
+		)
+			delete raw.academicCentre;
 		const result = ExamineeForCreate.safeParse(raw);
 		if (result.success) {
-			const examinee = await examineesStore.createInstance(result.data);
-			toast.trigger(
+			const willCreateAcademicCentre = !academicCentreSelector.academicCentreExists();
+			const examinee = createExaminee(result.data);
+			if (examinee === false) {
+				toastStore.trigger(
+					showErrorToast({
+						message: 'No se ha podido crear el examinado, los valores no son válidos'
+					})
+				);
+				return;
+			}
+			toastStore.trigger(
 				showSuccessToast({
-					message: 'Examinado creado',
-					action: {
-						label: 'Ver examinado',
-						response: () => goto('/examinees/' + examinee.id)
-					}
+					message: willCreateAcademicCentre
+						? 'Examinado y centro académico creados'
+						: 'Examinado creado'
 				})
 			);
 			goto('/examinees');
 		} else {
 			console.error(result.error);
 		}
+	}
+
+	let matchingExaminee: undefined | Examinee = undefined;
+	let checkExamineeNifTask: string | number | NodeJS.Timeout | undefined = undefined;
+	$: showExamineeWarning = matchingExaminee !== undefined;
+	function checkExamineeNif(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+		clearTimeout(checkExamineeNifTask);
+		let nif = event.currentTarget.value;
+		if (!nif) {
+			showExamineeWarning = false;
+			return;
+		}
+		checkExamineeNifTask = setTimeout(() => {
+			matchingExaminee = findExamineeByNif(nif);
+		}, 500);
 	}
 </script>
 
@@ -34,6 +70,32 @@
 	<h2 class=" card-header text-2xl">Datos del nuevo examinado</h2>
 	<div class="p-4">
 		<label class="my-5">
+			<span class="text-xl">Nif</span>
+			<div class="input-group input-group-divider grid-cols-[auto_1fr]">
+				{#if showExamineeWarning}
+					<div
+						class="input-group-shim"
+						use:popup={{
+							event: 'hover',
+							target: 'examinee-warning',
+							placement: 'top-start'
+						}}
+					>
+						<i class="fa-solid fa-circle-exclamation text-warning-500 animate-pulse" />
+					</div>
+				{/if}
+				<input
+					title="Nif"
+					name="nif"
+					type="text"
+					placeholder="Nif del alumno..."
+					tabindex="0"
+					on:input={checkExamineeNif}
+					required
+				/>
+			</div>
+		</label>
+		<label class="my-5">
 			<span class="text-xl">Nombre</span>
 			<input
 				class="input"
@@ -41,7 +103,6 @@
 				name="name"
 				type="text"
 				placeholder="Nombre del alumno..."
-				tabindex="0"
 				required
 			/>
 		</label>
@@ -53,7 +114,6 @@
 				name="surenames"
 				type="text"
 				placeholder="Apellidos del alumno..."
-				required
 			/>
 		</label>
 		<label class="my-5">
@@ -80,6 +140,8 @@
 				required
 			/>
 		</label>
+		<AcademicCentreSearch bind:this={academicCentreSelector} />
+		<SubjectsSelector bind:this={subjectsSelector} />
 	</div>
 	<div class="card-footer">
 		<button type="submit" class="btn variant-filled-primary">
@@ -96,3 +158,42 @@
 		</a>
 	</div>
 </form>
+<div class="card p-4 variant-filled-surface" data-popup="examinee-warning">
+	<p><strong>Ya existe un examinado con el nif {matchingExaminee?.nif}</strong></p>
+	<div>
+		<table class="table">
+			<tbody>
+				<tr>
+					<td>Nif</td>
+					<td>{matchingExaminee?.nif}</td>
+				</tr>
+				<tr>
+					<td>Nombre</td>
+					<td>{matchingExaminee?.name}</td>
+				</tr>
+				<tr>
+					<td>Apellidos</td>
+					<td>{matchingExaminee?.surenames}</td>
+				</tr>
+				<tr>
+					<td>Origen</td>
+					<td>{matchingExaminee?.origin}</td>
+				</tr>
+				<tr>
+					<td>Tribunal</td>
+					<td>{matchingExaminee?.court}</td>
+				</tr>
+				<tr>
+					<td>Centro académico</td>
+					<td>
+						{#if matchingExaminee?.getAcademicCentre() !== undefined}
+							{matchingExaminee.getAcademicCentre()?.name}
+						{:else}
+							<i>{m.no_academic_centre()}</i>
+						{/if}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

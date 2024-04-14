@@ -3,13 +3,13 @@
 	import '../app.postcss';
 	import { i18n } from '$lib/i18n';
 	import { ParaglideJS } from '@inlang/paraglide-js-adapter-sveltekit';
-	import { AppShell, Toast, getToastStore } from '@skeletonlabs/skeleton';
+	import { AppShell, Modal, Toast, getToastStore } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import AppNavigationBar from './AppNavigationBar.svelte';
-	import StatusBar from './StatusBar.svelte';
 	import { beforeNavigate } from '$app/navigation';
-	import { appState } from '$lib/stores/appState';
+	import { appState } from '$lib/models/appState';
 	import { showWarningToast } from '$lib/toast';
+	import AppDrawers from '$lib/drawer/AppDrawers.svelte';
 
 	initializeStores();
 
@@ -19,10 +19,8 @@
 		if (!appState.allowsNavigation()) {
 			toast.trigger(
 				showWarningToast({
-					message: `
-					<strong>${m.locked_navigation_title()}</strong><br>
-					${appState.lockedNavigationReason() as string}
-					`
+					title: m.locked_navigation_title(),
+					message: appState.lockedNavigationReason() as string
 				})
 			);
 			e.cancel();
@@ -32,6 +30,8 @@
 
 <ParaglideJS {i18n}>
 	<Toast position={'br'} />
+	<Modal />
+	<AppDrawers />
 	<AppShell>
 		<svelte:fragment slot="sidebarLeft">
 			<AppNavigationBar />
@@ -39,8 +39,5 @@
 		<div class="m-4">
 			<slot />
 		</div>
-		<svelte:fragment slot="footer">
-			<StatusBar />
-		</svelte:fragment>
 	</AppShell>
 </ParaglideJS>

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { ExcelSheet, ExamineeImportSettings } from '$lib/types/sheetsImport';
+	import type { ExamineeImportSettings } from '$lib/types/generated/ExamineeImportSettings';
+	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
 	import { createSheetColumns } from '$lib/util';
 	import { createEventDispatcher, onMount } from 'svelte';
 
@@ -29,20 +30,14 @@
 	function updateHeaders() {
 		if (sheet === undefined) return;
 		if (importSettings.firstRowIsHeader) {
-			columnNames = sheet.values[0];
+			columnNames = sheet.firstRow;
 		} else {
-			columnNames = createSheetColumns(sheet.values[0].length);
+			columnNames = createSheetColumns(sheet.firstRow.length);
 		}
-		importSettings.groupRowsByColumn = 0;
-		importSettings.courtColumn = undefined;
-		importSettings.nameColumn = undefined;
-		importSettings.originColumn = undefined;
-		importSettings.surenamesColumn = undefined;
-		importSettings.academicCentreColumn = undefined;
 	}
 </script>
 
-{#if sheet !== undefined && sheet.values.length > 0}
+{#if sheet !== undefined && !sheet.empty}
 	<form>
 		<label class="my-4 flex items-center space-x-2">
 			<input
@@ -120,7 +115,7 @@
 
 		<div class="my-4 input-group input-group-divider grid-cols-[auto_1fr_auto]">
 			<div class="input-group-shim">Asignatura</div>
-			<select required bind:value={importSettings.subjectsColumn}>
+			<select required bind:value={importSettings.subjectNameColumn}>
 				{#each columnNames as column, i (column)}
 					<option value={i}>{column}</option>
 				{/each}

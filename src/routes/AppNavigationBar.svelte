@@ -21,6 +21,12 @@
 		</svelte:fragment>
 		{m.navbar_examinees()}
 	</AppRailAnchor>
+	<AppRailAnchor href="/vigilants" title="vigilants" selected={route.startsWith('/vigilants')}>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-binoculars text-2xl" />
+		</svelte:fragment>
+		{m.navbar_vigilants()}
+	</AppRailAnchor>
 	<AppRailAnchor
 		href="/academic-centres"
 		title="academic-centres"
@@ -36,6 +42,12 @@
 			<i class="fa-solid fa-book text-2xl" />
 		</svelte:fragment>
 		{m.navbar_subjects()}
+	</AppRailAnchor>
+	<AppRailAnchor href="/classrooms" title="classrooms" selected={route.startsWith('/classrooms')}>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-chair text-2xl" />
+		</svelte:fragment>
+		{m.navbar_classrooms()}
 	</AppRailAnchor>
 	<svelte:fragment slot="trail">
 		<AppRailAnchor href="/settings" title="settings" selected={route.startsWith('/settings')}>
