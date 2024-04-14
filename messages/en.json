@@ -70,9 +70,6 @@
 	"subjects": "Subjects",
 	"no_registered_subjects": "There are no registeres subjects",
 	"examinees_datatable_subjects": "Subjects",
-	"subject_datatable_obligatory": "Obligatory",
-	"subject_datatable_volunteer": "Volunteer",
-	"subject_datatable_unknown": "Unknown",
 	"navbar_classrooms": "Classrooms",
 	"classrooms_page_title": "Classrooms",
 	"create_classroom": "Add",
@@ -81,5 +78,11 @@
 	"classroom_datatable_total_capacity": "Total capacity",
 	"classroom_datatable_exam_capacity": "Exam capacity",
 	"classroom_datatable_kind": "Kind",
-	"classroom_datatable_notes": "Notes"
+	"classroom_datatable_notes": "Notes",
+	"subject_datatable_obligatory": "Obligatory",
+	"subject_datatable_volunteer": "Volunteer",
+	"subject_datatable_unknown": "Unknown",
+	"no_date": "No date",
+	"subject_datatable_exam_date": "Date of the exam",
+	"subject_datatable_exam_duration": "Duration of the exam in minutes"
 }

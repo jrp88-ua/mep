@@ -1,12 +1,15 @@
 import { get, writable } from 'svelte/store';
+import type { ModelId } from './models';
 
 export type AppState = {
 	navigationBlockedReason: string | undefined;
+	edittingSubject: ModelId | undefined;
 };
 
 export const appState = (() => {
 	const { update, subscribe } = writable<AppState>({
-		navigationBlockedReason: undefined
+		navigationBlockedReason: undefined,
+		edittingSubject: undefined
 	});
 
 	function allowsNavigation() {
@@ -25,11 +28,21 @@ export const appState = (() => {
 		update((state) => ({ ...state, navigationBlockedReason: undefined }));
 	}
 
+	function setEdittingSubject(id?: ModelId) {
+		update((state) => ({ ...state, edittingSubject: id }));
+	}
+
+	function getEdittingSubject() {
+		return get(appState).edittingSubject;
+	}
+
 	return {
 		subscribe,
 		allowsNavigation,
 		lockNavigation,
 		unlockNavigation,
-		lockedNavigationReason
+		lockedNavigationReason,
+		setEdittingSubject,
+		getEdittingSubject
 	};
 })();

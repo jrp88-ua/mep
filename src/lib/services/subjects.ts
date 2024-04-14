@@ -1,9 +1,4 @@
-import {
-	Subject,
-	SubjectForCreate,
-	subjectsStore,
-	type SUBJECT_KIND_VALUES
-} from '$lib/models/subjects';
+import { Subject, SubjectForCreate, subjectsStore, type SubjectKind } from '$lib/models/subjects';
 import type { ModelId } from '$lib/models/models';
 import * as m from '$paraglide/messages';
 import { get } from 'svelte/store';
@@ -49,7 +44,7 @@ export function deleteSubject(id: ModelId) {
 	return subjectsStore.deleteInstance(id);
 }
 
-export function subjectKindValuesTranslate(kind: (typeof SUBJECT_KIND_VALUES)[number]) {
+export function subjectKindValuesTranslate(kind: SubjectKind) {
 	switch (kind) {
 		case 'OBLIGATORY':
 			return m.subject_kind_obligatory();

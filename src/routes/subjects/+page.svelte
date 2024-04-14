@@ -8,9 +8,11 @@
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
-	import { Subject, SUBJECT_KIND_VALUES } from '$lib/models/subjects';
+	import { SUBJECT_KIND_VALUES, Subject } from '$lib/models/subjects';
 	import { getAllSubjects, subjectKindValuesTranslate } from '$lib/services/subjects';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import { goto } from '$app/navigation';
+	import { appState } from '$lib/models/appState';
 
 	const subjectsStore = getAllSubjects();
 
@@ -44,26 +46,38 @@
 			<tr>
 				<ThSort {handler} orderBy="name">{m.subject_datatable_name()}</ThSort>
 				<ThSort {handler} orderBy="kind">{m.subject_datatable_kind()}</ThSort>
+				<ThSort {handler} orderBy="examDate">{m.subject_datatable_exam_date()}</ThSort>
+				<ThSort {handler} orderBy="examDuration">{m.subject_datatable_exam_duration()}</ThSort>
 			</tr>
 			<tr>
 				<ThFilter {handler} filterBy="name" />
 				<ThEnumFilter {handler} values={SUBJECT_KIND_VALUES} valueTranslator={t} filterBy="kind" />
+				<ThFilter {handler} filterBy="examDate" />
+				<ThFilter {handler} filterBy="examDuration" />
 			</tr>
 		</thead>
 		<tbody>
 			{#each $rows as row (row.id)}
 				<tr
-					on:click={(event) => {
-						const target = event.target;
-						if (target instanceof HTMLInputElement) return;
-						drawerStore.open({
-							id: 'edit-subject',
-							meta: row.id
-						});
+					on:click={() => {
+						appState.setEdittingSubject(row.id);
+						goto('/subjects/edit');
 					}}
 				>
 					<td>{row.name}</td>
 					<td>{t(row.kind)}</td>
+					<td>
+						{#if row.examDate === undefined}
+							<i>{m.no_date()}</i>
+						{:else}
+							{row.examDate.toLocaleString()}
+						{/if}
+					</td>
+					<td>
+						{#if row.examDuration !== undefined}
+							{row.examDuration}
+						{/if}
+					</td>
 				</tr>
 			{/each}
 		</tbody>

@@ -79,5 +79,8 @@
 	"classroom_datatable_total_capacity": "Capacidad total",
 	"classroom_datatable_exam_capacity": "Capacidad de examen",
 	"classroom_datatable_kind": "Tipo",
-	"classroom_datatable_notes": "Notas"
+	"classroom_datatable_notes": "Notas",
+	"no_date": "Fecha no establecida",
+	"subject_datatable_exam_date": "Fecha del examen",
+	"subject_datatable_exam_duration": "Duración del examen en minutos"
 }
