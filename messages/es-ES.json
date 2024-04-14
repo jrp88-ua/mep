@@ -70,5 +70,14 @@
 	"vigilants_create_page_title": "Añadir vigilante",
 	"subjects": "Asignaturas",
 	"no_registered_subjects": "No hay asignaturas registradas",
-	"examinees_datatable_subjects": "Asignaturas"
+	"examinees_datatable_subjects": "Asignaturas",
+	"navbar_classrooms": "Salas",
+	"classrooms_page_title": "Salas",
+	"create_classroom": "Añadir",
+	"classroom_datatable_code": "Código",
+	"classroom_datatable_location_code": "Código de lugar",
+	"classroom_datatable_total_capacity": "Capacidad total",
+	"classroom_datatable_exam_capacity": "Capacidad de examen",
+	"classroom_datatable_kind": "Tipo",
+	"classroom_datatable_notes": "Notas"
 }

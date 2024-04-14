@@ -43,6 +43,12 @@
 		</svelte:fragment>
 		{m.navbar_subjects()}
 	</AppRailAnchor>
+	<AppRailAnchor href="/classrooms" title="classrooms" selected={route.startsWith('/classrooms')}>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-chair text-2xl" />
+		</svelte:fragment>
+		{m.navbar_classrooms()}
+	</AppRailAnchor>
 	<svelte:fragment slot="trail">
 		<AppRailAnchor href="/settings" title="settings" selected={route.startsWith('/settings')}>
 			<svelte:fragment slot="lead">

@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { ModelId, createStore } from './models';
+import { ModelId, createStore, type Model } from './models';
 
 export const SUBJECT_KIND_VALUES = ['OBLIGATORY', 'VOLUNTARY', 'UNKNOWN'] as const;
 
-export class Subject {
+export class Subject implements Model {
 	static Id = ModelId;
 	static Name = z.string().trim().min(1);
 	static Kind = z.enum(SUBJECT_KIND_VALUES).default('UNKNOWN');
