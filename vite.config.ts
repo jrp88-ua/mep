@@ -11,5 +11,8 @@ export default defineConfig({
 		}),
 		sveltekit(),
 		purgeCss()
-	]
+	],
+	test: {
+		environment: 'jsdom'
+	}
 });

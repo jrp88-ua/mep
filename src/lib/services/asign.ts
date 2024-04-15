@@ -1,26 +1,26 @@
 import type { Examinee } from '$lib/models/examinees';
 import { Subject } from '$lib/models/subjects';
-import { get } from 'svelte/store';
-import { getAllExaminees } from './examinees';
-import { getAllSubjects } from './subjects';
 
-function groupExamineesBySubjects(): Map<Subject, Examinee[]> {
+export function groupExamineesBySubjects(
+	subjects: Subject[],
+	examinees: Examinee[]
+): Map<Subject, Examinee[]> {
+	subjects = subjects.toSorted((a, b) => a.id - b.id);
+	examinees = examinees.toSorted((a, b) => a.id - b.id);
 	const map = new Map<Subject, Examinee[]>();
-	const subjects = get(getAllSubjects());
 	for (const subject of subjects) {
 		map.set(subject, []);
 	}
-	const examinees = get(getAllExaminees());
 	for (const examinee of examinees) {
 		for (const subject of examinee.getSubjects()) {
-			map.get(subject)?.push(examinee);
+			map.get(subject)!.push(examinee);
 		}
 	}
 	return map;
 }
 
-export function findExamDateCollisions(): [Subject, Subject][] {
-	const subjects = get(getAllSubjects()).sort((a, b) => a.id - b.id);
+export function findExamDateCollisions(subjects: Subject[]): [Subject, Subject][] {
+	subjects = subjects.toSorted((a, b) => a.id - b.id);
 	for (const subject of subjects) {
 		if (subject.examStartDate === undefined || !subject.examStartDate.isValid)
 			throw new Error(
@@ -35,8 +35,8 @@ export function findExamDateCollisions(): [Subject, Subject][] {
 	const collisions: [Subject, Subject][] = [];
 
 	for (let i = 0; i < subjects.length; i++) {
+		const subjectA = subjects[i];
 		for (let j = i + 1; j < subjects.length; j++) {
-			const subjectA = subjects[i];
 			const subjectB = subjects[j];
 
 			let firstSubject;
@@ -61,4 +61,4 @@ export function findExamDateCollisions(): [Subject, Subject][] {
 	return collisions;
 }
 
-function findExamineesExamnDateCollisions() {}
+export function findExamineesExamnDateCollisions() {}

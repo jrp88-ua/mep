@@ -43,7 +43,7 @@ export class Examinee implements Model {
 		id: ModelId;
 		nif: string;
 		name: string;
-		surenames: string;
+		surenames?: string;
 		origin: string;
 		court: number;
 		subjectsIds?: number[];
@@ -52,7 +52,7 @@ export class Examinee implements Model {
 		this.id = params.id;
 		this.nif = params.nif;
 		this.name = params.name;
-		this.surenames = params.surenames;
+		this.surenames = params.surenames || '';
 		this.origin = params.origin;
 		this.court = params.court;
 		this.subjectsIds = new Set(params.subjectsIds || []);
