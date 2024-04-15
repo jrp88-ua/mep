@@ -7,7 +7,13 @@ import { clearMocks } from '@tauri-apps/api/mocks';
 
 beforeEach(() => {
 	vi.clearAllMocks();
-
+	vi.mock('tauri-plugin-log-api', () => ({
+		error: () => {},
+		warn: () => {},
+		info: () => {},
+		debug: () => {},
+		trace: () => {}
+	}));
 	subjectsStore.clear();
 	examineesStore.clear();
 });
@@ -24,7 +30,6 @@ describe('groupExamineesBySubjects', () => {
 		new Subject({ id: id++, name: 'History' }),
 		new Subject({ id: id++, name: 'French' })
 	];
-	subjects.forEach((subject) => subjectsStore.storeInstance(subject));
 
 	const baseExaminee = { nif: '', origin: '', court: 1 };
 	const examinees = [
@@ -41,6 +46,8 @@ describe('groupExamineesBySubjects', () => {
 	 */
 
 	it('works', () => {
+		subjects.forEach((subject) => subjectsStore.storeInstance(subject));
+
 		const grouped = groupExamineesBySubjects(subjects, examinees);
 
 		const expected = new Map();
