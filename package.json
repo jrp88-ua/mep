@@ -23,6 +23,7 @@
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@tailwindcss/forms": "^0.5.7",
 		"@tauri-apps/cli": "^1.5.10",
+		"@types/luxon": "^3.4.2",
 		"@types/node": "^20.11.19",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
@@ -47,6 +48,7 @@
 		"@fortawesome/fontawesome-free": "^6.5.1",
 		"@tauri-apps/api": "^1.5.3",
 		"@vincjo/datatables": "^1.14.5",
+		"luxon": "^3.4.4",
 		"tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log#v1",
 		"zod": "^3.22.4"
 	}

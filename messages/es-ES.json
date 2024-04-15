@@ -82,5 +82,6 @@
 	"classroom_datatable_notes": "Notas",
 	"no_date": "Fecha no establecida",
 	"subject_datatable_exam_date": "Fecha del examen",
-	"subject_datatable_exam_duration": "Duración del examen en minutos"
+	"subject_datatable_exam_duration": "Duración del examen",
+	"can_not_filter": "No se puede filtrar"
 }

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Settings } from 'luxon';
+
 	import * as m from '$paraglide/messages';
 	import '../app.postcss';
 	import { i18n } from '$lib/i18n';
@@ -11,6 +13,7 @@
 	import { showWarningToast } from '$lib/toast';
 	import AppDrawers from '$lib/drawer/AppDrawers.svelte';
 
+	Settings.throwOnInvalid = true;
 	initializeStores();
 
 	const toast = getToastStore();

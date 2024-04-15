@@ -33,6 +33,7 @@
 
 	function submitForm(e: SubmitEvent) {
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
+		console.log(raw);
 		const result = SubjectForCreate.safeParse(raw);
 		if (!result.success) {
 			toastStore.trigger(
@@ -48,8 +49,8 @@
 		const values = result.data;
 		subject.setName(values.name);
 		subject.setKind(values.kind);
-		subject.setExamDate(values.examDate);
-		subject.setExamDuration(values.examDuration);
+		subject.examStartDate = values.examStartDate;
+		subject.examDuration = values.examDuration;
 		updatedSubject(subject.id);
 		toastStore.trigger(showSuccessToast({ message: 'Asignatura actualizada' }));
 		goto('/subjects');
@@ -99,7 +100,7 @@
 				title="Duración del examen en minutos"
 				name="examDuration"
 				type="number"
-				value={subject?.examDuration || 30}
+				value={subject?.examDuration?.minutes || 30}
 				placeholder="Duración del examen en minutos de la asignatura..."
 				min="1"
 				step="1"

@@ -13,6 +13,8 @@
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import { appState } from '$lib/models/appState';
+	import { Duration } from 'luxon';
+	import { languageTag } from '$paraglide/runtime';
 
 	const subjectsStore = getAllSubjects();
 
@@ -52,8 +54,8 @@
 			<tr>
 				<ThFilter {handler} filterBy="name" />
 				<ThEnumFilter {handler} values={SUBJECT_KIND_VALUES} valueTranslator={t} filterBy="kind" />
-				<ThFilter {handler} filterBy="examDate" />
-				<ThFilter {handler} filterBy="examDuration" />
+				<th>{m.can_not_filter()}</th>
+				<th>{m.can_not_filter()}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -67,15 +69,18 @@
 					<td>{row.name}</td>
 					<td>{t(row.kind)}</td>
 					<td>
-						{#if row.examDate === undefined}
+						{#if row.examStartDate === undefined}
 							<i>{m.no_date()}</i>
 						{:else}
-							{row.examDate.toLocaleString()}
+							{row.examStartDate.toLocaleString(
+								{ dateStyle: 'full', timeStyle: 'short' },
+								{ locale: languageTag() }
+							)}
 						{/if}
 					</td>
 					<td>
 						{#if row.examDuration !== undefined}
-							{row.examDuration}
+							{row.examDuration.toFormat("h'h' m'm' ")}
 						{/if}
 					</td>
 				</tr>
