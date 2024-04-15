@@ -1,4 +1,4 @@
-import type { Examinee } from '$lib/models/examinees';
+import { Examinee } from '$lib/models/examinees';
 import { Subject } from '$lib/models/subjects';
 
 export function groupExamineesBySubjects(
@@ -19,7 +19,7 @@ export function groupExamineesBySubjects(
 	return map;
 }
 
-export function findExamDateCollisions(subjects: Subject[]): [Subject, Subject][] {
+export function findExamDateCollisions(subjects: Subject[]) {
 	subjects = subjects.toSorted((a, b) => a.id - b.id);
 	for (const subject of subjects) {
 		if (subject.examStartDate === undefined || !subject.examStartDate.isValid)
@@ -61,4 +61,15 @@ export function findExamDateCollisions(subjects: Subject[]): [Subject, Subject][
 	return collisions;
 }
 
-export function findExamineesExamnDateCollisions() {}
+export function findExamineesWithExamnDateCollisions(examinees: Examinee[]) {
+	examinees = examinees.toSorted((a, b) => a.id - b.id);
+
+	const examineesWithCollisions = new Map<Examinee, [Subject, Subject][]>();
+
+	for (const examinee of examinees) {
+		const collisions = findExamDateCollisions(examinee.getSubjects());
+		if (collisions.length !== 0) examineesWithCollisions.set(examinee, collisions);
+	}
+
+	return examineesWithCollisions;
+}

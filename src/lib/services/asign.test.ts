@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { findExamDateCollisions, groupExamineesBySubjects } from './asign';
-import { DateTime, Duration } from 'luxon';
+import {
+	findExamDateCollisions,
+	findExamineesWithExamnDateCollisions,
+	groupExamineesBySubjects
+} from './asign';
+import { DateTime, Duration, Settings } from 'luxon';
 import { Subject, subjectsStore } from '$lib/models/subjects';
 import { Examinee, examineesStore } from '$lib/models/examinees';
 import { clearMocks } from '@tauri-apps/api/mocks';
@@ -154,5 +158,105 @@ describe('findExamDateCollisions with collisions', () => {
 			[german, english],
 			[french, english]
 		]);
+	});
+});
+
+describe('findExamDateCollisions with invalid data', () => {
+	it('has no exam date', () => {
+		expect(() =>
+			findExamDateCollisions([
+				new Subject({
+					id: 0,
+					name: 'sub',
+					examStartDate: undefined,
+					examDuration: Duration.fromMillis(1)
+				})
+			])
+		).toThrowError();
+	});
+
+	it('has no exam duration', () => {
+		expect(() =>
+			findExamDateCollisions([
+				new Subject({
+					id: 0,
+					name: 'sub',
+					examStartDate: DateTime.now(),
+					examDuration: undefined
+				})
+			])
+		).toThrowError();
+	});
+
+	it('has an invalid exam date', () => {
+		const oldThrowOnInvalid = Settings.throwOnInvalid;
+		Settings.throwOnInvalid = false;
+		expect(() =>
+			findExamDateCollisions([
+				new Subject({
+					id: 0,
+					name: 'sub',
+					examStartDate: DateTime.utc(2024, 31, 2),
+					examDuration: Duration.fromMillis(1)
+				})
+			])
+		).toThrowError();
+		Settings.throwOnInvalid = oldThrowOnInvalid;
+	});
+});
+
+describe('findExamineesWithExamnDateCollisions', () => {
+	let id = 0;
+	const subjects = [
+		new Subject({
+			id: id++,
+			name: 'Math',
+			examStartDate: DateTime.utc(2024, 6, 12, 9, 0),
+			examDuration: Duration.fromObject({ hours: 2 })
+		}),
+		new Subject({
+			id: id++,
+			name: 'Spanish',
+			examStartDate: DateTime.utc(2024, 6, 12, 15, 0),
+			examDuration: Duration.fromObject({ hours: 2 })
+		}),
+		new Subject({
+			id: id++,
+			name: 'German',
+			examStartDate: DateTime.utc(2024, 6, 13, 9, 0),
+			examDuration: Duration.fromObject({ hours: 2 })
+		}),
+		new Subject({
+			id: id++,
+			name: 'French',
+			examStartDate: DateTime.utc(2024, 6, 13, 9, 0),
+			examDuration: Duration.fromObject({ hours: 2 })
+		})
+	];
+
+	const baseExaminee = { nif: '', origin: '', court: 1 };
+	const examinees = [
+		new Examinee({ ...baseExaminee, id: id++, name: 'Examinee A', subjectsIds: [0, 1, 2] }),
+		new Examinee({ ...baseExaminee, id: id++, name: 'Examinee B', subjectsIds: [0, 1] }),
+		new Examinee({ ...baseExaminee, id: id++, name: 'Examinee C', subjectsIds: [1, 2] }),
+		new Examinee({ ...baseExaminee, id: id++, name: 'Examinee D', subjectsIds: [1, 2, 3] })
+	];
+	/**
+	 * Collision German-French
+	 * Examinee A => Math, Spanish, German
+	 * Examinee B => Math, Spanish
+	 * Examinee C => Spanish, German
+	 * Examinee D => Spanish, German, French -- Collision
+	 */
+
+	it('works', () => {
+		subjects.forEach((subject) => subjectsStore.storeInstance(subject));
+
+		const grouped = findExamineesWithExamnDateCollisions(examinees);
+
+		const expected = new Map();
+		expected.set(examinees[3], [[subjects[2], subjects[3]]]);
+
+		expect(grouped).toEqual(expected);
 	});
 });
