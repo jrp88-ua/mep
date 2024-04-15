@@ -128,7 +128,13 @@ export class Examinee implements Model {
 	}
 
 	toString(): string {
-		return `id: ${this.id}, nif: ${this.nif}, name: ${this.name}, surenames: ${this.surenames}, origin: ${this.origin}, court: ${this.court}, subjectsIds: ${this.subjectsIds}, academicCentreId: ${this.academicCentreId}, lazySubjectsNames: ${this.lazySubjectsNames}, lazyAcademicCentreName: ${this.lazyAcademicCentreName}`;
+		return `id: ${this.id}, nif: ${this.nif}, name: ${this.name}, surenames: ${
+			this.surenames
+		}, origin: ${this.origin}, court: ${this.court}, subjectsIds: [${[...this.subjectsIds].join(
+			', '
+		)}], academicCentreId: ${this.academicCentreId}, lazySubjectsNames: ${
+			this.lazySubjectsNames
+		}, lazyAcademicCentreName: ${this.lazyAcademicCentreName}`;
 	}
 }
 

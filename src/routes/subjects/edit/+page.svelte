@@ -87,7 +87,7 @@
 				bind:this={examDateInput}
 				class="input"
 				title="Fecha del examen"
-				name="examDate"
+				name="examStartDate"
 				type="datetime-local"
 				placeholder="Fecha del examen de la asignatura..."
 				required
