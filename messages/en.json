@@ -82,8 +82,10 @@
 	"no_date": "No date",
 	"subject_datatable_exam_date": "Date of the exam",
 	"subject_datatable_exam_duration": "Duration of the exam",
+	"can_not_filter": "Can not filter",
 	"subject_datatable_obligatory": "Obligatory",
 	"subject_datatable_volunteer": "Volunteer",
 	"subject_datatable_unknown": "Unknown",
-	"can_not_filter": "Can not filter"
+	"classroom_datatable_priority": "Priority",
+	"classroom_datatable_court_location": "Court location"
 }

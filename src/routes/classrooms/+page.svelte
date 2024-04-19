@@ -44,6 +44,8 @@
 				<ThSort {handler} orderBy="locationCode">{m.classroom_datatable_location_code()}</ThSort>
 				<ThSort {handler} orderBy="totalCapacity">{m.classroom_datatable_total_capacity()}</ThSort>
 				<ThSort {handler} orderBy="examCapacity">{m.classroom_datatable_exam_capacity()}</ThSort>
+				<ThSort {handler} orderBy="priority">{m.classroom_datatable_priority()}</ThSort>
+				<ThSort {handler} orderBy="courtLocation">{m.classroom_datatable_court_location()}</ThSort>
 				<ThSort {handler} orderBy="kind">{m.classroom_datatable_kind()}</ThSort>
 				<ThSort {handler} orderBy="notes">{m.classroom_datatable_notes()}</ThSort>
 			</tr>
@@ -52,6 +54,8 @@
 				<ThFilter {handler} filterBy="locationCode" />
 				<ThFilter {handler} filterBy="totalCapacity" />
 				<ThFilter {handler} filterBy="examCapacity" />
+				<ThFilter {handler} filterBy="priority" />
+				<ThFilter {handler} filterBy="courtLocation" />
 				<ThFilter {handler} filterBy="kind" />
 				<ThFilter {handler} filterBy="notes" />
 			</tr>
@@ -72,6 +76,14 @@
 					<td>{row.locationCode}</td>
 					<td>{row.totalCapacity}</td>
 					<td>{row.examCapacity} </td>
+					<td>{row.priority}</td>
+					<td>
+						{#if row.courtLocation === undefined}
+							<td />
+						{:else}
+							{row.courtLocation}
+						{/if}
+					</td>
 					<td>{row.kind}</td>
 					<td>
 						{#each row.notes as note}

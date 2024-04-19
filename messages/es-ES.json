@@ -83,5 +83,7 @@
 	"no_date": "Fecha no establecida",
 	"subject_datatable_exam_date": "Fecha del examen",
 	"subject_datatable_exam_duration": "Duración del examen",
-	"can_not_filter": "No se puede filtrar"
+	"can_not_filter": "No se puede filtrar",
+	"classroom_datatable_priority": "Prioridad",
+	"classroom_datatable_court_location": "Sede de tribunal"
 }

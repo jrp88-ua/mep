@@ -95,6 +95,31 @@
 			/>
 		</label>
 		<label class="my-5">
+			<span class="text-xl">Prioridad para asignar examinados</span>
+			<input
+				class="input"
+				title="Prioridad"
+				name="priority"
+				type="number"
+				min="1"
+				step="1"
+				placeholder="Prioridad de la sala..."
+			/>
+		</label>
+		<label class="my-5">
+			<span class="text-xl">Sede de tribunal</span>
+			<input
+				class="input"
+				title="Sede de tribunal"
+				name="courtLocation"
+				type="number"
+				min="-32768"
+				max="32767"
+				step="1"
+				placeholder="Sede del tribunal..."
+			/>
+		</label>
+		<label class="my-5">
 			<span class="text-xl">Tipo</span>
 			<input class="input" title="Tipo" name="kind" type="text" placeholder="Tipo de la sala..." />
 		</label>

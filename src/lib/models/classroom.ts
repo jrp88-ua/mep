@@ -7,6 +7,8 @@ export class Classroom implements Model {
 	static LocationCode = z.string().trim();
 	static TotalCapacity = z.coerce.number().min(1);
 	static ExamCapacity = z.coerce.number().min(1);
+	static Priority = z.coerce.number().positive().default(1);
+	static CourtLocation = z.coerce.number().finite().gte(-32768).lte(32767).optional();
 	static Kind = z.string();
 	static Notes = z.string().array();
 	static Type = z.object({
@@ -15,6 +17,8 @@ export class Classroom implements Model {
 		locationCode: Classroom.LocationCode,
 		totalCapacity: Classroom.TotalCapacity,
 		examCapacity: Classroom.ExamCapacity,
+		priority: Classroom.Priority,
+		courtLocation: Classroom.CourtLocation,
 		kind: Classroom.Kind,
 		notes: Classroom.Notes
 	});
@@ -24,6 +28,8 @@ export class Classroom implements Model {
 	locationCode: string;
 	totalCapacity: number;
 	examCapacity: number;
+	priority: number;
+	courtLocation: number | undefined;
 	kind: string;
 	notes: string[];
 
@@ -33,6 +39,8 @@ export class Classroom implements Model {
 		locationCode: string;
 		totalCapacity: number;
 		examCapacity: number;
+		priority: number;
+		courtLocation?: number;
 		kind: string;
 		notes: string[];
 	}) {
@@ -41,6 +49,8 @@ export class Classroom implements Model {
 		this.locationCode = params.locationCode;
 		this.totalCapacity = params.totalCapacity;
 		this.examCapacity = params.examCapacity;
+		this.priority = params.priority;
+		this.courtLocation = params.courtLocation;
 		this.kind = params.kind;
 		this.notes = params.notes;
 	}
@@ -61,6 +71,14 @@ export class Classroom implements Model {
 		this.examCapacity = Classroom.ExamCapacity.parse(value);
 	}
 
+	setPriority(value: number): void {
+		this.priority = Classroom.Priority.parse(value);
+	}
+
+	setCourtLocation(value?: number): void {
+		this.courtLocation = Classroom.CourtLocation.parse(value);
+	}
+
 	setKind(value: string): void {
 		this.kind = Classroom.Kind.parse(value);
 	}
@@ -70,7 +88,7 @@ export class Classroom implements Model {
 	}
 
 	toString(): string {
-		return `id: ${this.id}, code: ${this.code}, locationCode: ${this.locationCode}, totalCapacity: ${this.totalCapacity}, examCapacity: ${this.examCapacity}, kind: ${this.kind}, notes: ${this.notes}`;
+		return `id: ${this.id}, code: ${this.code}, locationCode: ${this.locationCode}, totalCapacity: ${this.totalCapacity}, examCapacity: ${this.examCapacity}, priority: ${this.priority}, courtLocation: ${this.courtLocation}, kind: ${this.kind}, notes: ${this.notes}`;
 	}
 }
 
@@ -79,6 +97,8 @@ export const ClassroomForCreate = z.object({
 	locationCode: Classroom.LocationCode,
 	totalCapacity: Classroom.TotalCapacity,
 	examCapacity: Classroom.ExamCapacity,
+	priority: Classroom.Priority,
+	courtLocation: Classroom.CourtLocation,
 	kind: Classroom.Kind,
 	notes: z.union([Classroom.Notes, z.string().transform((s) => s.split('\n'))])
 });
