@@ -42,3 +42,8 @@ export function updatedAcademicCentre(id: ModelId) {
 export function deleteAcademicCentre(id: ModelId) {
 	return academicCentresStore.deleteInstance(id);
 }
+
+export function deleteAcademicCentres(ids: ModelId[]) {
+	// TODO
+	console.info("deleteAcademicCentres with", ids);
+}
