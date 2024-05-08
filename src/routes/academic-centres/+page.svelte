@@ -37,8 +37,7 @@
 			response: (doDelete: boolean) => {
 				if (!doDelete) return;
 				const selectedIds = get(selected) as ModelId[];
-				deleteAcademicCentres(selectedIds);
-				selectedIds.forEach(handler.select);
+				deleteAcademicCentres(selectedIds).forEach(handler.select);
 			}
 		});
 	}

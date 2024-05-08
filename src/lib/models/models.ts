@@ -75,6 +75,23 @@ export function createStore<M extends Model>(modelName: string) {
 		return true;
 	}
 
+	function deleteInstances(ids: ModelId[]) {
+		const deleted: ModelId[] = [];
+		store.update((map) => {
+			const newMap = new Map(map);
+			for(const id of ids) {
+				if(newMap.delete(id)) {
+					deleted.push(id);
+				}
+			}
+			return newMap;
+		});
+		if(deleted.length > 0) {
+			info(`Deleted ${deleted.length} instance(s) of ${modelName} (ids=${deleted})`);
+		}
+		return deleted;
+	}
+
 	return {
 		subscribe: store.subscribe,
 		clear,
@@ -82,6 +99,7 @@ export function createStore<M extends Model>(modelName: string) {
 		getInstance,
 		storeInstance,
 		updatedInstance,
-		deleteInstance
+		deleteInstance,
+		deleteInstances
 	};
 }

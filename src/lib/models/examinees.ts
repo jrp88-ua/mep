@@ -144,7 +144,7 @@ export const ExamineeForCreate = z.object({
 	surenames: Examinee.Surenames,
 	origin: Examinee.Origin,
 	court: Examinee.Court,
-	subjectsIds: z.union([Examinee.SubjectsIds, Subject.Type.array(), Subject.Name.array()]),
+	subjectsIds: Examinee.SubjectsIds,
 	academicCentre: z.union([AcademicCentre.Id, AcademicCentreForCreate, z.string()]).optional()
 });
 export type ExamineeForCreate = z.infer<typeof ExamineeForCreate>;

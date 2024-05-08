@@ -29,3 +29,7 @@ export function updatedClassroom(id: ModelId) {
 export function deleteClassroom(id: ModelId) {
 	return classroomsStore.deleteInstance(id);
 }
+
+export function deleteClassrooms(ids: ModelId[]) {
+	return classroomsStore.deleteInstances(ids);
+}

@@ -67,6 +67,10 @@ export function deleteVigilant(id: ModelId) {
 	return vigilantsStore.deleteInstance(id);
 }
 
+export function deleteVigilants(ids: ModelId[]) {
+	return vigilantsStore.deleteInstances(ids);
+}
+
 export function vigilantRoleValuesTranslate(kind: (typeof VIGILANT_ROLE_VALUES)[number]) {
 	switch (kind) {
 		case 'PRESIDENT':

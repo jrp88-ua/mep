@@ -46,3 +46,7 @@ export function updatedExaminee(id: ModelId) {
 export function deleteExaminee(id: ModelId) {
 	return examineesStore.deleteInstance(id);
 }
+
+export function deleteExaminees(ids: ModelId[]) {
+	return examineesStore.deleteInstances(ids);
+}

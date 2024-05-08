@@ -44,6 +44,10 @@ export function deleteSubject(id: ModelId) {
 	return subjectsStore.deleteInstance(id);
 }
 
+export function deleteSubjects(ids: ModelId[]) {
+	return subjectsStore.deleteInstances(ids);
+}
+
 export function subjectKindValuesTranslate(kind: SubjectKind) {
 	switch (kind) {
 		case 'OBLIGATORY':
