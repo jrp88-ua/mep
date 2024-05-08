@@ -3,6 +3,7 @@ import {
 	AcademicCentreForCreate,
 	academicCentresStore
 } from '$lib/models/academicCentres';
+import { examineesStore } from '$lib/models/examinees';
 import type { ModelId } from '$lib/models/models';
 import { get } from 'svelte/store';
 
@@ -40,9 +41,23 @@ export function updatedAcademicCentre(id: ModelId) {
 }
 
 export function deleteAcademicCentre(id: ModelId) {
-	return academicCentresStore.deleteInstance(id);
+	if(academicCentresStore.deleteInstance(id)) {
+		deleteCentreFromExaminees(id);
+		return true;
+	}
+	return false;
 }
 
 export function deleteAcademicCentres(ids: ModelId[]) {
-	return academicCentresStore.deleteInstances(ids);
+	const deleted = academicCentresStore.deleteInstances(ids);
+	deleted.forEach(id => deleteCentreFromExaminees(id));
+	return deleted;
+}
+
+function deleteCentreFromExaminees(id: ModelId) {
+	get(examineesStore.getAllInstances()).forEach(examinee => {
+		if(examinee.academicCentreId === id) {
+			examinee.setAcademicCentreId(undefined);
+		}
+	})
 }

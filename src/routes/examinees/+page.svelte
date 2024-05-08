@@ -11,7 +11,7 @@
 	import { getDrawerStore, getModalStore } from '@skeletonlabs/skeleton';
 	import { get } from 'svelte/store';
 	import type { ModelId } from '$lib/models/models';
-	import { deleteExaminee, deleteExaminees, getAllExaminees } from '$lib/services/examinees';
+	import { deleteExaminees, getAllExaminees } from '$lib/services/examinees';
 
 	const examineesStore = getAllExaminees();
 	const modalStore = getModalStore();
@@ -37,7 +37,7 @@
 				if (!doDelete) return;
 				const selectedIds = get(selected) as ModelId[];
 				deleteExaminees(selectedIds);
-				selectedIds.forEach(handler.select);
+				selectedIds.forEach((deleted) => handler.select(deleted));
 			}
 		});
 	}

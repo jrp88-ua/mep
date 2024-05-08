@@ -19,7 +19,7 @@
 	const academicCentresStore = getAllAcademicCentres();
 
 	let handler = new DataHandler<AcademicCentre>([], { rowsPerPage: 5 });
-	handler.setRows($academicCentresStore);
+	$: handler.setRows($academicCentresStore);
 	const rows = handler.getRows();
 
 	const selected = handler.getSelected();
@@ -32,12 +32,12 @@
 			type: 'confirm',
 			title: '¿Eliminar centros académicos seleccionados?',
 			body: 'Si aceptas, se eliminarán los centros académicos seleccionados ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
-			buttonTextConfirm: 'Eliminar centros académicos seleccionados',
-			buttonTextCancel: 'No eliminar centros académicos seleccionados',
+			buttonTextConfirm: 'Eliminar centros seleccionados',
+			buttonTextCancel: 'No eliminar centros seleccionados',
 			response: (doDelete: boolean) => {
 				if (!doDelete) return;
 				const selectedIds = get(selected) as ModelId[];
-				deleteAcademicCentres(selectedIds).forEach(handler.select);
+				deleteAcademicCentres(selectedIds).forEach((deleted) => handler.select(deleted));
 			}
 		});
 	}
@@ -83,7 +83,7 @@
 		<tbody>
 			{#each $rows as row (row.id)}
 				<tr
-					on:click={() => {
+					on:click={(e) => {
 						appState.setEdittingAcademicCentre(row.id);
 						goto('/academic-centres/edit');
 					}}
@@ -91,7 +91,10 @@
 					<td class="selection">
 						<input
 							type="checkbox"
-							on:click={() => handler.select(row.id)}
+							on:click={(e) => {
+								e.stopImmediatePropagation();
+								handler.select(row.id);
+							}}
 							checked={$selected.includes(row.id)}
 						/>
 					</td>
