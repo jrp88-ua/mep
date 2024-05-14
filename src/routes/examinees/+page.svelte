@@ -117,6 +117,12 @@
 						) {
 							appState.setEdittingAcademicCentre(row.academicCentreId);
 							requestAnimationFrame(() => goto('/academic-centres/edit'));
+						} else if (
+							target.getAttribute('data-row') === 'subject' &&
+							target.getAttribute('data-subject') !== undefined
+						) {
+							appState.setEdittingSubject(+(target.getAttribute('data-subject') ?? ''));
+							requestAnimationFrame(() => goto('/subjects/edit'));
 						} else {
 							appState.setEdittingExaminee(row.id);
 							requestAnimationFrame(() => goto('/examinees/edit'));
@@ -141,7 +147,7 @@
 					<td>
 						<ul>
 							{#each row.getSubjects() as subject}
-								<li>{subject.name}</li>
+								<li data-row="subject" data-subject={subject.id}>{subject.name}</li>
 							{/each}
 						</ul>
 					</td>

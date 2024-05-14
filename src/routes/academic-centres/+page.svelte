@@ -30,10 +30,10 @@
 		if (disableDelete) return;
 		modalStore.trigger({
 			type: 'confirm',
-			title: '¿Eliminar centros académicos seleccionados?',
-			body: 'Si aceptas, se eliminarán los centros académicos seleccionados ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
-			buttonTextConfirm: 'Eliminar centros seleccionados',
-			buttonTextCancel: 'No eliminar centros seleccionados',
+			title: m.delete_academic_centree_modal_title(),
+			body: m.delete_academic_centree_modal_body({ total: get(selected).length }),
+			buttonTextConfirm: m.confirm_delete_selected_academic_centres(),
+			buttonTextCancel: m.cancel_delete_selected_academic_centres(),
 			response: (doDelete: boolean) => {
 				if (!doDelete) return;
 				const selectedIds = get(selected) as ModelId[];
@@ -48,13 +48,13 @@
 	<!-- Header -->
 	<header class="flex justify-between gap-4">
 		<div class="flex items-center gap-1">
-			<!--<a href="/academic-centres/create" class="btn variant-filled-primary">
+			<a href="/academic-centres/create" class="btn variant-filled-primary">
 				<span><i class="fa-solid fa-plus" /></span>
-				<span>{m.create_academic_centre()}</span>
-			</a>-->
+				<span>{m.create()}</span>
+			</a>
 			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
 				<span><i class="fa-solid fa-trash" /></span>
-				<span>Borrar</span>
+				<span>{m.deletem()}</span>
 			</button>
 		</div>
 		<div class="flex gap-4">
