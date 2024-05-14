@@ -41,7 +41,7 @@ export function updatedAcademicCentre(id: ModelId) {
 }
 
 export function deleteAcademicCentre(id: ModelId) {
-	if(academicCentresStore.deleteInstance(id)) {
+	if (academicCentresStore.deleteInstance(id)) {
 		deleteCentreFromExaminees(id);
 		return true;
 	}
@@ -50,14 +50,14 @@ export function deleteAcademicCentre(id: ModelId) {
 
 export function deleteAcademicCentres(ids: ModelId[]) {
 	const deleted = academicCentresStore.deleteInstances(ids);
-	deleted.forEach(id => deleteCentreFromExaminees(id));
+	deleted.forEach((id) => deleteCentreFromExaminees(id));
 	return deleted;
 }
 
 function deleteCentreFromExaminees(id: ModelId) {
-	get(examineesStore.getAllInstances()).forEach(examinee => {
-		if(examinee.academicCentreId === id) {
+	get(examineesStore.getAllInstances()).forEach((examinee) => {
+		if (examinee.academicCentreId === id) {
 			examinee.setAcademicCentreId(undefined);
 		}
-	})
+	});
 }

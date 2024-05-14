@@ -8,19 +8,46 @@
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
-	import { getAllVigilants, vigilantRoleValuesTranslate } from '$lib/services/vigilant';
+	import {
+		deleteVigilants,
+		getAllVigilants,
+		vigilantRoleValuesTranslate
+	} from '$lib/services/vigilant';
 	import { VIGILANT_ROLE_VALUES, type Vigilant } from '$lib/models/vigilant';
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { get } from 'svelte/store';
+	import type { ModelId } from '$lib/models/models';
+	import { appState } from '$lib/models/appState';
+	import { goto } from '$app/navigation';
 
+	const modalStore = getModalStore();
 	const vigilantsStore = getAllVigilants();
 
 	let handler = new DataHandler<Vigilant>([], { rowsPerPage: 5 });
-	handler.setRows($vigilantsStore);
+	$: handler.setRows($vigilantsStore);
 	const rows = handler.getRows();
 
-	const t = vigilantRoleValuesTranslate as (v: string) => string;
+	const selected = handler.getSelected();
+	$: disableDelete = $selected.length === 0;
+	const isAllSelected = handler.isAllSelected();
 
-	const drawerStore = getDrawerStore();
+	function deleteSelection() {
+		if (disableDelete) return;
+		modalStore.trigger({
+			type: 'confirm',
+			title: '¿Eliminar vigilantes seleccionados?',
+			body: 'Si aceptas, se eliminarán los vigilantes seleccionados ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
+			buttonTextConfirm: 'Eliminar vigilantes',
+			buttonTextCancel: 'No eliminar vigilantes',
+			response: (doDelete: boolean) => {
+				if (!doDelete) return;
+				const selectedIds = get(selected) as ModelId[];
+				deleteVigilants(selectedIds).forEach((deleted) => handler.select(deleted));
+			}
+		});
+	}
+
+	const t = vigilantRoleValuesTranslate as (v: string) => string;
 </script>
 
 <h1 class="text-3xl mb-4">{m.vigilants_page_title()}</h1>
@@ -32,6 +59,10 @@
 				<span><i class="fa-solid fa-plus" /></span>
 				<span>{m.create_vigilant()}</span>
 			</a>
+			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
+				<span><i class="fa-solid fa-trash" /></span>
+				<span>Borrar</span>
+			</button>
 		</div>
 		<div class="flex gap-4">
 			<Search {handler} />
@@ -42,6 +73,13 @@
 	<table class="table table-hover table-compact w-full table-auto">
 		<thead>
 			<tr>
+				<th class="selection">
+					<input
+						type="checkbox"
+						on:click={() => handler.selectAll({ selectBy: 'id' })}
+						checked={$isAllSelected}
+					/>
+				</th>
 				<ThSort {handler} orderBy="name">{m.vigilant_datatable_name()}</ThSort>
 				<ThSort {handler} orderBy="surenames">{m.vigilant_datatable_surenames()}</ThSort>
 				<ThSort {handler} orderBy="role">{m.vigilant_datatable_role()}</ThSort>
@@ -52,6 +90,7 @@
 				<ThSort {handler} orderBy="mainCourt">{m.vigilant_datatable_main_court()}</ThSort>
 			</tr>
 			<tr>
+				<th class="selection" />
 				<ThFilter {handler} filterBy="name" />
 				<ThFilter {handler} filterBy="surenames" />
 				<ThEnumFilter {handler} values={VIGILANT_ROLE_VALUES} valueTranslator={t} filterBy="role" />
@@ -63,26 +102,36 @@
 		<tbody>
 			{#each $rows as row (row.id)}
 				<tr
-					on:click={(event) => {
-						const target = event.target;
-						if (target instanceof HTMLInputElement) return;
+					on:click={(e) => {
+						const target = e.target;
 						if (!(target instanceof HTMLElement)) return;
 						if (
 							target.getAttribute('data-row') === 'academic-centre' &&
 							row.academicCentreId !== undefined
 						) {
-							drawerStore.open({
-								id: 'edit-academic-centre',
-								meta: row.academicCentreId
-							});
+							appState.setEdittingAcademicCentre(row.academicCentreId);
+							goto('/academic-centres/edit');
 						} else {
-							drawerStore.open({
-								id: 'edit-vigilant',
-								meta: row.id
-							});
+							appState.setEdittingVigilant(row.id);
+							goto('/vigilants/edit');
 						}
 					}}
+					on:click={(event) => {
+						const target = event.target;
+						if (target instanceof HTMLInputElement) return;
+						if (!(target instanceof HTMLElement)) return;
+					}}
 				>
+					<td class="selection">
+						<input
+							type="checkbox"
+							on:click={(e) => {
+								e.stopImmediatePropagation();
+								handler.select(row.id);
+							}}
+							checked={$selected.includes(row.id)}
+						/>
+					</td>
 					<td>{row.name}</td>
 					<td>{row.surenames}</td>
 					<td>{t(row.role)}</td>

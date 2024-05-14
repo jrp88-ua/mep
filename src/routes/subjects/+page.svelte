@@ -9,22 +9,46 @@
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
 	import { SUBJECT_KIND_VALUES, Subject } from '$lib/models/subjects';
-	import { getAllSubjects, subjectKindValuesTranslate } from '$lib/services/subjects';
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import {
+		deleteSubjects,
+		getAllSubjects,
+		subjectKindValuesTranslate
+	} from '$lib/services/subjects';
 	import { goto } from '$app/navigation';
 	import { appState } from '$lib/models/appState';
-	import { Duration } from 'luxon';
 	import { languageTag } from '$paraglide/runtime';
+	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { get } from 'svelte/store';
+	import type { ModelId } from '$lib/models/models';
 
+	const modalStore = getModalStore();
 	const subjectsStore = getAllSubjects();
 
 	let handler = new DataHandler<Subject>([], { rowsPerPage: 5 });
-	handler.setRows($subjectsStore);
+	$: handler.setRows($subjectsStore);
 	const rows = handler.getRows();
 
-	const t = subjectKindValuesTranslate as (v: string) => string;
+	const selected = handler.getSelected();
+	$: disableDelete = $selected.length === 0;
+	const isAllSelected = handler.isAllSelected();
 
-	const drawerStore = getDrawerStore();
+	function deleteSelection() {
+		if (disableDelete) return;
+		modalStore.trigger({
+			type: 'confirm',
+			title: '¿Eliminar asignaturas seleccionadas?',
+			body: 'Si aceptas, se eliminarán las asignaturas seleccionadas ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
+			buttonTextConfirm: 'Eliminar asignaturas',
+			buttonTextCancel: 'No eliminar asignaturas',
+			response: (doDelete: boolean) => {
+				if (!doDelete) return;
+				const selectedIds = get(selected) as ModelId[];
+				deleteSubjects(selectedIds).forEach((deleted) => handler.select(deleted));
+			}
+		});
+	}
+
+	const t = subjectKindValuesTranslate as (v: string) => string;
 </script>
 
 <h1 class="text-3xl mb-4">{m.subjects_page_title()}</h1>
@@ -36,6 +60,10 @@
 				<span><i class="fa-solid fa-plus" /></span>
 				<span>Crear</span>
 			</a>-->
+			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
+				<span><i class="fa-solid fa-trash" /></span>
+				<span>Borrar</span>
+			</button>
 		</div>
 		<div class="flex gap-4">
 			<Search {handler} />
@@ -46,12 +74,20 @@
 	<table class="table table-hover table-compact w-full table-auto">
 		<thead>
 			<tr>
+				<th class="selection">
+					<input
+						type="checkbox"
+						on:click={() => handler.selectAll({ selectBy: 'id' })}
+						checked={$isAllSelected}
+					/>
+				</th>
 				<ThSort {handler} orderBy="name">{m.subject_datatable_name()}</ThSort>
 				<ThSort {handler} orderBy="kind">{m.subject_datatable_kind()}</ThSort>
 				<ThSort {handler} orderBy="examDate">{m.subject_datatable_exam_date()}</ThSort>
 				<ThSort {handler} orderBy="examDuration">{m.subject_datatable_exam_duration()}</ThSort>
 			</tr>
 			<tr>
+				<th class="selection" />
 				<ThFilter {handler} filterBy="name" />
 				<ThEnumFilter {handler} values={SUBJECT_KIND_VALUES} valueTranslator={t} filterBy="kind" />
 				<th>{m.can_not_filter()}</th>
@@ -66,6 +102,16 @@
 						goto('/subjects/edit');
 					}}
 				>
+					<td class="selection">
+						<input
+							type="checkbox"
+							on:click={(e) => {
+								e.stopImmediatePropagation();
+								handler.select(row.id);
+							}}
+							checked={$selected.includes(row.id)}
+						/>
+					</td>
 					<td>{row.name}</td>
 					<td>{t(row.kind)}</td>
 					<td>

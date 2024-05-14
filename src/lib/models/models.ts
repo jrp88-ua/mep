@@ -79,14 +79,14 @@ export function createStore<M extends Model>(modelName: string) {
 		const deleted: ModelId[] = [];
 		store.update((map) => {
 			const newMap = new Map(map);
-			for(const id of ids) {
-				if(newMap.delete(id)) {
+			for (const id of ids) {
+				if (newMap.delete(id)) {
 					deleted.push(id);
 				}
 			}
 			return newMap;
 		});
-		if(deleted.length > 0) {
+		if (deleted.length > 0) {
 			info(`Deleted ${deleted.length} instance(s) of ${modelName} (ids=${deleted})`);
 		}
 		return deleted;

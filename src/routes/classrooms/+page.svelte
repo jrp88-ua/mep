@@ -7,18 +7,40 @@
 	import RowsPerPage from '$lib/datatable/RowsPerPage.svelte';
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
-	import ThEnumFilter from '$lib/datatable/ThEnumFilter.svelte';
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
-	import { getAllClassrooms } from '$lib/services/classroom';
+	import { deleteClassrooms, getAllClassrooms } from '$lib/services/classroom';
 	import type { Classroom } from '$lib/models/classroom';
+	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { get } from 'svelte/store';
+	import type { ModelId } from '$lib/models/models';
+	import { appState } from '$lib/models/appState';
+	import { goto } from '$app/navigation';
 
+	const modalStore = getModalStore();
 	const classroomStore = getAllClassrooms();
 
 	let handler = new DataHandler<Classroom>([], { rowsPerPage: 5 });
-	handler.setRows($classroomStore);
+	$: handler.setRows($classroomStore);
 	const rows = handler.getRows();
 
-	const drawerStore = getDrawerStore();
+	const selected = handler.getSelected();
+	$: disableDelete = $selected.length === 0;
+	const isAllSelected = handler.isAllSelected();
+
+	function deleteSelection() {
+		if (disableDelete) return;
+		modalStore.trigger({
+			type: 'confirm',
+			title: '¿Eliminar salas seleccionadas?',
+			body: 'Si aceptas, se eliminarán las salas seleccionadas ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
+			buttonTextConfirm: 'Eliminar salas seleccionadas',
+			buttonTextCancel: 'No eliminar salas seleccionadas',
+			response: (doDelete: boolean) => {
+				if (!doDelete) return;
+				const selectedIds = get(selected) as ModelId[];
+				deleteClassrooms(selectedIds).forEach((deleted) => handler.select(deleted));
+			}
+		});
+	}
 </script>
 
 <h1 class="text-3xl mb-4">{m.classrooms_page_title()}</h1>
@@ -30,6 +52,10 @@
 				<span><i class="fa-solid fa-plus" /></span>
 				<span>{m.create_classroom()}</span>
 			</a>
+			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
+				<span><i class="fa-solid fa-trash" /></span>
+				<span>Borrar</span>
+			</button>
 		</div>
 		<div class="flex gap-4">
 			<Search {handler} />
@@ -40,6 +66,13 @@
 	<table class="table table-hover table-compact w-full table-auto">
 		<thead>
 			<tr>
+				<th class="selection">
+					<input
+						type="checkbox"
+						on:click={() => handler.selectAll({ selectBy: 'id' })}
+						checked={$isAllSelected}
+					/>
+				</th>
 				<ThSort {handler} orderBy="code">{m.classroom_datatable_code()}</ThSort>
 				<ThSort {handler} orderBy="locationCode">{m.classroom_datatable_location_code()}</ThSort>
 				<ThSort {handler} orderBy="totalCapacity">{m.classroom_datatable_total_capacity()}</ThSort>
@@ -50,6 +83,7 @@
 				<ThSort {handler} orderBy="notes">{m.classroom_datatable_notes()}</ThSort>
 			</tr>
 			<tr>
+				<th class="selection" />
 				<ThFilter {handler} filterBy="code" />
 				<ThFilter {handler} filterBy="locationCode" />
 				<ThFilter {handler} filterBy="totalCapacity" />
@@ -63,15 +97,21 @@
 		<tbody>
 			{#each $rows as row (row.id)}
 				<tr
-					on:click={(event) => {
-						const target = event.target;
-						if (target instanceof HTMLInputElement) return;
-						drawerStore.open({
-							id: 'edit-classroom',
-							meta: row.id
-						});
+					on:click={(e) => {
+						appState.setEdittingClassroom(row.id);
+						goto('/classrooms/edit');
 					}}
 				>
+					<td class="selection">
+						<input
+							type="checkbox"
+							on:click={(e) => {
+								e.stopImmediatePropagation();
+								handler.select(row.id);
+							}}
+							checked={$selected.includes(row.id)}
+						/>
+					</td>
 					<td>{row.code}</td>
 					<td>{row.locationCode}</td>
 					<td>{row.totalCapacity}</td>

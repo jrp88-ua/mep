@@ -17,7 +17,7 @@ export const appState = (() => {
 		edittingVigilant: undefined,
 		edittingAcademicCentre: undefined,
 		edittingSubject: undefined,
-		edittingClassroom: undefined,
+		edittingClassroom: undefined
 	});
 
 	function allowsNavigation() {
