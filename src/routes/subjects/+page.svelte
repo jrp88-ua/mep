@@ -99,7 +99,7 @@
 				<tr
 					on:click={() => {
 						appState.setEdittingSubject(row.id);
-						goto('/subjects/edit');
+						requestAnimationFrame(() => goto('/subjects/edit'));
 					}}
 				>
 					<td class="selection">

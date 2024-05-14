@@ -110,10 +110,10 @@
 							row.academicCentreId !== undefined
 						) {
 							appState.setEdittingAcademicCentre(row.academicCentreId);
-							goto('/academic-centres/edit');
+							requestAnimationFrame(() => goto('/academic-centres/edit'));
 						} else {
 							appState.setEdittingVigilant(row.id);
-							goto('/vigilants/edit');
+							requestAnimationFrame(() => goto('/vigilants/edit'));
 						}
 					}}
 				>
@@ -139,7 +139,7 @@
 					</td>
 					<td data-row="academic-centre">
 						{#if row.getAcademicCentre() === undefined}
-							<i>{m.no_academic_centre}</i>
+							<i>{m.no_academic_centre()}</i>
 						{:else}
 							{row.lazyAcademicCentreName}
 						{/if}

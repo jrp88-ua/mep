@@ -12,6 +12,7 @@
 	import { appState } from '$lib/models/appState';
 	import { showWarningToast } from '$lib/toast';
 	import AppDrawers from '$lib/drawer/AppDrawers.svelte';
+	import { info } from 'tauri-plugin-log-api';
 
 	Settings.throwOnInvalid = true;
 	initializeStores();
@@ -27,6 +28,8 @@
 				})
 			);
 			e.cancel();
+		} else {
+			info('Navigating to ' + e.to?.route.id + ' from ' + e.from?.route.id);
 		}
 	});
 </script>

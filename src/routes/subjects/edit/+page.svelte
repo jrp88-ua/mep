@@ -16,12 +16,12 @@
 	onMount(() => {
 		const id = appState.getEdittingSubject();
 		if (id === undefined) {
-			goto('/subjects');
+			requestAnimationFrame(() => goto('/subjects'));
 			return;
 		}
 		let osubject = get(getSubject(id));
 		if (osubject === undefined) {
-			goto('/subjects');
+			requestAnimationFrame(() => goto('/subjects'));
 			return;
 		}
 		subject = osubject!;
@@ -33,7 +33,6 @@
 
 	function submitForm(e: SubmitEvent) {
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
-		console.log(raw);
 		const result = SubjectForCreate.safeParse(raw);
 		if (!result.success) {
 			toastStore.trigger(
@@ -53,7 +52,7 @@
 		subject.examDuration = values.examDuration;
 		updatedSubject(subject.id);
 		toastStore.trigger(showSuccessToast({ message: 'Asignatura actualizada' }));
-		goto('/subjects');
+		requestAnimationFrame(() => goto('/subjects'));
 	}
 </script>
 

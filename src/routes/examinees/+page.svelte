@@ -116,10 +116,10 @@
 							row.academicCentreId !== undefined
 						) {
 							appState.setEdittingAcademicCentre(row.academicCentreId);
-							goto('/academic-centres/edit');
+							requestAnimationFrame(() => goto('/academic-centres/edit'));
 						} else {
 							appState.setEdittingExaminee(row.id);
-							goto('/examinees/edit');
+							requestAnimationFrame(() => goto('/examinees/edit'));
 						}
 					}}
 				>

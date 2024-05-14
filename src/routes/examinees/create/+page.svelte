@@ -42,7 +42,7 @@
 						: 'Examinado creado'
 				})
 			);
-			goto('/examinees');
+			requestAnimationFrame(() => goto('/examinees'));
 		} else {
 			console.error(result.error);
 		}

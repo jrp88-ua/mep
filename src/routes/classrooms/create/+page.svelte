@@ -28,7 +28,7 @@
 					message: 'Sala creada'
 				})
 			);
-			goto('/classrooms');
+			requestAnimationFrame(() => goto('/classrooms'));
 		} else {
 			console.error(result.error);
 		}
@@ -143,7 +143,7 @@
 			<i class="fa-solid fa-broom" />
 			<span>Limpair</span>
 		</button>
-		<a href="/vigilants" class="btn variant-filled-tertiary">
+		<a href="/classrooms" class="btn variant-filled-tertiary">
 			<i class="fa-solid fa-xmark" />
 			<span>Cancelar</span>
 		</a>

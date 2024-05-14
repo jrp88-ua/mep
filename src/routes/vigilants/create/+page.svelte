@@ -50,7 +50,7 @@
 						: 'Vigilante creado'
 				})
 			);
-			goto('/vigilants');
+			requestAnimationFrame(() => goto('/vigilants'));
 		} else {
 			console.error(result.error);
 		}

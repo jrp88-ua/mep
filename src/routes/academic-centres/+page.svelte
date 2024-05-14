@@ -85,7 +85,7 @@
 				<tr
 					on:click={(e) => {
 						appState.setEdittingAcademicCentre(row.id);
-						goto('/academic-centres/edit');
+						requestAnimationFrame(() => goto('/academic-centres/edit'));
 					}}
 				>
 					<td class="selection">

@@ -47,7 +47,7 @@
 				})
 			);
 			appState.unlockNavigation();
-			goto('/examinees');
+			requestAnimationFrame(() => goto('/examinees'));
 			return;
 		}
 		const result = await ipc_invoke_result<ExamineeImportValues, ExamineeImportError>(
@@ -77,7 +77,7 @@
 			);
 		}
 		appState.unlockNavigation();
-		goto('/examinees');
+		requestAnimationFrame(() => goto('/examinees'));
 	}
 
 	function defaultImputSettings(): ExamineeImportSettings {
