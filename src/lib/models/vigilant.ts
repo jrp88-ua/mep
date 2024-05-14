@@ -79,7 +79,7 @@ export class Vigilant implements Model {
 		}
 	}
 
-	addSpecialty(...specialtyId: number[]) {
+	addSpecialty(specialtyId: number[]) {
 		const oldLength = this.specialtiesIds.size;
 		for (const id of specialtyId) {
 			this.specialtiesIds.add(id);
@@ -87,12 +87,13 @@ export class Vigilant implements Model {
 		if (oldLength !== this.specialtiesIds.size) this.getSpecialties();
 	}
 
-	removeSpecialty(...specialtyId: number[]) {
+	removeSpecialties(specialtyId: number[]) {
 		let changed = false;
 		for (const id of specialtyId) {
 			changed = this.specialtiesIds.delete(id) || changed;
 		}
 		if (changed) this.getSpecialties();
+		return changed;
 	}
 
 	setMainCourt(value: number): void {

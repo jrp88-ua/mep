@@ -75,7 +75,7 @@ export function createStore<M extends Model>(modelName: string) {
 		return true;
 	}
 
-	function deleteInstances(ids: ModelId[]) {
+	function deleteInstances(ids: ModelId[]): ModelId[] {
 		const deleted: ModelId[] = [];
 		store.update((map) => {
 			const newMap = new Map(map);
@@ -91,6 +91,8 @@ export function createStore<M extends Model>(modelName: string) {
 		}
 		return deleted;
 	}
+
+	info(`Created ${modelName} store`);
 
 	return {
 		subscribe: store.subscribe,

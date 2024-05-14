@@ -5,6 +5,7 @@ import {
 } from '$lib/models/academicCentres';
 import { examineesStore } from '$lib/models/examinees';
 import type { ModelId } from '$lib/models/models';
+import { vigilantsStore } from '$lib/models/vigilant';
 import { get } from 'svelte/store';
 
 let currentId = 0;
@@ -42,7 +43,7 @@ export function updatedAcademicCentre(id: ModelId) {
 
 export function deleteAcademicCentre(id: ModelId) {
 	if (academicCentresStore.deleteInstance(id)) {
-		deleteCentreFromExaminees(id);
+		deleteCentreFromExamineesAndVigilants(id);
 		return true;
 	}
 	return false;
@@ -50,14 +51,21 @@ export function deleteAcademicCentre(id: ModelId) {
 
 export function deleteAcademicCentres(ids: ModelId[]) {
 	const deleted = academicCentresStore.deleteInstances(ids);
-	deleted.forEach((id) => deleteCentreFromExaminees(id));
+	deleted.forEach((id) => deleteCentreFromExamineesAndVigilants(id));
 	return deleted;
 }
 
-function deleteCentreFromExaminees(id: ModelId) {
+function deleteCentreFromExamineesAndVigilants(id: ModelId) {
 	get(examineesStore.getAllInstances()).forEach((examinee) => {
 		if (examinee.academicCentreId === id) {
 			examinee.setAcademicCentreId(undefined);
+			examineesStore.updatedInstance(examinee.id);
+		}
+	});
+	get(vigilantsStore.getAllInstances()).forEach((vigilant) => {
+		if (vigilant.academicCentreId === id) {
+			vigilant.setAcademicCentreId(undefined);
+			vigilantsStore.updatedInstance(vigilant.id);
 		}
 	});
 }

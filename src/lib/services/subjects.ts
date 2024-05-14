@@ -2,6 +2,8 @@ import { Subject, SubjectForCreate, subjectsStore, type SubjectKind } from '$lib
 import type { ModelId } from '$lib/models/models';
 import * as m from '$paraglide/messages';
 import { get } from 'svelte/store';
+import { examineesStore } from '$lib/models/examinees';
+import { vigilantsStore } from '$lib/models/vigilant';
 
 let currentId = 0;
 
@@ -41,11 +43,30 @@ export function updatedSubject(id: ModelId) {
 }
 
 export function deleteSubject(id: ModelId) {
-	return subjectsStore.deleteInstance(id);
+	if (subjectsStore.deleteInstance(id)) {
+		deleteSubjectFromExamineesAndVigilants([id]);
+		return true;
+	}
+	return false;
 }
 
 export function deleteSubjects(ids: ModelId[]) {
-	return subjectsStore.deleteInstances(ids);
+	const deleted = subjectsStore.deleteInstances(ids);
+	deleteSubjectFromExamineesAndVigilants(deleted);
+	return deleted;
+}
+
+function deleteSubjectFromExamineesAndVigilants(ids: ModelId[]) {
+	get(examineesStore.getAllInstances()).forEach((examinee) => {
+		if (examinee.removeSubjects(ids)) {
+			examineesStore.updatedInstance(examinee.id);
+		}
+	});
+	get(vigilantsStore.getAllInstances()).forEach((vigilant) => {
+		if (vigilant.removeSpecialties(ids)) {
+			vigilantsStore.updatedInstance(vigilant.id);
+		}
+	});
 }
 
 export function subjectKindValuesTranslate(kind: SubjectKind) {

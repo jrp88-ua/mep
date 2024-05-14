@@ -96,7 +96,7 @@ export class Examinee implements Model {
 		return academicCentre;
 	}
 
-	addSubject(...subjectsIds: number[]) {
+	addSubject(...subjectsIds: ModelId[]) {
 		const oldLength = this.subjectsIds.size;
 		for (const id of subjectsIds) {
 			this.subjectsIds.add(id);
@@ -104,12 +104,13 @@ export class Examinee implements Model {
 		if (oldLength !== this.subjectsIds.size) this.getSubjects();
 	}
 
-	removeSubject(...subjectsIds: number[]) {
+	removeSubjects(subjectsIds: ModelId[]) {
 		let changed = false;
 		for (const id of subjectsIds) {
 			changed = this.subjectsIds.delete(id) || changed;
 		}
 		if (changed) this.getSubjects();
+		return changed;
 	}
 
 	public getSubjects(): Subject[] {
