@@ -8,14 +8,15 @@
 	import RowCount from '$lib/datatable/RowCount.svelte';
 	import Pagination from '$lib/datatable/Pagination.svelte';
 	import { Examinee } from '$lib/models/examinees';
-	import { getDrawerStore, getModalStore } from '@skeletonlabs/skeleton';
+	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { get } from 'svelte/store';
 	import type { ModelId } from '$lib/models/models';
 	import { deleteExaminees, getAllExaminees } from '$lib/services/examinees';
+	import { appState } from '$lib/models/appState';
+	import { goto } from '$app/navigation';
 
 	const examineesStore = getAllExaminees();
 	const modalStore = getModalStore();
-	const drawerStore = getDrawerStore();
 
 	let handler = new DataHandler<Examinee>([], { rowsPerPage: 5 });
 	$: handler.setRows($examineesStore);
@@ -109,28 +110,26 @@
 				<tr
 					on:click={(event) => {
 						const target = event.target;
-						if (target instanceof HTMLInputElement) return;
 						if (!(target instanceof HTMLElement)) return;
 						if (
 							target.getAttribute('data-row') === 'academic-centre' &&
 							row.academicCentreId !== undefined
 						) {
-							drawerStore.open({
-								id: 'edit-academic-centre',
-								meta: row.academicCentreId
-							});
+							appState.setEdittingAcademicCentre(row.academicCentreId);
+							goto('/academic-centres/edit');
 						} else {
-							drawerStore.open({
-								id: 'edit-examinee',
-								meta: row.id
-							});
+							appState.setEdittingExaminee(row.id);
+							goto('/examinees/edit');
 						}
 					}}
 				>
 					<td class="selection">
 						<input
 							type="checkbox"
-							on:click={() => handler.select(row.id)}
+							on:click={(e) => {
+								e.stopImmediatePropagation();
+								handler.select(row.id);
+							}}
 							checked={$selected.includes(row.id)}
 						/>
 					</td>

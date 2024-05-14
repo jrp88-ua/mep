@@ -116,11 +116,6 @@
 							goto('/vigilants/edit');
 						}
 					}}
-					on:click={(event) => {
-						const target = event.target;
-						if (target instanceof HTMLInputElement) return;
-						if (!(target instanceof HTMLElement)) return;
-					}}
 				>
 					<td class="selection">
 						<input
