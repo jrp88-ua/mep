@@ -3,7 +3,10 @@ import { appConfiguration } from './models/configuration';
 
 export type CustomToastSettings = ToastSettings & { title?: string | undefined };
 
-export function showToast(toastStore: ReturnType<typeof getToastStore>, settings: CustomToastSettings) {
+export function showToast(
+	toastStore: ReturnType<typeof getToastStore>,
+	settings: CustomToastSettings
+) {
 	if (settings.autohide !== false) {
 		const timeout = settings.message.split(' ').length * appConfiguration.getToastTime();
 		settings = {
@@ -19,21 +22,30 @@ export function showToast(toastStore: ReturnType<typeof getToastStore>, settings
 	return toastStore.trigger(settings);
 }
 
-export function showSuccessToast(toastStore: ReturnType<typeof getToastStore>, settings: CustomToastSettings) {
+export function showSuccessToast(
+	toastStore: ReturnType<typeof getToastStore>,
+	settings: CustomToastSettings
+) {
 	return showToast(toastStore, {
 		...settings,
 		background: 'variant-filled-success'
 	});
 }
 
-export function showWarningToast(toastStore: ReturnType<typeof getToastStore>,settings: CustomToastSettings) {
+export function showWarningToast(
+	toastStore: ReturnType<typeof getToastStore>,
+	settings: CustomToastSettings
+) {
 	return showToast(toastStore, {
 		...settings,
 		background: 'variant-filled-warning'
 	});
 }
 
-export function showErrorToast(toastStore: ReturnType<typeof getToastStore>,settings: CustomToastSettings) {
+export function showErrorToast(
+	toastStore: ReturnType<typeof getToastStore>,
+	settings: CustomToastSettings
+) {
 	return showToast(toastStore, {
 		...settings,
 		background: 'variant-filled-error'
