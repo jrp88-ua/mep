@@ -31,12 +31,10 @@
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = ClassroomForCreate.safeParse(raw);
 		if (!result.success) {
-			toastStore.trigger(
-				showErrorToast({
-					title: 'No se ha guardado la sala',
-					message: 'Los valores son inválidos'
-				})
-			);
+			showErrorToast(toastStore, {
+				title: 'No se ha guardado la sala',
+				message: 'Los valores son inválidos'
+			});
 			console.error(result.error);
 			return;
 		}
@@ -46,7 +44,7 @@
 		// TODO set values
 
 		updatedClassroom(classroom.id);
-		toastStore.trigger(showSuccessToast({ message: 'Sala actualizada' }));
+		showSuccessToast(toastStore, { message: 'Sala actualizada' });
 		requestAnimationFrame(() => goto('/classrooms'));
 	}
 </script>

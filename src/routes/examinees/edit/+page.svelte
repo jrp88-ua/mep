@@ -31,12 +31,10 @@
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = ExamineeForCreate.safeParse(raw);
 		if (!result.success) {
-			toastStore.trigger(
-				showErrorToast({
-					title: 'No se ha guardado el examinado',
-					message: 'Los valores son inválidos'
-				})
-			);
+			showErrorToast(toastStore, {
+				title: 'No se ha guardado el examinado',
+				message: 'Los valores son inválidos'
+			});
 			console.error(result.error);
 			return;
 		}
@@ -46,7 +44,7 @@
 		// TODO set values
 
 		updatedExaminee(examinee.id);
-		toastStore.trigger(showSuccessToast({ message: 'Examinado actualizado' }));
+		showSuccessToast(toastStore, { message: 'Examinado actualizado' });
 		requestAnimationFrame(() => goto('/examinees'));
 	}
 </script>

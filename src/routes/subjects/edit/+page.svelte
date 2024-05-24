@@ -35,12 +35,10 @@
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = SubjectForCreate.safeParse(raw);
 		if (!result.success) {
-			toastStore.trigger(
-				showErrorToast({
-					title: 'No se ha guardado la asignatura',
-					message: 'Los valores son inválidos'
-				})
-			);
+			showErrorToast(toastStore, {
+				title: 'No se ha guardado la asignatura',
+				message: 'Los valores son inválidos'
+			});
 			console.error(result.error);
 			return;
 		}
@@ -51,7 +49,7 @@
 		subject.examStartDate = values.examStartDate;
 		subject.examDuration = values.examDuration;
 		updatedSubject(subject.id);
-		toastStore.trigger(showSuccessToast({ message: 'Asignatura actualizada' }));
+		showSuccessToast(toastStore, { message: 'Asignatura actualizada' });
 		requestAnimationFrame(() => goto('/subjects'));
 	}
 </script>

@@ -16,18 +16,14 @@
 			const classroom = createClassroom(result.data);
 			console.log(classroom);
 			if (classroom === false) {
-				toastStore.trigger(
-					showErrorToast({
-						message: 'No se ha podido crear la sala, los valores no son válidos'
-					})
-				);
+				showErrorToast(toastStore, {
+					message: 'No se ha podido crear la sala, los valores no son válidos'
+				});
 				return;
 			}
-			toastStore.trigger(
-				showSuccessToast({
-					message: 'Sala creada'
-				})
-			);
+			showSuccessToast(toastStore, {
+				message: 'Sala creada'
+			});
 			requestAnimationFrame(() => goto('/classrooms'));
 		} else {
 			console.error(result.error);

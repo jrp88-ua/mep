@@ -17,16 +17,14 @@
 	Settings.throwOnInvalid = true;
 	initializeStores();
 
-	const toast = getToastStore();
+	const toastStore = getToastStore();
 
 	beforeNavigate((e) => {
 		if (!appState.allowsNavigation()) {
-			toast.trigger(
-				showWarningToast({
-					title: m.locked_navigation_title(),
-					message: appState.lockedNavigationReason() as string
-				})
-			);
+			showWarningToast(toastStore, {
+				title: m.locked_navigation_title(),
+				message: appState.lockedNavigationReason() as string
+			});
 			e.cancel();
 		} else {
 			info('Navigating to ' + e.to?.route.id + ' from ' + e.from?.route.id);

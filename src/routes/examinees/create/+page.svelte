@@ -28,20 +28,16 @@
 			const willCreateAcademicCentre = !academicCentreSelector.academicCentreExists();
 			const examinee = createExaminee(result.data);
 			if (examinee === false) {
-				toastStore.trigger(
-					showErrorToast({
-						message: 'No se ha podido crear el examinado, los valores no son válidos'
-					})
-				);
+				showErrorToast(toastStore, {
+					message: 'No se ha podido crear el examinado, los valores no son válidos'
+				});
 				return;
 			}
-			toastStore.trigger(
-				showSuccessToast({
-					message: willCreateAcademicCentre
-						? 'Examinado y centro académico creados'
-						: 'Examinado creado'
-				})
-			);
+			showSuccessToast(toastStore, {
+				message: willCreateAcademicCentre
+					? 'Examinado y centro académico creados'
+					: 'Examinado creado'
+			});
 			requestAnimationFrame(() => goto('/examinees'));
 		} else {
 			console.error(result.error);

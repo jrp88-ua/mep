@@ -31,12 +31,10 @@
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = VigilantForCreate.safeParse(raw);
 		if (!result.success) {
-			toastStore.trigger(
-				showErrorToast({
-					title: 'No se ha guardado el vigilante',
-					message: 'Los valores son inválidos'
-				})
-			);
+			showErrorToast(toastStore, {
+				title: 'No se ha guardado el vigilante',
+				message: 'Los valores son inválidos'
+			});
 			console.error(result.error);
 			return;
 		}
@@ -46,7 +44,7 @@
 		// TODO set values
 
 		updatedVigilant(vigilant.id);
-		toastStore.trigger(showSuccessToast({ message: 'Vigilante actualizado' }));
+		showSuccessToast(toastStore, { message: 'Vigilante actualizado' });
 		requestAnimationFrame(() => goto('/vigilants'));
 	}
 </script>

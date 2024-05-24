@@ -14,18 +14,14 @@
 		if (result.success) {
 			const academicCentre = createAcademicCentre(result.data);
 			if (academicCentre === false) {
-				toastStore.trigger(
-					showErrorToast({
-						message: m.could_not_create_academic_centre()
-					})
-				);
+				showErrorToast(toastStore, {
+					message: m.could_not_create_academic_centre()
+				});
 				return;
 			}
-			toastStore.trigger(
-				showSuccessToast({
-					message: m.created_academic_centre()
-				})
-			);
+			showSuccessToast(toastStore, {
+				message: m.created_academic_centre()
+			});
 			requestAnimationFrame(() => goto('/academic-centres'));
 		} else {
 			console.error(result.error);

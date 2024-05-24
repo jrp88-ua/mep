@@ -25,7 +25,7 @@
 
 	let whatToShow = WhatToShow.Indicate;
 
-	const toast = getToastStore();
+	const toastStore = getToastStore();
 
 	let selectedFile: string | undefined;
 	let sheets: ExcelSheet[] | undefined;
@@ -41,11 +41,9 @@
 		whatToShow = WhatToShow.ProcessWaiting;
 		appState.lockNavigation(m.locked_navigation_examinees_being_imported());
 		if (selectedSheet === undefined) {
-			toast.trigger(
-				showErrorToast({
-					message: 'Estado del programa inválido, se ha cancelado el importado'
-				})
-			);
+			showErrorToast(toastStore, {
+				message: 'Estado del programa inválido, se ha cancelado el importado'
+			});
 			appState.unlockNavigation();
 			requestAnimationFrame(() => goto('/examinees'));
 			return;
@@ -63,18 +61,14 @@
 		if (result.success) {
 			const importer = importValues(result.value);
 			for (const importMoment of importer) importState = await importMoment;
-			toast.trigger(
-				showSuccessToast({
-					message: m.examinees_imported_succesfully({ amount: importState?.examinees.total! })
-				})
-			);
+			showSuccessToast(toastStore, {
+				message: m.examinees_imported_succesfully({ amount: importState?.examinees.total! })
+			});
 		} else {
-			toast.trigger(
-				showErrorToast({
-					...getExamineeImportErrorMessage(result.error),
-					autohide: false
-				})
-			);
+			showErrorToast(toastStore, {
+				...getExamineeImportErrorMessage(result.error),
+				autohide: false
+			});
 		}
 		appState.unlockNavigation();
 		requestAnimationFrame(() => goto('/examinees'));

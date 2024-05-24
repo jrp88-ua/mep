@@ -1,9 +1,9 @@
-import type { ToastSettings } from '@skeletonlabs/skeleton';
+import type { ToastSettings, getToastStore } from '@skeletonlabs/skeleton';
 import { appConfiguration } from './models/configuration';
 
 export type CustomToastSettings = ToastSettings & { title?: string | undefined };
 
-export function showToast(settings: CustomToastSettings): ToastSettings {
+export function showToast(toastStore: ReturnType<typeof getToastStore>, settings: CustomToastSettings) {
 	if (settings.autohide !== false) {
 		const timeout = settings.message.split(' ').length * appConfiguration.getToastTime();
 		settings = {
@@ -16,25 +16,25 @@ export function showToast(settings: CustomToastSettings): ToastSettings {
 		const { title, message } = settings;
 		settings.message = `<strong>${title}</strong><br>${message}`;
 	}
-	return settings;
+	return toastStore.trigger(settings);
 }
 
-export function showSuccessToast(settings: CustomToastSettings): ToastSettings {
-	return showToast({
+export function showSuccessToast(toastStore: ReturnType<typeof getToastStore>, settings: CustomToastSettings) {
+	return showToast(toastStore, {
 		...settings,
 		background: 'variant-filled-success'
 	});
 }
 
-export function showWarningToast(settings: CustomToastSettings): ToastSettings {
-	return showToast({
+export function showWarningToast(toastStore: ReturnType<typeof getToastStore>,settings: CustomToastSettings) {
+	return showToast(toastStore, {
 		...settings,
 		background: 'variant-filled-warning'
 	});
 }
 
-export function showErrorToast(settings: CustomToastSettings): ToastSettings {
-	return showToast({
+export function showErrorToast(toastStore: ReturnType<typeof getToastStore>,settings: CustomToastSettings) {
+	return showToast(toastStore, {
 		...settings,
 		background: 'variant-filled-error'
 	});

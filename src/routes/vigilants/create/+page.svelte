@@ -36,20 +36,16 @@
 			const willCreateAcademicCentre = !academicCentreSelector.academicCentreExists();
 			const vigilant = createVigilant(result.data);
 			if (vigilant === false) {
-				toastStore.trigger(
-					showErrorToast({
-						message: 'No se ha podido crear el vigilante, los valores no son válidos'
-					})
-				);
+				showErrorToast(toastStore, {
+					message: 'No se ha podido crear el vigilante, los valores no son válidos'
+				});
 				return;
 			}
-			toastStore.trigger(
-				showSuccessToast({
-					message: willCreateAcademicCentre
-						? 'Vigilante y centro académico creados'
-						: 'Vigilante creado'
-				})
-			);
+			showSuccessToast(toastStore, {
+				message: willCreateAcademicCentre
+					? 'Vigilante y centro académico creados'
+					: 'Vigilante creado'
+			});
 			requestAnimationFrame(() => goto('/vigilants'));
 		} else {
 			console.error(result.error);

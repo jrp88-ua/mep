@@ -32,12 +32,10 @@
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = AcademicCentreForCreate.safeParse(raw);
 		if (!result.success) {
-			toastStore.trigger(
-				showErrorToast({
-					title: m.could_not_save_academic_centre(),
-					message: m.values_are_invalid()
-				})
-			);
+			showErrorToast(toastStore, {
+				title: m.could_not_save_academic_centre(),
+				message: m.values_are_invalid()
+			});
 			console.error(result.error);
 			return;
 		}
@@ -47,7 +45,7 @@
 		academicCentre.setName(values.name);
 
 		updatedAcademicCentre(academicCentre.id);
-		toastStore.trigger(showSuccessToast({ message: m.academic_centre_updated() }));
+		showSuccessToast(toastStore, { message: m.academic_centre_updated() });
 		requestAnimationFrame(() => goto('/academic-centres'));
 	}
 </script>
