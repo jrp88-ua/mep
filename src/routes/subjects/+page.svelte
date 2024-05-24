@@ -56,10 +56,10 @@
 	<!-- Header -->
 	<header class="flex justify-between gap-4">
 		<div class="flex items-center gap-1">
-			<!--<a href="/subjects/create" class="btn variant-filled-primary">
+			<a href="/subjects/create" class="btn variant-filled-primary">
 				<span><i class="fa-solid fa-plus" /></span>
 				<span>Crear</span>
-			</a>-->
+			</a>
 			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
 				<span><i class="fa-solid fa-trash" /></span>
 				<span>Borrar</span>
