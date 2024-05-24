@@ -1,10 +1,11 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { goto } from '$app/navigation';
+
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { ClassroomForCreate } from '$lib/models/classroom';
 	import { createClassroom } from '$lib/services/classroom';
+	import { routeTo } from '$lib/util';
 
 	const toastStore = getToastStore();
 	let examCapacityInput: HTMLInputElement;
@@ -24,7 +25,7 @@
 			showSuccessToast(toastStore, {
 				message: 'Sala creada'
 			});
-			requestAnimationFrame(() => goto('/classrooms'));
+			routeTo('/classrooms');
 		} else {
 			console.error(result.error);
 		}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { goto } from '$app/navigation';
+
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { getToastStore, popup } from '@skeletonlabs/skeleton';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
@@ -12,6 +12,7 @@
 		vigilantRoleValuesTranslate
 	} from '$lib/services/vigilant';
 	import SubjectsSelector from '$lib/components/SubjectsSelector.svelte';
+	import { routeTo } from '$lib/util';
 
 	const toastStore = getToastStore();
 	let academicCentreSelector: AcademicCentreSearch;
@@ -46,7 +47,7 @@
 					? 'Vigilante y centro académico creados'
 					: 'Vigilante creado'
 			});
-			requestAnimationFrame(() => goto('/vigilants'));
+			routeTo('/vigilants');
 		} else {
 			console.error(result.error);
 		}

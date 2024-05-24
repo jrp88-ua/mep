@@ -1,10 +1,11 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { goto } from '$app/navigation';
+
 	import { AcademicCentreForCreate } from '$lib/models/academicCentres';
 	import { createAcademicCentre } from '$lib/services/academicCentres';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { routeTo } from '$lib/util';
 
 	const toastStore = getToastStore();
 
@@ -22,7 +23,7 @@
 			showSuccessToast(toastStore, {
 				message: m.created_academic_centre()
 			});
-			requestAnimationFrame(() => goto('/academic-centres'));
+			routeTo('/academic-centres');
 		} else {
 			console.error(result.error);
 		}

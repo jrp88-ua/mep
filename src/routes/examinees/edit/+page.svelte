@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { appState } from '$lib/models/appState';
 	import { ExamineeForCreate, type Examinee } from '$lib/models/examinees';
 	import { getExaminee, updatedExaminee } from '$lib/services/examinees';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
+	import { routeTo } from '$lib/util';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -14,12 +14,12 @@
 	onMount(() => {
 		const id = appState.getEdittingExaminee();
 		if (id === undefined) {
-			requestAnimationFrame(() => goto('/examinees'));
+			routeTo('/examinees');
 			return;
 		}
 		let oexaminee = get(getExaminee(id));
 		if (oexaminee === undefined) {
-			requestAnimationFrame(() => goto('/examinees'));
+			routeTo('/examinees');
 			return;
 		}
 		examinee = oexaminee!;
@@ -45,7 +45,7 @@
 
 		updatedExaminee(examinee.id);
 		showSuccessToast(toastStore, { message: 'Examinado actualizado' });
-		requestAnimationFrame(() => goto('/examinees'));
+		routeTo('/examinees');
 	}
 </script>
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { appState } from '$lib/models/appState';
 	import { ClassroomForCreate, type Classroom } from '$lib/models/classroom';
 	import { getClassroom, updatedClassroom } from '$lib/services/classroom';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
+	import { routeTo } from '$lib/util';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -14,12 +14,12 @@
 	onMount(() => {
 		const id = appState.getEdittingClassroom();
 		if (id === undefined) {
-			requestAnimationFrame(() => goto('/classrooms'));
+			routeTo('/classrooms');
 			return;
 		}
 		let oclassroom = get(getClassroom(id));
 		if (oclassroom === undefined) {
-			requestAnimationFrame(() => goto('/classrooms'));
+			routeTo('/classrooms');
 			return;
 		}
 		classroom = oclassroom!;
@@ -45,7 +45,7 @@
 
 		updatedClassroom(classroom.id);
 		showSuccessToast(toastStore, { message: 'Sala actualizada' });
-		requestAnimationFrame(() => goto('/classrooms'));
+		routeTo('/classrooms');
 	}
 </script>
 

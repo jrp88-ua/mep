@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { onDestroy } from 'svelte';
 	import { appState } from '$lib/models/appState';
 	import { type Subject, SubjectForCreate, SUBJECT_KIND_VALUES } from '$lib/models/subjects';
@@ -8,6 +7,7 @@
 	import { get } from 'svelte/store';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
+	import { routeTo } from '$lib/util';
 
 	const toastStore = getToastStore();
 	let subject: Subject;
@@ -16,12 +16,12 @@
 	onMount(() => {
 		const id = appState.getEdittingSubject();
 		if (id === undefined) {
-			requestAnimationFrame(() => goto('/subjects'));
+			routeTo('/subjects');
 			return;
 		}
 		let osubject = get(getSubject(id));
 		if (osubject === undefined) {
-			requestAnimationFrame(() => goto('/subjects'));
+			routeTo('/subjects');
 			return;
 		}
 		subject = osubject!;
@@ -50,7 +50,7 @@
 		subject.examDuration = values.examDuration;
 		updatedSubject(subject.id);
 		showSuccessToast(toastStore, { message: 'Asignatura actualizada' });
-		requestAnimationFrame(() => goto('/subjects'));
+		routeTo('/subjects');
 	}
 </script>
 

@@ -1,3 +1,4 @@
+import { goto } from '$app/navigation';
 import * as m from '$paraglide/messages';
 
 export function createSheetColumns(amount: number): string[] {
@@ -19,4 +20,8 @@ export function sheetColumnLetter(n: number): string {
 		n = Math.floor(n / len) - 1;
 	}
 	return s;
+}
+
+export async function routeTo(url: string) {
+	goto(url);
 }

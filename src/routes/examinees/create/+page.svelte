@@ -1,12 +1,13 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { goto } from '$app/navigation';
+
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { Examinee, ExamineeForCreate } from '$lib/models/examinees';
 	import { createExaminee, findExamineeByNif } from '$lib/services/examinees';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
 	import SubjectsSelector from '$lib/components/SubjectsSelector.svelte';
+	import { routeTo } from '$lib/util';
 
 	const toastStore = getToastStore();
 	let academicCentreSelector: AcademicCentreSearch;
@@ -38,7 +39,7 @@
 					? 'Examinado y centro académico creados'
 					: 'Examinado creado'
 			});
-			requestAnimationFrame(() => goto('/examinees'));
+			routeTo('/examinees');
 		} else {
 			console.error(result.error);
 		}

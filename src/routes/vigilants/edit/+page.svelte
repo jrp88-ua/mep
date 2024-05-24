@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { appState } from '$lib/models/appState';
 	import { VigilantForCreate, type Vigilant } from '$lib/models/vigilant';
 	import { getVigilant, updatedVigilant } from '$lib/services/vigilant';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
+	import { routeTo } from '$lib/util';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -14,12 +14,12 @@
 	onMount(() => {
 		const id = appState.getEdittingVigilant();
 		if (id === undefined) {
-			requestAnimationFrame(() => goto('/vigilants'));
+			routeTo('/vigilants');
 			return;
 		}
 		let ovigilant = get(getVigilant(id));
 		if (ovigilant === undefined) {
-			requestAnimationFrame(() => goto('/vigilants'));
+			routeTo('/vigilants');
 			return;
 		}
 		vigilant = ovigilant!;
@@ -45,7 +45,7 @@
 
 		updatedVigilant(vigilant.id);
 		showSuccessToast(toastStore, { message: 'Vigilante actualizado' });
-		requestAnimationFrame(() => goto('/vigilants'));
+		routeTo('/vigilants');
 	}
 </script>
 

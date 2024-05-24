@@ -13,7 +13,8 @@
 	import { get } from 'svelte/store';
 	import type { ModelId } from '$lib/models/models';
 	import { appState } from '$lib/models/appState';
-	import { goto } from '$app/navigation';
+
+	import { routeTo } from '$lib/util';
 
 	const modalStore = getModalStore();
 	const academicCentresStore = getAllAcademicCentres();
@@ -85,7 +86,7 @@
 				<tr
 					on:click={(e) => {
 						appState.setEdittingAcademicCentre(row.id);
-						requestAnimationFrame(() => goto('/academic-centres/edit'));
+						routeTo('/academic-centres/edit');
 					}}
 				>
 					<td class="selection">

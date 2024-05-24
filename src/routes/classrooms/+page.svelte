@@ -13,7 +13,8 @@
 	import { get } from 'svelte/store';
 	import type { ModelId } from '$lib/models/models';
 	import { appState } from '$lib/models/appState';
-	import { goto } from '$app/navigation';
+
+	import { routeTo } from '$lib/util';
 
 	const modalStore = getModalStore();
 	const classroomStore = getAllClassrooms();
@@ -99,7 +100,7 @@
 				<tr
 					on:click={(e) => {
 						appState.setEdittingClassroom(row.id);
-						requestAnimationFrame(() => goto('/classrooms/edit'));
+						routeTo('/classrooms/edit');
 					}}
 				>
 					<td class="selection">

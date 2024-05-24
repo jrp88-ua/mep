@@ -14,12 +14,13 @@
 		getAllSubjects,
 		subjectKindValuesTranslate
 	} from '$lib/services/subjects';
-	import { goto } from '$app/navigation';
+
 	import { appState } from '$lib/models/appState';
 	import { languageTag } from '$paraglide/runtime';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { get } from 'svelte/store';
 	import type { ModelId } from '$lib/models/models';
+	import { routeTo } from '$lib/util';
 
 	const modalStore = getModalStore();
 	const subjectsStore = getAllSubjects();
@@ -99,7 +100,7 @@
 				<tr
 					on:click={() => {
 						appState.setEdittingSubject(row.id);
-						requestAnimationFrame(() => goto('/subjects/edit'));
+						routeTo('/subjects/edit');
 					}}
 				>
 					<td class="selection">

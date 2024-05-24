@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { SUBJECT_KIND_VALUES, SubjectForCreate } from '$lib/models/subjects';
 	import { createSubject, subjectKindValuesTranslate } from '$lib/services/subjects';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
+	import { routeTo } from '$lib/util';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 
 	const toastStore = getToastStore();
@@ -27,7 +27,7 @@
 				message: 'Asignatura creada'
 			});
 		}
-		requestAnimationFrame(() => goto('/subjects'));
+		routeTo('/subjects');
 	}
 </script>
 

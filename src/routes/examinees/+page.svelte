@@ -13,7 +13,8 @@
 	import type { ModelId } from '$lib/models/models';
 	import { deleteExaminees, getAllExaminees } from '$lib/services/examinees';
 	import { appState } from '$lib/models/appState';
-	import { goto } from '$app/navigation';
+
+	import { routeTo } from '$lib/util';
 
 	const examineesStore = getAllExaminees();
 	const modalStore = getModalStore();
@@ -116,16 +117,16 @@
 							row.academicCentreId !== undefined
 						) {
 							appState.setEdittingAcademicCentre(row.academicCentreId);
-							requestAnimationFrame(() => goto('/academic-centres/edit'));
+							routeTo('/academic-centres/edit');
 						} else if (
 							target.getAttribute('data-row') === 'subject' &&
 							target.getAttribute('data-subject') !== undefined
 						) {
 							appState.setEdittingSubject(+(target.getAttribute('data-subject') ?? ''));
-							requestAnimationFrame(() => goto('/subjects/edit'));
+							routeTo('/subjects/edit');
 						} else {
 							appState.setEdittingExaminee(row.id);
-							requestAnimationFrame(() => goto('/examinees/edit'));
+							routeTo('/examinees/edit');
 						}
 					}}
 				>

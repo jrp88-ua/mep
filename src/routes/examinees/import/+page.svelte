@@ -6,7 +6,7 @@
 	import IndicateHowToImport from './IndicateHowToImport.svelte';
 	import ImportResume from './ImportResume.svelte';
 	import { appState } from '$lib/models/appState';
-	import { goto } from '$app/navigation';
+
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { ipc_invoke, ipc_invoke_result } from '$lib/ipc';
 	import { onDestroy } from 'svelte';
@@ -16,6 +16,7 @@
 	import { importValues, type ImportValuesMoment } from '$lib/services/common';
 	import type { ExamineeImportSettings } from '$lib/types/generated/ExamineeImportSettings';
 	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
+	import { routeTo } from '$lib/util';
 
 	enum WhatToShow {
 		Indicate,
@@ -45,7 +46,7 @@
 				message: 'Estado del programa inválido, se ha cancelado el importado'
 			});
 			appState.unlockNavigation();
-			requestAnimationFrame(() => goto('/examinees'));
+			routeTo('/examinees');
 			return;
 		}
 		const result = await ipc_invoke_result<ExamineeImportValues, ExamineeImportError>(
@@ -71,7 +72,7 @@
 			});
 		}
 		appState.unlockNavigation();
-		requestAnimationFrame(() => goto('/examinees'));
+		routeTo('/examinees');
 	}
 
 	function defaultImputSettings(): ExamineeImportSettings {

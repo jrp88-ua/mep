@@ -18,7 +18,8 @@
 	import { get } from 'svelte/store';
 	import type { ModelId } from '$lib/models/models';
 	import { appState } from '$lib/models/appState';
-	import { goto } from '$app/navigation';
+
+	import { routeTo } from '$lib/util';
 
 	const modalStore = getModalStore();
 	const vigilantsStore = getAllVigilants();
@@ -110,10 +111,10 @@
 							row.academicCentreId !== undefined
 						) {
 							appState.setEdittingAcademicCentre(row.academicCentreId);
-							requestAnimationFrame(() => goto('/academic-centres/edit'));
+							routeTo('/academic-centres/edit');
 						} else {
 							appState.setEdittingVigilant(row.id);
-							requestAnimationFrame(() => goto('/vigilants/edit'));
+							routeTo('/vigilants/edit');
 						}
 					}}
 				>

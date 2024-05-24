@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { goto } from '$app/navigation';
+
 	import { type AcademicCentre, AcademicCentreForCreate } from '$lib/models/academicCentres';
 	import { appState } from '$lib/models/appState';
 	import { getAcademicCentre, updatedAcademicCentre } from '$lib/services/academicCentres';
@@ -8,6 +8,7 @@
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
+	import { routeTo } from '$lib/util';
 
 	const toastStore = getToastStore();
 	let academicCentre: AcademicCentre;
@@ -15,12 +16,12 @@
 	onMount(() => {
 		const id = appState.getEdittingAcademicCentre();
 		if (id === undefined) {
-			requestAnimationFrame(() => goto('/academic-centres'));
+			routeTo('/academic-centres');
 			return;
 		}
 		let oacademiccentre = get(getAcademicCentre(id));
 		if (oacademiccentre === undefined) {
-			requestAnimationFrame(() => goto('/academic-centres'));
+			routeTo('/academic-centres');
 			return;
 		}
 		academicCentre = oacademiccentre!;
@@ -46,7 +47,7 @@
 
 		updatedAcademicCentre(academicCentre.id);
 		showSuccessToast(toastStore, { message: m.academic_centre_updated() });
-		requestAnimationFrame(() => goto('/academic-centres'));
+		routeTo('/academic-centres');
 	}
 </script>
 
