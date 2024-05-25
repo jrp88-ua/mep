@@ -116,9 +116,7 @@
 					<td>{row.name}</td>
 					<td>{t(row.kind)}</td>
 					<td>
-						{#if row.examStartDate === undefined}
-							<i>{m.no_date()}</i>
-						{:else}
+						{#if row.examStartDate !== undefined}
 							{row.examStartDate.toLocaleString(
 								{ dateStyle: 'full', timeStyle: 'short' },
 								{ locale: languageTag() }
