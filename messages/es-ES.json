@@ -106,5 +106,7 @@
 	"values_are_invalid": "Los valores son inválidos",
 	"academic_centre_updated": "Centro academico actualizado",
 	"academic_centre_already_exists": "Ya existe un centro académico con el nombre {name}",
-	"edit_existing_academic_centre": "Editar centro académico"
+	"edit_existing_academic_centre": "Editar centro académico",
+	"classroom_create_page_title": "Añadir sala",
+	"academic_centre_create_page_title": "Añadir centro académico"
 }

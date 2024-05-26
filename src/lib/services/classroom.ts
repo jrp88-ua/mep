@@ -1,5 +1,6 @@
 import { Classroom, ClassroomForCreate, classroomsStore } from '$lib/models/classroom';
 import type { ModelId } from '$lib/models/models';
+import { get } from 'svelte/store';
 
 let currentId = 0;
 
@@ -12,6 +13,16 @@ export function createClassroom(values: ClassroomForCreate) {
 
 	classroomsStore.storeInstance(classroom);
 	return classroom;
+}
+
+export function findClassroomByCode(code: string) {
+	// don't lower case check because the code may be case-sensitive
+	return get(getAllClassrooms()).find((c) => c.code === code);
+}
+
+export function findClassroomByLocationCode(code: string) {
+	// don't lower case check because the location code may be case-sensitive
+	return get(getAllClassrooms()).find((c) => c.locationCode === code);
 }
 
 export function getAllClassrooms() {

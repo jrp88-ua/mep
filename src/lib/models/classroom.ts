@@ -8,7 +8,12 @@ export class Classroom implements Model {
 	static TotalCapacity = z.coerce.number().min(1);
 	static ExamCapacity = z.coerce.number().min(1);
 	static Priority = z.coerce.number().positive().default(1);
-	static CourtLocation = z.coerce.number().finite().gte(-32768).lte(32767).optional();
+	static CourtLocation = z
+		.preprocess(
+			(v) => (v === 0 ? 0 : v || undefined),
+			z.union([z.string(), z.number(), z.undefined()])
+		)
+		.pipe(z.coerce.number().finite().gte(-32768).lte(32767).optional());
 	static Kind = z.string();
 	static Notes = z.string().array();
 	static Type = z.object({
