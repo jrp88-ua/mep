@@ -26,7 +26,8 @@ export function getOrCreateAcademicCentre(values: AcademicCentreForCreate) {
 }
 
 export function findAcademicCentreByName(name: string) {
-	return get(getAllAcademicCentres()).find((ac) => ac.name === name);
+	name = name.toLowerCase();
+	return get(getAllAcademicCentres()).find((ac) => ac.name.toLowerCase() === name);
 }
 
 export function getAllAcademicCentres() {

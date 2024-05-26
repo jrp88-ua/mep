@@ -85,9 +85,6 @@
 	"can_not_filter": "Can not filter",
 	"classroom_datatable_priority": "Priority",
 	"classroom_datatable_court_location": "Court location",
-	"subject_datatable_obligatory": "Obligatory",
-	"subject_datatable_volunteer": "Volunteer",
-	"subject_datatable_unknown": "Unknown",
 	"deletem": "Delete",
 	"create": "Create",
 	"delete_academic_centree_modal_title": "Delete selected academic centers?",
@@ -101,9 +98,14 @@
 	"values_of_the_academic_centre": "Academic center data",
 	"could_not_create_academic_centre": "The academic center could not be created",
 	"created_academic_centre": "Academic center created",
-	"edit_the_values_of_the_academic_centre": "Edit the values of the academic center <i>{name}</i>",
-	"editing_academic_centre_values": "Editing academic center <i>{name}</i>",
+	"edit_the_values_of_the_academic_centre": "Edit the values of the academic center '{name}'",
+	"editing_academic_centre_values": "Editing academic center '{name}'",
 	"could_not_save_academic_centre": "The academic center has not been saved",
 	"values_are_invalid": "The values are invalid",
-	"academic_centre_updated": "Updated academic center"
+	"academic_centre_updated": "Updated academic center",
+	"subject_datatable_obligatory": "Obligatory",
+	"subject_datatable_volunteer": "Volunteer",
+	"subject_datatable_unknown": "Unknown",
+	"academic_centre_already_exists": "There is already an academic center with the name {name}",
+	"edit_existing_academic_centre": "Edit academic center"
 }

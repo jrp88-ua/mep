@@ -22,6 +22,10 @@ export function sheetColumnLetter(n: number): string {
 	return s;
 }
 
-export async function routeTo(url: string) {
+type BaseUrls = '/academic-centres' | '/classrooms' | '/examinees' | '/subjects' | '/vigilants';
+type CrudUrls = '/create' | '/edit' | '';
+type AllUrls = `${BaseUrls}${CrudUrls}` | '/settings' | '/examinees/import';
+
+export async function routeTo(url: AllUrls) {
 	goto(url);
 }

@@ -99,10 +99,12 @@
 	"values_of_the_academic_centre": "Datos del centro académico",
 	"could_not_create_academic_centre": "No se ha podido crear el centro académico",
 	"created_academic_centre": "Centro académico creado",
-	"edit_the_values_of_the_academic_centre": "Edita los valores del centro académico <i>{name}</i>",
-	"editing_academic_centre_values": "Editando centro académico <i>{name}</i>",
+	"edit_the_values_of_the_academic_centre": "Edita los valores del centro académico \"{name}\"",
+	"editing_academic_centre_values": "Editando centro académico \"{name}\"",
 	"academic_centre_created": "Centro academico actualizado",
 	"could_not_save_academic_centre": "No se ha guardado el centro académico",
 	"values_are_invalid": "Los valores son inválidos",
-	"academic_centre_updated": "Centro academico actualizado"
+	"academic_centre_updated": "Centro academico actualizado",
+	"academic_centre_already_exists": "Ya existe un centro académico con el nombre {name}",
+	"edit_existing_academic_centre": "Editar centro académico"
 }
