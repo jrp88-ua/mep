@@ -23,7 +23,8 @@ export function getOrCreateSubject(values: SubjectForCreate) {
 }
 
 export function findSubjectByName(name: string) {
-	return get(getAllSubjects()).find((s) => s.name === name);
+	name = name.toLowerCase();
+	return get(getAllSubjects()).find((s) => s.name.toLocaleLowerCase() === name);
 }
 
 export function subjectExists(predicate: (subject: Subject) => boolean) {

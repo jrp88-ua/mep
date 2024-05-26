@@ -2,12 +2,18 @@
 	import { onDestroy } from 'svelte';
 	import { appState } from '$lib/models/appState';
 	import { type Subject, SubjectForCreate, SUBJECT_KIND_VALUES } from '$lib/models/subjects';
-	import { getSubject, subjectKindValuesTranslate, updatedSubject } from '$lib/services/subjects';
+	import {
+		findSubjectByName,
+		getSubject,
+		subjectKindValuesTranslate,
+		updatedSubject
+	} from '$lib/services/subjects';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
-	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { routeTo } from '$lib/util';
+	import { languageTag } from '$paraglide/runtime';
 
 	const toastStore = getToastStore();
 	let subject: Subject;
@@ -30,6 +36,16 @@
 	onDestroy(() => appState.setEdittingSubject(undefined));
 
 	const t = subjectKindValuesTranslate as (v: string) => string;
+
+	let matchingSubject: Subject | undefined = undefined;
+	function checkSubjectName(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+		const subjectName = event.currentTarget.value.toLowerCase();
+		if (subjectName === subject.name.toLocaleLowerCase()) {
+			matchingSubject = undefined;
+			return;
+		}
+		matchingSubject = findSubjectByName(event.currentTarget.value);
+	}
 
 	function submitForm(e: SubmitEvent) {
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
@@ -60,15 +76,30 @@
 	<div class="p-4">
 		<label class="my-5">
 			<span class="text-xl">Nombre</span>
-			<input
-				class="input"
-				title="Nombre"
-				name="name"
-				type="text"
-				value={subject?.name || ''}
-				placeholder="Nombre de la asignatura..."
-				required
-			/>
+			<div class="input-group input-group-divider grid-cols-[auto_1fr]">
+				{#if matchingSubject !== undefined}
+					<div
+						class="input-group-shim"
+						use:popup={{
+							event: 'hover',
+							target: 'subject-warning',
+							placement: 'top-start'
+						}}
+					>
+						<i class="fa-solid fa-circle-exclamation text-warning-500 animate-pulse" />
+					</div>
+				{/if}
+				<input
+					class="input"
+					title="Nombre"
+					name="name"
+					type="text"
+					value={subject?.name || ''}
+					placeholder="Nombre de la asignatura..."
+					on:input={checkSubjectName}
+					required
+				/>
+			</div>
 		</label>
 		<label class="my-5">
 			<span class="text-xl">Tipo</span>
@@ -106,7 +137,11 @@
 		</label>
 	</div>
 	<div class="card-footer">
-		<button type="submit" class="btn variant-filled-primary">
+		<button
+			type="submit"
+			class="btn variant-filled-primary"
+			disabled={matchingSubject !== undefined}
+		>
 			<i class="fa-solid fa-floppy-disk" />
 			<span>Guardar</span>
 		</button>
@@ -116,3 +151,43 @@
 		</a>
 	</div>
 </form>
+<div
+	class="card p-4 variant-filled-surface"
+	data-popup="subject-warning"
+	style={matchingSubject === undefined ? 'display: none;' : ''}
+>
+	<p><strong>Ya existe una asignatura con el nombre {matchingSubject?.name}</strong></p>
+	<div>
+		<table class="table">
+			<tbody>
+				<tr>
+					<td>Nombre</td>
+					<td>{matchingSubject?.name}</td>
+				</tr>
+				<tr>
+					<td>Tipo</td>
+					<td>{t(matchingSubject?.kind || 'UNKNOWN')}</td>
+				</tr>
+				<tr>
+					<td>Fecha examen</td>
+					<td>
+						{#if matchingSubject?.examStartDate}
+							{matchingSubject.examStartDate?.toLocaleString(
+								{ dateStyle: 'full', timeStyle: 'short' },
+								{ locale: languageTag() }
+							)}
+						{/if}
+					</td>
+				</tr>
+				<tr>
+					<td>Duración</td>
+					<td>
+						{#if matchingSubject?.examDuration !== undefined}
+							{matchingSubject.examDuration.toFormat("h'h' m'm' ")}
+						{/if}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
