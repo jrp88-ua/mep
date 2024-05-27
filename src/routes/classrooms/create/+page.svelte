@@ -32,9 +32,13 @@
 		if (matchingCode !== undefined || matchingLocationCode !== undefined) {
 			const classroom = (matchingCode ?? matchingLocationCode)!;
 			showErrorToast(toastStore, {
-				message: 'Ya existe una sala con el código/código de sala {code}',
+				message: matchingCode
+					? m.classroom_code_already_exists({ code: matchingCode.code })
+					: m.classroom_location_code_already_exists({
+							code: matchingLocationCode?.locationCode || ''
+					  }),
 				action: {
-					label: 'Editar sala',
+					label: m.exit_existing_classroom(),
 					response() {
 						appState.setEdittingClassroom(classroom.id);
 						routeTo('/classrooms/edit');
@@ -54,12 +58,13 @@
 		const classroom = createClassroom(result.data);
 		if (classroom === false) {
 			showErrorToast(toastStore, {
-				message: 'No se ha podido crear la sala, los valores no son válidos'
+				title: m.could_not_create_classroom(),
+				message: m.values_are_invalid()
 			});
 			return;
 		}
 		showSuccessToast(toastStore, {
-			message: 'Sala creada'
+			message: m.created_classroom()
 		});
 		routeTo('/classrooms');
 	}
@@ -74,10 +79,10 @@
 <h1 class="text-3xl mb-4">{m.classroom_create_page_title()}</h1>
 
 <form class="card" method="post" on:submit|preventDefault={submitForm}>
-	<h2 class=" card-header text-2xl">Datos de la sala</h2>
+	<h2 class=" card-header text-2xl">{m.values_of_the_classroom()}</h2>
 	<div class="p-4">
 		<label class="my-5">
-			<span class="text-xl">Código</span>
+			<span class="text-xl">{m.code()}</span>
 			<div class="input-group input-group-divider grid-cols-[auto_1fr]">
 				{#if matchingCode !== undefined}
 					<div
@@ -92,17 +97,17 @@
 					</div>
 				{/if}
 				<input
-					title="Código"
+					title={m.code()}
 					name="code"
 					type="text"
-					placeholder="Código de la sala..."
+					placeholder={m.code_of_the_classroom()}
 					on:input={checkCode}
 					required
 				/>
 			</div>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Código de lugar</span>
+			<span class="text-xl">{m.location_code()}</span>
 			<div class="input-group input-group-divider grid-cols-[auto_1fr]">
 				{#if matchingLocationCode !== undefined}
 					<div
@@ -117,81 +122,87 @@
 					</div>
 				{/if}
 				<input
-					title="Código de lugar"
+					title={m.location_code()}
 					name="locationCode"
 					type="text"
-					placeholder="Código de lugar de la sala..."
+					placeholder={m.location_code_of_the_classroom()}
 					on:input={checkLocationCode}
 				/>
 			</div>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Capacidad total</span>
+			<span class="text-xl">{m.total_capacity()}</span>
 			<input
 				class="input"
-				title="Capacidad total"
+				title={m.total_capacity()}
 				name="totalCapacity"
 				type="number"
 				min="0"
 				step="1"
-				placeholder="Capacidad total de la sala..."
+				placeholder={m.total_capacity_of_the_classroom()}
 				on:input={onTotalCapacityChange}
 				required
 			/>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Capacidad para examen</span>
+			<span class="text-xl">{m.exam_capacity()}</span>
 			<input
 				bind:this={examCapacityInput}
 				class="input"
-				title="Capacidad para examen"
+				title={m.exam_capacity()}
 				name="examCapacity"
 				type="number"
 				min="0"
 				step="1"
-				placeholder="Capacidad para examen de la sala..."
+				placeholder={m.exam_capacity_of_the_classroom()}
 				required
 			/>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Prioridad para asignar examinados</span>
+			<span class="text-xl">{m.priority_to_asign_examinees()}</span>
 			<input
 				class="input"
-				title="Prioridad"
+				title={m.priority_to_asign_examinees()}
 				name="priority"
 				type="number"
 				min="1"
 				step="1"
 				value="1"
-				placeholder="Prioridad de la sala..."
+				placeholder={m.priority_to_asign_examinees_of_the_classroom()}
 				required
 			/>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Sede de tribunal</span>
+			<span class="text-xl">{m.court_location()}</span>
 			<input
 				class="input"
-				title="Sede de tribunal"
+				title={m.court_location()}
 				name="courtLocation"
 				type="number"
 				min="-32768"
 				max="32767"
 				step="1"
-				placeholder="Sede del tribunal..."
+				placeholder={m.court_location_of_the_classroom()}
 			/>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Tipo</span>
-			<input class="input" title="Tipo" name="kind" type="text" placeholder="Tipo de la sala..." />
+			<span class="text-xl">{m.kind()}</span>
+			<input
+				class="input"
+				title={m.kind()}
+				name="kind"
+				type="text"
+				placeholder={m.kind_of_the_classroom()}
+			/>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Notas</span>
+			<span class="text-xl">{m.notes()}</span>
 			<textarea
 				class="textarea"
 				rows="5"
-				title="Notas"
+				title={m.notes()}
 				name="notes"
-				placeholder="Notas de la sala..."
+				placeholder={m.notes_of_the_classroom()}
 			/>
 		</label>
 	</div>

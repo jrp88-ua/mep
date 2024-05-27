@@ -43,7 +43,8 @@
 		const academicCentre = createAcademicCentre(result.data);
 		if (academicCentre === false) {
 			showErrorToast(toastStore, {
-				message: m.could_not_create_academic_centre()
+				title: m.could_not_create_academic_centre(),
+				message: m.values_are_invalid()
 			});
 			return;
 		}

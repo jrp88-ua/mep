@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as m from '$paraglide/messages';
 	import type { Classroom } from '$lib/models/classroom';
 
 	export let matching: Classroom | undefined;
@@ -13,9 +14,9 @@
 	<p>
 		<strong>
 			{#if location}
-				Ya existe un aula con el código de lugar {matching?.locationCode}
+				{m.classroom_location_code_already_exists({ code: matching?.locationCode || '' })}
 			{:else}
-				Ya existe un aula con el código {matching?.code}
+				{m.classroom_code_already_exists({ code: matching?.code || '' })}
 			{/if}
 		</strong>
 	</p>
@@ -23,41 +24,41 @@
 		<table class="table">
 			<tbody>
 				<tr>
-					<td>Código</td>
+					<td>{m.code()}</td>
 					<td>{matching?.code}</td>
 				</tr>
 				<tr>
-					<td>Código de lugar</td>
+					<td>{m.location_code()}</td>
 					<td>{matching?.locationCode}</td>
 				</tr>
 				<tr>
-					<td>Capacidad total</td>
+					<td>{m.total_capacity()}</td>
 					<td>{matching?.totalCapacity}</td>
 				</tr>
 				<tr>
-					<td>Capacidad de examen</td>
+					<td>{m.exam_capacity()}</td>
 					<td>{matching?.examCapacity}</td>
 				</tr>
 				<tr>
-					<td>Prioridad para asignar</td>
+					<td>{m.priority_to_asign_examinees()}</td>
 					<td>{matching?.priority}</td>
 				</tr>
 				<tr>
-					<td>Sede del tribunal</td>
+					<td>{m.court_location()}</td>
 					<td>
 						{#if matching?.courtLocation !== undefined}
 							{matching.courtLocation}
 						{:else}
-							<i>No es la sede de ningún tribunal</i>
+							<i>{m.no_court_location()}</i>
 						{/if}
 					</td>
 				</tr>
 				<tr>
-					<td>Tipo</td>
+					<td>{m.kind()}</td>
 					<td>{matching?.kind}</td>
 				</tr>
 				<tr>
-					<td>Notas</td>
+					<td>{m.notes()}</td>
 					<td>{matching?.notes}</td>
 				</tr>
 			</tbody>
