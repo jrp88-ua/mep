@@ -113,6 +113,11 @@ export class Examinee implements Model {
 		return changed;
 	}
 
+	setSubjects(subjects: ModelId[]) {
+		this.subjectsIds = new Set(subjects);
+		this.getSubjects();
+	}
+
 	public getSubjects(): Subject[] {
 		const ar = [];
 		this.lazySubjectsNames.length = 0;

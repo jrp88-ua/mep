@@ -1,13 +1,18 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
 	import { getAllSubjects } from '$lib/services/subjects';
+	import type { ModelId } from '$lib/models/models';
 
 	const subjectsStore = getAllSubjects();
 
-	let group: number[] = [];
+	let group: ModelId[] = [];
 
 	export function getSelection() {
 		return group;
+	}
+
+	export function setSelection(ids: ModelId[]) {
+		group = ids;
 	}
 </script>
 

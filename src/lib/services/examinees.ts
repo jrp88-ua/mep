@@ -28,7 +28,8 @@ export function createExaminee(values: ExamineeForCreate) {
 }
 
 export function findExamineeByNif(nif: string) {
-	return get(getAllExaminees()).find((e) => e.nif === nif);
+	nif = nif.toLowerCase();
+	return get(getAllExaminees()).find((e) => e.nif.toLowerCase() === nif);
 }
 
 export function getAllExaminees() {

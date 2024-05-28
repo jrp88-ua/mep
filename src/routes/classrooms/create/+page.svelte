@@ -212,7 +212,7 @@
 			class="btn variant-filled-primary"
 			disabled={matchingCode !== undefined || matchingLocationCode !== undefined}
 		>
-			<i class="fa-solid fa-plus" />
+			<i class="fa-solid fa-floppy-disk" />
 			<span>{m.save()}</span>
 		</button>
 		<a href="/classrooms" class="btn variant-filled-tertiary">
