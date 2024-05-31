@@ -22,19 +22,12 @@
 	}
 
 	function submitForm(e: SubmitEvent) {
-		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
-		const result = SubjectForCreate.safeParse(raw);
-		if (!result.success) {
-			console.error(result.error);
-			return;
-		}
-
 		if (matchingSubject !== undefined) {
 			const subject = matchingSubject;
 			showErrorToast(toastStore, {
-				message: 'Ya existe una asignatura con ese nombre',
+				message: m.subject_already_exists({ name: subject.name }),
 				action: {
-					label: 'Editar asignatura',
+					label: m.edit_existing_subject(),
 					response() {
 						appState.setEdittingSubject(subject.id);
 						routeTo('/subjects/edit');
@@ -44,26 +37,36 @@
 			return;
 		}
 
+		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
+		const result = SubjectForCreate.safeParse(raw);
+		if (!result.success) {
+			console.error(result.error);
+			return;
+		}
+
 		const subject = createSubject(result.data);
 		if (subject === false) {
 			showErrorToast(toastStore, {
-				message: 'No se ha podido crear la asignatura'
+				title: m.could_not_create_subject(),
+				message: m.values_are_invalid()
 			});
-		} else {
-			showSuccessToast(toastStore, {
-				message: 'Asignatura creada'
-			});
+			return;
 		}
+		showSuccessToast(toastStore, {
+			message: m.subject_created()
+		});
+
 		routeTo('/subjects');
 	}
 </script>
 
-<h1 class="text-3xl mb-4">Añadir asignatura</h1>
+<h1 class="text-3xl mb-4">{m.subject_create_page_title()}</h1>
+
 <form class="card" method="post" on:submit|preventDefault={submitForm}>
-	<h2 class=" card-header text-2xl">Datos de la nueva asignatura</h2>
+	<h2 class=" card-header text-2xl">{m.values_of_the_subject()}</h2>
 	<div class="p-4">
 		<label class="my-5">
-			<span class="text-xl">Nombre</span>
+			<span class="text-xl">{m.name()}</span>
 			<div class="input-group input-group-divider grid-cols-[auto_1fr]">
 				{#if matchingSubject !== undefined}
 					<div
@@ -78,43 +81,42 @@
 					</div>
 				{/if}
 				<input
-					class="input"
-					title="Nombre"
+					title={m.name()}
 					name="name"
 					type="text"
-					placeholder="Nombre de la asignatura..."
+					placeholder={m.name_of_the_subject()}
 					on:input={checkSubjectName}
 					required
 				/>
 			</div>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Tipo</span>
-			<select name="kind" class="select" size={SUBJECT_KIND_VALUES.length} value="UNKNOWN" required>
+			<span class="text-xl">{m.kind()}</span>
+			<select name="kind" class="select" size={SUBJECT_KIND_VALUES.length} value="UNKNOWN">
 				{#each SUBJECT_KIND_VALUES as kind}
 					<option value={kind}>{t(kind)}</option>
 				{/each}
 			</select>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Fecha del examen</span>
+			<span class="text-xl">{m.exam_date()}</span>
 			<input
 				class="input"
-				title="Fecha del examen"
+				title={m.exam_date()}
 				name="examStartDate"
 				type="datetime-local"
-				placeholder="Fecha del examen de la asignatura..."
+				placeholder={m.exam_date_of_the_subject()}
 				required
 			/>
 		</label>
 		<label class="my-5">
-			<span class="text-xl">Duración del examen en minutos</span>
+			<span class="text-xl">{m.exam_duration_in_minutes()}</span>
 			<input
 				class="input"
-				title="Duración del examen en minutos"
+				title={m.exam_duration_in_minutes()}
 				name="examDuration"
 				type="number"
-				placeholder="Duración del examen en minutos de la asignatura..."
+				placeholder={m.duration_of_the_exam_in_minutes()}
 				min="1"
 				step="1"
 				required
@@ -128,34 +130,33 @@
 			disabled={matchingSubject !== undefined}
 		>
 			<i class="fa-solid fa-floppy-disk" />
-			<span>Guardar</span>
+			<span>{m.save()}</span>
 		</button>
 		<a href="/subjects" class="btn variant-filled-tertiary">
 			<i class="fa-solid fa-xmark" />
-			<span>Cancelar</span>
+			<span>{m.cancel()}</span>
 		</a>
 	</div>
 </form>
-
 <div
 	class="card p-4 variant-filled-surface"
 	data-popup="subject-warning"
 	style={matchingSubject === undefined ? 'display: none;' : ''}
 >
-	<p><strong>Ya existe una asignatura con el nombre {matchingSubject?.name}</strong></p>
+	<p><strong>{m.subject_already_exists({ name: matchingSubject?.name || '' })}</strong></p>
 	<div>
 		<table class="table">
 			<tbody>
 				<tr>
-					<td>Nombre</td>
+					<td>{m.name()}</td>
 					<td>{matchingSubject?.name}</td>
 				</tr>
 				<tr>
-					<td>Tipo</td>
+					<td>{m.kind()}</td>
 					<td>{t(matchingSubject?.kind || 'UNKNOWN')}</td>
 				</tr>
 				<tr>
-					<td>Fecha examen</td>
+					<td>{m.exam_date()}</td>
 					<td>
 						{#if matchingSubject?.examStartDate}
 							{matchingSubject.examStartDate?.toLocaleString(
@@ -166,7 +167,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td>Duración</td>
+					<td>{m.exam_duration()}</td>
 					<td>
 						{#if matchingSubject?.examDuration !== undefined}
 							{matchingSubject.examDuration.toFormat("h'h' m'm' ")}

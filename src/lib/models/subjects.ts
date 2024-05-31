@@ -10,10 +10,17 @@ export class Subject implements Model {
 	static Name = z.string().trim().min(1);
 	static Kind = z.enum(SUBJECT_KIND_VALUES).default('UNKNOWN');
 	static ExamStartDate = z.coerce.date().transform((date) => DateTime.fromISO(date.toISOString()));
-	static ExamDuration = z.coerce
-		.number()
-		.positive()
-		.transform((minutes) => Duration.fromMillis(minutes * 60 * 1000));
+	static ExamDuration = z
+		.preprocess((v) => {
+			if (v instanceof Duration) return v.minutes;
+			return v;
+		}, z.union([z.number(), z.unknown()]))
+		.pipe(
+			z.coerce
+				.number()
+				.positive()
+				.transform((minutes) => Duration.fromObject({ minutes }))
+		);
 	static Type = z.object({
 		id: Subject.Id,
 		name: Subject.Name,
@@ -55,11 +62,12 @@ export class Subject implements Model {
 		this.kind = Subject.Kind.parse(value);
 	}
 
-	setExamDate(value?: Date): void {
+	setExamDate(value?: z.infer<typeof Subject.ExamStartDate>): void {
 		this.examStartDate = Subject.ExamStartDate.parse(value);
 	}
-	setExamDuration(value?: number): void {
-		this.examDuration = Subject.ExamDuration.parse(value);
+
+	setExamDuration(value?: Duration): void {
+		this.examDuration = value;
 	}
 
 	toString(): string {

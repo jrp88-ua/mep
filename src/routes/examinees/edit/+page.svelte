@@ -116,17 +116,18 @@
 
 <h1 class="text-3xl mb-4">
 	{m.editing_examinee_values({
-		name: examinee.name,
-		surenames: examinee.surenames,
-		nif: examinee.nif
+		name: examinee?.name || '',
+		surenames: examinee?.surenames || '',
+		nif: examinee?.nif || ''
 	})}
 </h1>
+
 <form class="card" method="post" on:submit|preventDefault={submitForm}>
 	<h2 class=" card-header text-2xl">
 		{m.edit_the_values_of_the_examinee({
-			name: examinee.name,
-			surenames: examinee.surenames,
-			nif: examinee.nif
+			name: examinee?.name || '',
+			surenames: examinee?.surenames || '',
+			nif: examinee?.nif || ''
 		})}
 	</h2>
 	<div class="p-4">
