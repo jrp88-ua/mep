@@ -62,7 +62,7 @@
 			</a>
 			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
 				<span><i class="fa-solid fa-trash" /></span>
-				<span>Borrar</span>
+				<span>{m.delete_vigilant()}</span>
 			</button>
 		</div>
 		<div class="flex gap-4">

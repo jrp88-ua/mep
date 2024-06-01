@@ -51,6 +51,7 @@
 			raw.academicCentre.trim() === ''
 		)
 			delete raw.academicCentre;
+
 		const result = ExamineeForCreate.safeParse(raw);
 		if (!result.success) {
 			console.error(result.error);

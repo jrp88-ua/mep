@@ -79,6 +79,11 @@ export class Vigilant implements Model {
 		}
 	}
 
+	setSpecialties(specialtyId: number[]) {
+		this.specialtiesIds = new Set(specialtyId);
+		this.getSpecialties();
+	}
+
 	addSpecialty(specialtyId: number[]) {
 		const oldLength = this.specialtiesIds.size;
 		for (const id of specialtyId) {

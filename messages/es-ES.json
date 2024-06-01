@@ -174,5 +174,22 @@
 	"subject_create_page_title": "Añadir asignatura",
 	"values_of_the_subject": "Datos de la asignatura",
 	"subject_created": "Asignatura creada",
-	"could_not_create_subject": "No se ha podido crear la asignatura"
+	"could_not_create_subject": "No se ha podido crear la asignatura",
+	"delete_vigilant": "Borrar",
+	"could_not_create_vigilant": "No se ha podido crear el vigilante",
+	"created_vigilant": "Vigilante creado",
+	"created_vigilant_and_academic_centre": "Vigilante y centro académico creados",
+	"edit_existing_vigilant": "Editar vigilant",
+	"vigilant_role_already_exists": "Ya existe un vigilante en el tribunal {court} con el rol {role}",
+	"name_of_the_vigilant": "Nombre del vigilante...",
+	"surenames_of_the_vigilant": "Apellidos del vigilante...",
+	"role_of_the_vigilant": "Rol del vigilante...",
+	"court_of_the_vigilant": "Tribunal del vigilante...",
+	"values_of_the_vigilant": "Datos del nuevo vigilante",
+	"vigilant_name_already_exists": "Ya existe un vigilante con el nombre {name} {surenames}",
+	"role": "Rol",
+	"could_not_save_vigilant": "No se ha guardado el vigilante",
+	"vigilants_edit_page_title": "Editando vigilante {surenames}, {name}",
+	"edit_the_values_of_the_vigilant": "Edita los valores del vigilante {surenames}, {name}",
+	"updated_vigilant": "Vigilante actualizado"
 }

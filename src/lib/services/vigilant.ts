@@ -35,6 +35,15 @@ export function createVigilant(values: VigilantForCreate) {
 	return vigilant;
 }
 
+export function findVigilantByName(name: string, surenames?: string) {
+	name = name.toLowerCase();
+	surenames = (surenames ?? '').toLowerCase();
+	return get(getAllVigilants()).find(
+		(vigilant) =>
+			vigilant.name.toLowerCase() === name && vigilant.surenames.toLowerCase() === surenames
+	);
+}
+
 export function findCourtPresident(court: number) {
 	return get(getAllVigilants()).find(
 		(vigilant) => vigilant.mainCourt === court && vigilant.role === 'PRESIDENT'
