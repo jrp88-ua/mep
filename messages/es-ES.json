@@ -196,5 +196,17 @@
 	"warning_subject_without_exam_date_title": "Asignaturas sin fecha de examen",
 	"warning_subject_without_exam_date_message": "Hay {amount} asignaturas que no tienen establecida la fecha o duración de sus exámenes",
 	"warning_vigilants_and_examinees_from_the_same_centre_message": "Del centro {centre} vienen {vigilants} vigilantes y {examinees} examinados. ",
-	"warning_vigilants_and_examinees_from_the_same_centre_title": "Hay examinados y vigilantes provenientes del mismo centro académico"
+	"warning_vigilants_and_examinees_from_the_same_centre_title": "Hay examinados y vigilantes provenientes del mismo centro académico",
+	"delete_vigilant_modal_title": "¿Eliminar vigilantes seleccionados?",
+	"delete_vigilant_modal_body": "Si aceptas, se eliminarán los vigilantes seleccionados ({total} en total). <strong>Esta acción no se puede deshacer.</strong>",
+	"confirm_delete_selected_vigilants": "Eliminar vigilantes",
+	"cancel_delete_selected_vigilants": "No eliminar vigilantes",
+	"delete_classroom_modal_title": "¿Eliminar salas seleccionadas?",
+	"delete_classroom_modal_body": "Si aceptas, se eliminarán las salas seleccionadas ({total} en total). <strong>Esta acción no se puede deshacer.</strong>",
+	"confirm_delete_selected_classrooms": "Eliminar salas seleccionadas",
+	"cancel_delete_selected_classrooms": "No eliminar salas seleccionadas",
+	"delete_subject_modal_title": "¿Eliminar asignaturas seleccionadas?",
+	"delete_subject_modal_body": "Si aceptas, se eliminarán las asignaturas seleccionadas ({total} en total). <strong>Esta acción no se puede deshacer.</strong>",
+	"confirm_delete_selected_subjects": "Eliminar asignaturas",
+	"cancel_delete_selected_subjects": "No eliminar asignaturas"
 }

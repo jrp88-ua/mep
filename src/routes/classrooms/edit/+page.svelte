@@ -110,11 +110,11 @@
 	}
 </script>
 
-<h1 class="text-3xl mb-4">{m.editing_classroom_values({ code: classroom.code })}</h1>
+<h1 class="text-3xl mb-4">{m.editing_classroom_values({ code: classroom?.code || '' })}</h1>
 
 <form class="card" method="post" on:submit|preventDefault={submitForm}>
 	<h2 class=" card-header text-2xl">
-		{m.editing_the_values_of_the_classroom({ code: classroom.code })}
+		{m.editing_the_values_of_the_classroom({ code: classroom?.code || '' })}
 	</h2>
 	<div class="p-4">
 		<label class="my-5">

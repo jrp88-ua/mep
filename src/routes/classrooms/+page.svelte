@@ -31,10 +31,10 @@
 		if (disableDelete) return;
 		modalStore.trigger({
 			type: 'confirm',
-			title: '¿Eliminar salas seleccionadas?',
-			body: 'Si aceptas, se eliminarán las salas seleccionadas ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
-			buttonTextConfirm: 'Eliminar salas seleccionadas',
-			buttonTextCancel: 'No eliminar salas seleccionadas',
+			title: m.delete_classroom_modal_title(),
+			body: m.delete_classroom_modal_body({ total: get(selected).length }),
+			buttonTextConfirm: m.confirm_delete_selected_classrooms(),
+			buttonTextCancel: m.cancel_delete_selected_classrooms(),
 			response: (doDelete: boolean) => {
 				if (!doDelete) return;
 				const selectedIds = get(selected) as ModelId[];

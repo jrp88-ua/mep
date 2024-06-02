@@ -36,10 +36,10 @@
 		if (disableDelete) return;
 		modalStore.trigger({
 			type: 'confirm',
-			title: '¿Eliminar vigilantes seleccionados?',
-			body: 'Si aceptas, se eliminarán los vigilantes seleccionados ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
-			buttonTextConfirm: 'Eliminar vigilantes',
-			buttonTextCancel: 'No eliminar vigilantes',
+			title: m.delete_vigilant_modal_title(),
+			body: m.delete_vigilant_modal_body({ total: get(selected).length }),
+			buttonTextConfirm: m.confirm_delete_selected_vigilants(),
+			buttonTextCancel: m.cancel_delete_selected_vigilants(),
 			response: (doDelete: boolean) => {
 				if (!doDelete) return;
 				const selectedIds = get(selected) as ModelId[];

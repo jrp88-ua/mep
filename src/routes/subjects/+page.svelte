@@ -37,10 +37,10 @@
 		if (disableDelete) return;
 		modalStore.trigger({
 			type: 'confirm',
-			title: '¿Eliminar asignaturas seleccionadas?',
-			body: 'Si aceptas, se eliminarán las asignaturas seleccionadas ({total} en total). <strong>Esta acción no se puede deshacer.</strong>',
-			buttonTextConfirm: 'Eliminar asignaturas',
-			buttonTextCancel: 'No eliminar asignaturas',
+			title: m.delete_subject_modal_title(),
+			body: m.delete_subject_modal_body({ total: get(selected).length }),
+			buttonTextConfirm: m.confirm_delete_selected_subjects(),
+			buttonTextCancel: m.cancel_delete_selected_subjects(),
 			response: (doDelete: boolean) => {
 				if (!doDelete) return;
 				const selectedIds = get(selected) as ModelId[];
