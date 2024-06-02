@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import * as m from '$paraglide/messages';
+import { languageTag } from '$paraglide/runtime';
 
 export function createSheetColumns(amount: number): string[] {
 	const columns: string[] = [];
@@ -27,5 +28,5 @@ type CrudUrls = '/create' | '/edit' | '';
 type AllUrls = `${BaseUrls}${CrudUrls}` | '/settings' | '/examinees/import';
 
 export async function routeTo(url: AllUrls) {
-	goto(url);
+	goto(`/${languageTag()}${url}`);
 }
