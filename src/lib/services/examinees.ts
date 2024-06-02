@@ -2,6 +2,7 @@ import { Examinee, ExamineeForCreate, examineesStore } from '$lib/models/examine
 import type { ModelId } from '$lib/models/models';
 import { get } from 'svelte/store';
 import { getOrCreateAcademicCentre } from './academicCentres';
+import { runExamineeAndVigilantHaveSameAcademicCentreCheck } from './warnings';
 
 let currentId = 0;
 
@@ -24,6 +25,7 @@ export function createExaminee(values: ExamineeForCreate) {
 	const examinee = new Examinee({ id: currentId++, ...validValues });
 
 	examineesStore.storeInstance(examinee);
+	runExamineeAndVigilantHaveSameAcademicCentreCheck();
 	return examinee;
 }
 
@@ -41,13 +43,23 @@ export function getExaminee(id: ModelId) {
 }
 
 export function updatedExaminee(id: ModelId) {
-	return examineesStore.updatedInstance(id);
+	if (examineesStore.updatedInstance(id)) {
+		runExamineeAndVigilantHaveSameAcademicCentreCheck();
+		return true;
+	}
+	return false;
 }
 
 export function deleteExaminee(id: ModelId) {
-	return examineesStore.deleteInstance(id);
+	if (examineesStore.deleteInstance(id)) {
+		runExamineeAndVigilantHaveSameAcademicCentreCheck();
+		return true;
+	}
+	return false;
 }
 
 export function deleteExaminees(ids: ModelId[]) {
-	return examineesStore.deleteInstances(ids);
+	const deleted = examineesStore.deleteInstances(ids);
+	if (deleted.length > 0) runExamineeAndVigilantHaveSameAcademicCentreCheck();
+	return deleted;
 }

@@ -49,6 +49,10 @@ export class Subject implements Model {
 		this.examDuration = params.examDuration;
 	}
 
+	get hasExamDate() {
+		return this.examStartDate !== undefined && this.examDuration !== undefined;
+	}
+
 	get examFinishDate() {
 		if (!this.examStartDate || !this.examDuration) return undefined;
 		return this.examStartDate.plus(this.examDuration);

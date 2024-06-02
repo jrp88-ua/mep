@@ -8,6 +8,7 @@ import {
 import * as m from '$paraglide/messages';
 import { get } from 'svelte/store';
 import { getOrCreateAcademicCentre } from './academicCentres';
+import { runExamineeAndVigilantHaveSameAcademicCentreCheck } from './warnings';
 
 let currentId = 0;
 
@@ -32,6 +33,7 @@ export function createVigilant(values: VigilantForCreate) {
 	const vigilant = new Vigilant({ id: currentId++, ...validValues });
 
 	vigilantsStore.storeInstance(vigilant);
+	runExamineeAndVigilantHaveSameAcademicCentreCheck();
 	return vigilant;
 }
 
@@ -69,15 +71,23 @@ export function getVigilant(id: ModelId) {
 }
 
 export function updatedVigilant(id: ModelId) {
-	return vigilantsStore.updatedInstance(id);
+	const result = vigilantsStore.updatedInstance(id);
+	if (result) runExamineeAndVigilantHaveSameAcademicCentreCheck();
+	return result;
 }
 
 export function deleteVigilant(id: ModelId) {
-	return vigilantsStore.deleteInstance(id);
+	if (vigilantsStore.deleteInstance(id)) {
+		runExamineeAndVigilantHaveSameAcademicCentreCheck();
+		return true;
+	}
+	return false;
 }
 
 export function deleteVigilants(ids: ModelId[]) {
-	return vigilantsStore.deleteInstances(ids);
+	const deleted = vigilantsStore.deleteInstances(ids);
+	if (deleted.length > 0) runExamineeAndVigilantHaveSameAcademicCentreCheck();
+	return deleted;
 }
 
 export function vigilantRoleValuesTranslate(kind: (typeof VIGILANT_ROLE_VALUES)[number]) {

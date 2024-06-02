@@ -13,6 +13,7 @@
 	import { showWarningToast } from '$lib/toast';
 	import AppDrawers from '$lib/drawer/AppDrawers.svelte';
 	import { info } from 'tauri-plugin-log-api';
+	import WarningsDisplay from './WarningsDisplay.svelte';
 
 	Settings.throwOnInvalid = true;
 	initializeStores();
@@ -37,6 +38,9 @@
 	<Modal />
 	<AppDrawers />
 	<AppShell>
+		<svelte:fragment slot="pageHeader">
+			<WarningsDisplay />
+		</svelte:fragment>
 		<svelte:fragment slot="sidebarLeft">
 			<AppNavigationBar />
 		</svelte:fragment>

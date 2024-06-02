@@ -4,6 +4,7 @@ import * as m from '$paraglide/messages';
 import { get } from 'svelte/store';
 import { examineesStore } from '$lib/models/examinees';
 import { vigilantsStore } from '$lib/models/vigilant';
+import { runSubjectsWithoutWarningCheck } from './warnings';
 
 let currentId = 0;
 
@@ -15,6 +16,7 @@ export function createSubject(values: SubjectForCreate) {
 	const subject = new Subject({ id: currentId++, ...values });
 
 	subjectsStore.storeInstance(subject);
+	runSubjectsWithoutWarningCheck();
 	return subject;
 }
 
@@ -40,12 +42,15 @@ export function getSubject(id: ModelId) {
 }
 
 export function updatedSubject(id: ModelId) {
-	return subjectsStore.updatedInstance(id);
+	const result = subjectsStore.updatedInstance(id);
+	if (result) runSubjectsWithoutWarningCheck();
+	return result;
 }
 
 export function deleteSubject(id: ModelId) {
 	if (subjectsStore.deleteInstance(id)) {
 		deleteSubjectFromExamineesAndVigilants([id]);
+		runSubjectsWithoutWarningCheck();
 		return true;
 	}
 	return false;
@@ -54,6 +59,7 @@ export function deleteSubject(id: ModelId) {
 export function deleteSubjects(ids: ModelId[]) {
 	const deleted = subjectsStore.deleteInstances(ids);
 	deleteSubjectFromExamineesAndVigilants(deleted);
+	runSubjectsWithoutWarningCheck();
 	return deleted;
 }
 

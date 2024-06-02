@@ -191,5 +191,10 @@
 	"could_not_save_vigilant": "No se ha guardado el vigilante",
 	"vigilants_edit_page_title": "Editando vigilante {surenames}, {name}",
 	"edit_the_values_of_the_vigilant": "Edita los valores del vigilante {surenames}, {name}",
-	"updated_vigilant": "Vigilante actualizado"
+	"updated_vigilant": "Vigilante actualizado",
+	"subjects_without_exam_date": "Asignaturas sin fecha de examen",
+	"warning_subject_without_exam_date_title": "Asignaturas sin fecha de examen",
+	"warning_subject_without_exam_date_message": "Hay {amount} asignaturas que no tienen establecida la fecha o duración de sus exámenes",
+	"warning_vigilants_and_examinees_from_the_same_centre_message": "Del centro {centre} vienen {vigilants} vigilantes y {examinees} examinados. ",
+	"warning_vigilants_and_examinees_from_the_same_centre_title": "Hay examinados y vigilantes provenientes del mismo centro académico"
 }
