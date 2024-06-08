@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$paraglide/messages';
+
 	import { open } from '@tauri-apps/api/dialog';
 	import { FileDropzone, ProgressBar } from '@skeletonlabs/skeleton';
 	import { createEventDispatcher, onMount } from 'svelte';
@@ -79,7 +81,7 @@
 	</svelte:fragment>
 	<svelte:fragment slot="message">
 		{#if selectedFile === undefined}
-			Elije un archivo o arrastra y suelta
+			{m.select_file_drag_drop()}
 		{:else}
 			{selectedFile}
 		{/if}

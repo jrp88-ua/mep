@@ -208,5 +208,15 @@
 	"delete_subject_modal_title": "¿Eliminar asignaturas seleccionadas?",
 	"delete_subject_modal_body": "Si aceptas, se eliminarán las asignaturas seleccionadas ({total} en total). <strong>Esta acción no se puede deshacer.</strong>",
 	"confirm_delete_selected_subjects": "Eliminar asignaturas",
-	"cancel_delete_selected_subjects": "No eliminar asignaturas"
+	"cancel_delete_selected_subjects": "No eliminar asignaturas",
+	"app_title_file": "PEM - {file}",
+	"app_title_no_file": "MEP - Sin archivo",
+	"home_page_title": "Inicio",
+	"navbar_home": "Inicio",
+	"open_page_title": "Abrir archivo",
+	"select_file_drag_drop": "Elije un archivo",
+	"password": "Contraseña",
+	"file": "Archivo",
+	"open": "Abrir",
+	"opening_file": "Abriendo archivo"
 }

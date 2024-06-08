@@ -5,9 +5,13 @@ mod event;
 mod ipc;
 mod models;
 
-use std::sync::{Arc, Mutex};
+use std::{
+    env,
+    sync::{Arc, Mutex},
+};
 
 use log::LevelFilter;
+use tauri::Manager;
 use tauri_plugin_log::LogTarget;
 
 #[cfg(debug_assertions)]
@@ -23,6 +27,7 @@ async fn main() -> Result<(), ()> {
             crate::ipc::import::start_examinee_import_process,
             crate::ipc::import::perform_examinee_import,
             crate::ipc::import::cancel_examinee_import,
+            crate::ipc::open_file::open_file,
         ])
         .plugin(
             tauri_plugin_log::Builder::default()
@@ -35,6 +40,13 @@ async fn main() -> Result<(), ()> {
         .manage(Arc::new(Mutex::new(
             Option::<Vec<ipc::import::SheetData>>::None,
         )))
+        .setup(|source| {
+            let args: Vec<String> = env::args().collect();
+            if args.len() == 2 {
+                source.emit_all("open-file", &args[1])?;
+            }
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
     Ok(())

@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 import * as m from '$paraglide/messages';
-import { languageTag } from '$paraglide/runtime';
+import { i18n } from './i18n';
 
 export function createSheetColumns(amount: number): string[] {
 	const columns: string[] = [];
@@ -25,8 +25,8 @@ export function sheetColumnLetter(n: number): string {
 
 type BaseUrls = '/academic-centres' | '/classrooms' | '/examinees' | '/subjects' | '/vigilants';
 type CrudUrls = '/create' | '/edit' | '';
-type AllUrls = `${BaseUrls}${CrudUrls}` | '/settings' | '/examinees/import';
+type AllUrls = `${BaseUrls}${CrudUrls}` | '/settings' | '/open' | '/examinees/import';
 
 export async function routeTo(url: AllUrls) {
-	goto(`/${languageTag()}${url}`);
+	goto(i18n.resolveRoute(url));
 }

@@ -9,6 +9,10 @@ export type AppState = {
 	edittingAcademicCentre: ModelId | undefined;
 	edittingSubject: ModelId | undefined;
 	edittingClassroom: ModelId | undefined;
+	openingFile: string | undefined;
+
+	openedFile: string | undefined;
+	fileIsSaved: boolean;
 };
 
 export const appState = (() => {
@@ -18,8 +22,39 @@ export const appState = (() => {
 		edittingVigilant: undefined,
 		edittingAcademicCentre: undefined,
 		edittingSubject: undefined,
-		edittingClassroom: undefined
+		edittingClassroom: undefined,
+		openingFile: undefined,
+
+		openedFile: undefined,
+		fileIsSaved: false
 	});
+
+	function setOpenedFile(file?: string) {
+		update((state) => ({ ...state, openedFile: file }));
+		info(`Setted oppened file ${file}`);
+	}
+
+	function getOpenedFile() {
+		return get(appState).openedFile;
+	}
+
+	function setFileIsSaved(saved: boolean) {
+		update((state) => ({ ...state, fileIsSaved: saved }));
+		info(`Setted file is saved ${saved}`);
+	}
+
+	function isFileSaved() {
+		return get(appState).fileIsSaved;
+	}
+
+	function setOpeningFile(file: string | undefined) {
+		update((state) => ({ ...state, openingFile: file }));
+		info(`Setted opening file ${file}`);
+	}
+
+	function getOpeningFile() {
+		return get(appState).openingFile;
+	}
 
 	function allowsNavigation() {
 		return get(appState).navigationBlockedReason === undefined;
@@ -86,6 +121,12 @@ export const appState = (() => {
 
 	return {
 		subscribe,
+		setOpenedFile,
+		getOpenedFile,
+		setFileIsSaved,
+		isFileSaved,
+		setOpeningFile,
+		getOpeningFile,
 		allowsNavigation,
 		lockNavigation,
 		unlockNavigation,

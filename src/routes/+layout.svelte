@@ -12,8 +12,10 @@
 	import { appState } from '$lib/models/appState';
 	import { showWarningToast } from '$lib/toast';
 	import AppDrawers from '$lib/drawer/AppDrawers.svelte';
-	import { info } from 'tauri-plugin-log-api';
+	import { info, warn } from 'tauri-plugin-log-api';
 	import WarningsDisplay from './WarningsDisplay.svelte';
+	import { appWindow } from '@tauri-apps/api/window';
+	import { routeTo } from '$lib/util';
 
 	Settings.throwOnInvalid = true;
 	initializeStores();
@@ -33,22 +35,31 @@
 	});
 
 	// https://github.com/tauri-apps/tauri/discussions/3844
-	(function () /*disableRefresh*/ {
-		document.addEventListener('keydown', function (event) {
-			// Prevent F5 or Ctrl+R (Windows/Linux) and Command+R (Mac) from refreshing the page
-			if (
-				event.key === 'F5' ||
-				(event.ctrlKey && event.key === 'r') ||
-				(event.metaKey && event.key === 'r')
-			) {
-				event.preventDefault();
-			}
-		});
-
-		document.addEventListener('contextmenu', function (event) {
+	/*document.addEventListener('keydown', function (event) {
+		// Prevent F5 or Ctrl+R (Windows/Linux) and Command+R (Mac) from refreshing the page
+		if (
+			event.key === 'F5' ||
+			(event.ctrlKey && event.key === 'r') ||
+			(event.metaKey && event.key === 'r')
+		) {
 			event.preventDefault();
-		});
-	})();
+		}
+	});
+
+	document.addEventListener('contextmenu', function (event) {
+		event.preventDefault();
+	});*/
+
+	appWindow.once('open-file', (e) => {
+		const file = e.payload;
+		alert(`Called open-file with '${file}'`);
+		if (typeof file !== 'string') {
+			warn("Called event 'open-file' without specifying a valid file");
+			return;
+		}
+		appState.setOpeningFile(file);
+		routeTo('/open');
+	});
 </script>
 
 <ParaglideJS {i18n}>

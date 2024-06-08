@@ -8,6 +8,12 @@
 </script>
 
 <AppRail>
+	<AppRailAnchor href="/" title="home" selected={route === '/' || route.startsWith('/open')}>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-home text-2xl" />
+		</svelte:fragment>
+		{m.navbar_home()}
+	</AppRailAnchor>
 	<AppRailAnchor href="/examinees" title="examinees" selected={route.startsWith('/examinees')}>
 		<svelte:fragment slot="lead">
 			<i class="fa-solid fa-graduation-cap text-2xl" />
