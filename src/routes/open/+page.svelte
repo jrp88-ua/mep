@@ -4,9 +4,16 @@
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 	import { appState } from '$lib/models/appState';
 	import { ipc_invoke_result } from '$lib/ipc';
+	import { onMount } from 'svelte';
 
 	let selectedFile: string | undefined = undefined;
 	let password: string = '';
+
+	onMount(() => {
+		const file = appState.getOpeningFile();
+		if (file !== undefined) selectedFile = file;
+		appState.setOpeningFile(undefined);
+	});
 
 	async function promptSelectFile(e: MouseEvent) {
 		e.preventDefault();

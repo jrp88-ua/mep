@@ -16,6 +16,7 @@
 	import WarningsDisplay from './WarningsDisplay.svelte';
 	import { appWindow } from '@tauri-apps/api/window';
 	import { routeTo } from '$lib/util';
+	import { ipc_invoke } from '$lib/ipc';
 
 	Settings.throwOnInvalid = true;
 	initializeStores();
@@ -50,15 +51,16 @@
 		event.preventDefault();
 	});*/
 
-	appWindow.once('open-file', (e) => {
-		const file = e.payload;
-		alert(`Called open-file with '${file}'`);
-		if (typeof file !== 'string') {
-			warn("Called event 'open-file' without specifying a valid file");
-			return;
+	ipc_invoke<string[]>('open_file_from_open_with').then((args) => {
+		if (args.length > 1) {
+			const file = args[1];
+			if (typeof file !== 'string') {
+				warn("Called event 'open-file' without specifying a valid file");
+				return;
+			}
+			appState.setOpeningFile(file);
+			routeTo('/open');
 		}
-		appState.setOpeningFile(file);
-		routeTo('/open');
 	});
 </script>
 
