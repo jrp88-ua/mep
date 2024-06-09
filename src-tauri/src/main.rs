@@ -1,9 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+extern crate argon2;
+
 mod event;
 mod ipc;
 mod models;
+mod storage;
 
 use std::{
     env,
@@ -26,8 +29,9 @@ async fn main() -> Result<(), ()> {
             crate::ipc::import::start_examinee_import_process,
             crate::ipc::import::perform_examinee_import,
             crate::ipc::import::cancel_examinee_import,
-            crate::ipc::open_file::open_file,
             crate::ipc::open_file::open_file_from_open_with,
+            crate::ipc::open_file::open_file,
+            crate::ipc::save_file::save_file,
         ])
         .plugin(
             tauri_plugin_log::Builder::default()

@@ -25,12 +25,15 @@ impl From<&str> for SubjectKind {
 }
 
 #[skip_serializing_none]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
 pub struct Subject {
     pub id: EntityId,
     pub name: String,
     pub kind: SubjectKind,
+    pub exam_date: Option<String>,
+    pub exam_duration: Option<String>,
 }
 
 #[skip_serializing_none]
