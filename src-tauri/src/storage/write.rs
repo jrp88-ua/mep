@@ -18,6 +18,15 @@ pub enum SaveToFileWriteError {
     Version,
     Salt,
     Nonce,
+    Password,
+}
+
+#[derive(Serialize, TS)]
+#[serde(rename_all = "camelCase", tag = "type")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub enum SaveToFileOpenFileError {
+    Permissions,
+    Other,
 }
 
 #[derive(Serialize, TS)]
@@ -27,7 +36,7 @@ pub enum SaveToFileError {
     Writing { part: SaveToFileWriteError },
     KeyDerivation,
     CreateCipher,
-    OpenFile,
+    OpenFile { case: SaveToFileOpenFileError },
     Serialization,
 }
 
@@ -45,23 +54,27 @@ pub fn save_to_file(
         .truncate(true)
         .create(true)
         .open(file)
-        .map_err(|_| SaveToFileError::OpenFile)?;
+        .map_err(|err| SaveToFileError::OpenFile {
+            case: match err.kind() {
+                std::io::ErrorKind::PermissionDenied => SaveToFileOpenFileError::Permissions,
+                _ => SaveToFileOpenFileError::Other,
+            },
+        })?;
 
     write_header_and_version(&mut file)?;
-
-    let mut compressor = ZlibEncoder::new(file, Compression::best());
-
-    write_salt_and_nonce(&mut compressor, &salt_and_nonce)?;
+    write_salt_and_nonce(&mut file, &salt_and_nonce)?;
 
     let encryptor = EncryptBE32BufWriter::<Aes256GcmSiv, _, _>::new(
         &key,
         &GenericArray::<u8, U7>::clone_from_slice(&salt_and_nonce.nonce[5..]),
         ArrayBuffer::<128>::new(),
-        compressor,
+        file,
     )
     .map_err(|_| SaveToFileError::CreateCipher)?;
 
-    serde_json::to_writer(encryptor, &values).map_err(|_| SaveToFileError::Serialization)?;
+    let compressor = ZlibEncoder::new(encryptor, Compression::best());
+
+    serde_json::to_writer(compressor, &values).map_err(|_| SaveToFileError::Serialization)?;
 
     Ok(())
 }

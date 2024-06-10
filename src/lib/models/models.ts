@@ -35,10 +35,25 @@ export function createStore<M extends Model>(modelName: string) {
 				newMap.set(instance.id, instance);
 				return newMap;
 			});
-			info(`Created new instance of ${modelName}: ${instance.toString()}`);
+			info(`Created new instance of ${modelName}: ${instance.id}`);
 			return instance;
 		} catch (e) {
 			error(`Error creating instance of ${modelName}: ${JSON.stringify(e)}`);
+			return false;
+		}
+	}
+
+	function storeInstances(instances: M[]) {
+		try {
+			store.update((map) => {
+				const newMap = new Map(map);
+				for (const instance of instances) newMap.set(instance.id, instance);
+				return newMap;
+			});
+			info(`Created ${instances.length} new instances of ${modelName}`);
+			return instances;
+		} catch (e) {
+			error(`Error creating instances of ${modelName}: ${JSON.stringify(e)}`);
 			return false;
 		}
 	}
@@ -100,6 +115,7 @@ export function createStore<M extends Model>(modelName: string) {
 		getAllInstances,
 		getInstance,
 		storeInstance,
+		storeInstances,
 		updatedInstance,
 		deleteInstance,
 		deleteInstances

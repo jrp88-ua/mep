@@ -26,6 +26,16 @@ pub enum ReadFromFileReadError {
 pub enum ReadFromFileInvalidError {
     Header,
     Version,
+    Password,
+}
+
+#[derive(Serialize, TS)]
+#[serde(rename_all = "camelCase", tag = "type")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub enum ReadFromFileOpenFileError {
+    NotFound,
+    Permissions,
+    Other,
 }
 
 #[derive(Serialize, TS)]
@@ -36,33 +46,37 @@ pub enum ReadFromFileError {
     Invalid { part: ReadFromFileInvalidError },
     KeyDerivation,
     CreateCipher,
-    OpenFile,
+    OpenFile { case: ReadFromFileOpenFileError },
     Serialization,
 }
 
 pub fn load_from_file(file: String, password: String) -> Result<AppValues, ReadFromFileError> {
-    let mut file = OpenOptions::new()
-        .read(true)
-        .open(file)
-        .map_err(|_| ReadFromFileError::OpenFile)?;
+    let mut file =
+        OpenOptions::new()
+            .read(true)
+            .open(file)
+            .map_err(|err| ReadFromFileError::OpenFile {
+                case: match err.kind() {
+                    std::io::ErrorKind::NotFound => ReadFromFileOpenFileError::NotFound,
+                    std::io::ErrorKind::PermissionDenied => ReadFromFileOpenFileError::Permissions,
+                    _ => ReadFromFileOpenFileError::Other,
+                },
+            })?;
 
     verify_header_and_version(&mut file)?;
+    let salt_and_nonce = extract_salt_and_nonce(&mut file)?;
 
-    let mut decompressor = ZlibDecoder::new(file);
-
-    let salt_and_nonce = extract_salt_and_nonce(&mut decompressor)?;
     let key = derive_key(&password, &salt_and_nonce.salt)
         .map_err(|_| ReadFromFileError::KeyDerivation)?;
 
-    let decriptor = DecryptBE32BufReader::<Aes256GcmSiv, _, _>::new(
-        &key,
-        ArrayBuffer::<128>::new(),
-        decompressor,
-    )
-    .map_err(|_| ReadFromFileError::CreateCipher)?;
+    let decriptor =
+        DecryptBE32BufReader::<Aes256GcmSiv, _, _>::new(&key, ArrayBuffer::<128>::new(), file)
+            .map_err(|_| ReadFromFileError::CreateCipher)?;
+
+    let decompressor = ZlibDecoder::new(decriptor);
 
     let values =
-        serde_json::from_reader(decriptor).map_err(|_| ReadFromFileError::Serialization)?;
+        serde_json::from_reader(decompressor).map_err(|_| ReadFromFileError::Serialization)?;
 
     Ok(values)
 }

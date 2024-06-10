@@ -38,15 +38,21 @@ export class Subject implements Model {
 	constructor(params: {
 		id: ModelId;
 		name: string;
-		kind?: SubjectKind;
-		examStartDate?: DateTime;
-		examDuration?: Duration;
+		kind?: SubjectKind | null;
+		examStartDate?: DateTime | string | null;
+		examDuration?: Duration | string | null;
 	}) {
 		this.id = params.id;
 		this.name = params.name;
-		this.kind = params.kind || 'UNKNOWN';
-		this.examStartDate = params.examStartDate;
-		this.examDuration = params.examDuration;
+		this.kind = params.kind ?? 'UNKNOWN';
+		this.examStartDate =
+			(typeof params.examStartDate === 'string'
+				? DateTime.fromISO(params.examStartDate)
+				: params.examStartDate) ?? undefined;
+		this.examDuration =
+			(typeof params.examDuration === 'string'
+				? Duration.fromISO(params.examDuration)
+				: params.examDuration) ?? undefined;
 	}
 
 	get hasExamDate() {

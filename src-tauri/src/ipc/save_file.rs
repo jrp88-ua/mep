@@ -7,7 +7,11 @@ use crate::{
 };
 
 #[command]
-pub fn save_file(values: AppValues, file: String, password: String) -> Result<(), SaveToFileError> {
+pub async fn save_file(
+    values: AppValues,
+    file: String,
+    password: String,
+) -> Result<(), SaveToFileError> {
     info!("Saving to file {file} with password {password}");
     save_to_file(values, file, password)
 }

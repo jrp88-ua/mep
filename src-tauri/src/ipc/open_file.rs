@@ -14,7 +14,7 @@ pub async fn open_file_from_open_with() -> Result<Vec<String>, ()> {
 }
 
 #[command]
-pub fn open_file(file: String, password: String) -> Result<AppValues, ReadFromFileError> {
+pub async fn open_file(file: String, password: String) -> Result<AppValues, ReadFromFileError> {
     info!("Opening file {file} with password {password}");
     load_from_file(file, password)
 }

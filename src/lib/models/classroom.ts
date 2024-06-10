@@ -45,7 +45,7 @@ export class Classroom implements Model {
 		totalCapacity: number;
 		examCapacity: number;
 		priority: number;
-		courtLocation?: number;
+		courtLocation?: number | null;
 		kind: string;
 		notes: string[];
 	}) {
@@ -55,7 +55,7 @@ export class Classroom implements Model {
 		this.totalCapacity = params.totalCapacity;
 		this.examCapacity = params.examCapacity;
 		this.priority = params.priority;
-		this.courtLocation = params.courtLocation;
+		this.courtLocation = params.courtLocation ?? undefined;
 		this.kind = params.kind;
 		this.notes = params.notes;
 	}

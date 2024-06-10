@@ -25,7 +25,7 @@ export function sheetColumnLetter(n: number): string {
 
 type BaseUrls = '/academic-centres' | '/classrooms' | '/examinees' | '/subjects' | '/vigilants';
 type CrudUrls = '/create' | '/edit' | '';
-type AllUrls = `${BaseUrls}${CrudUrls}` | '/settings' | '/open' | '/examinees/import';
+type AllUrls = `${BaseUrls}${CrudUrls}` | '/settings' | '/open' | '/examinees/import' | '/';
 
 export async function routeTo(url: AllUrls) {
 	goto(i18n.resolveRoute(url));

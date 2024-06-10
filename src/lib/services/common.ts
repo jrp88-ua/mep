@@ -10,14 +10,55 @@ import { createSubject, getAllSubjects, getOrCreateSubject, subjectExists } from
 import { getAllVigilants } from './vigilant';
 import { getAllClassrooms } from './classroom';
 import type { AppValues } from '$lib/types/generated/AppValues';
-import type { Examinee } from '$lib/types/generated/Examinee';
-import type { AcademicCentre } from '$lib/types/generated/AcademicCentre';
-import type { Subject } from '$lib/types/generated/Subject';
-import type { Vigilant } from '$lib/types/generated/Vigilant';
-import type { Classroom } from '$lib/types/generated/Classroom';
+import type { AcademicCentre as GeneratedAcademicCentre } from '$lib/types/generated/AcademicCentre';
+import type { Examinee as GeneratedExaminee } from '$lib/types/generated/Examinee';
+import type { Subject as GeneratedSubject } from '$lib/types/generated/Subject';
+import type { Vigilant as GeneratedVigilant } from '$lib/types/generated/Vigilant';
+import type { Classroom as GeneratedClassroom } from '$lib/types/generated/Classroom';
+import { AcademicCentre, academicCentresStore } from '$lib/models/academicCentres';
+import { Examinee, examineesStore } from '$lib/models/examinees';
+import { Vigilant, vigilantsStore } from '$lib/models/vigilant';
+import { Classroom, classroomsStore } from '$lib/models/classroom';
+import { Subject, subjectsStore } from '$lib/models/subjects';
+import {
+	runExamineeAndVigilantHaveSameAcademicCentreCheck,
+	runSubjectsWithoutWarningCheck
+} from './warnings';
+
+export function useSavedValuesObject(values: AppValues) {
+	const academicCentres = values.academicCentres.map((instance) => new AcademicCentre(instance));
+	const classrooms = values.classrooms.map((instance) => new Classroom(instance));
+	const subjects = values.subjects.map((instance) => new Subject(instance));
+	const vigilants = values.vigilants.map((instance) => new Vigilant(instance));
+	const examinees = values.examinees.map((instance) => new Examinee(instance));
+
+	examineesStore.clear();
+	vigilantsStore.clear();
+	subjectsStore.clear();
+	classroomsStore.clear();
+	academicCentresStore.clear();
+
+	academicCentresStore.storeInstances(academicCentres);
+	classroomsStore.storeInstances(classrooms);
+	subjectsStore.storeInstances(subjects);
+	vigilantsStore.storeInstances(vigilants);
+	examineesStore.storeInstances(examinees);
+
+	get(getAllExaminees()).forEach((examinee) => {
+		examinee.getAcademicCentre();
+		examinee.getSubjects();
+	});
+	get(getAllVigilants()).forEach((vigilant) => {
+		vigilant.getAcademicCentre();
+		vigilant.getSpecialties();
+	});
+
+	runSubjectsWithoutWarningCheck();
+	runExamineeAndVigilantHaveSameAcademicCentreCheck();
+}
 
 export function makeSaveValuesObject(): AppValues {
-	const examinees: Examinee[] = get(getAllExaminees()).map((examinee) => ({
+	const examinees: GeneratedExaminee[] = get(getAllExaminees()).map((examinee) => ({
 		id: examinee.id,
 		nif: examinee.nif,
 		name: examinee.name,
@@ -27,18 +68,20 @@ export function makeSaveValuesObject(): AppValues {
 		academicCentreId: examinee.academicCentreId ?? null,
 		subjectsIds: [...examinee.subjectsIds]
 	}));
-	const academicCentres: AcademicCentre[] = get(getAllAcademicCentres()).map((academicCentre) => ({
-		id: academicCentre.id,
-		name: academicCentre.name
-	}));
-	const subjects: Subject[] = get(getAllSubjects()).map((subject) => ({
+	const academicCentres: GeneratedAcademicCentre[] = get(getAllAcademicCentres()).map(
+		(academicCentre) => ({
+			id: academicCentre.id,
+			name: academicCentre.name
+		})
+	);
+	const subjects: GeneratedSubject[] = get(getAllSubjects()).map((subject) => ({
 		id: subject.id,
 		name: subject.name,
 		kind: subject.kind,
 		examDate: subject.examStartDate?.toISO() ?? null,
 		examDuration: subject.examDuration?.toISO() ?? null
 	}));
-	const vigilants: Vigilant[] = get(getAllVigilants()).map((vigilant) => ({
+	const vigilants: GeneratedVigilant[] = get(getAllVigilants()).map((vigilant) => ({
 		id: vigilant.id,
 		name: vigilant.name,
 		surenames: vigilant.surenames,
@@ -47,7 +90,7 @@ export function makeSaveValuesObject(): AppValues {
 		academicCentreId: vigilant.academicCentreId ?? null,
 		specialtiesIds: [...vigilant.specialtiesIds]
 	}));
-	const classrooms: Classroom[] = get(getAllClassrooms()).map((classroom) => ({
+	const classrooms: GeneratedClassroom[] = get(getAllClassrooms()).map((classroom) => ({
 		id: classroom.id,
 		code: classroom.code,
 		locationCode: classroom.locationCode,

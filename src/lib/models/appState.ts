@@ -11,7 +11,7 @@ export type AppState = {
 	edittingClassroom: ModelId | undefined;
 	openingFile: string | undefined;
 
-	openedFile: string | undefined;
+	openedFile: { file: string; password: string } | undefined;
 	fileIsSaved: boolean;
 };
 
@@ -29,7 +29,7 @@ export const appState = (() => {
 		fileIsSaved: false
 	});
 
-	function setOpenedFile(file?: string) {
+	function setOpenedFile(file?: { file: string; password: string }) {
 		update((state) => ({ ...state, openedFile: file }));
 		info(`Setted oppened file ${file}`);
 	}
