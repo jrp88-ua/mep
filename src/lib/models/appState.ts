@@ -26,7 +26,7 @@ export const appState = (() => {
 		openingFile: undefined,
 
 		openedFile: undefined,
-		fileIsSaved: false
+		fileIsSaved: true
 	});
 
 	function setOpenedFile(file?: { file: string; password: string }) {
