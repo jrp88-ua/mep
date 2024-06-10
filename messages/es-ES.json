@@ -238,5 +238,8 @@
 	"could_not_save_file_message_open_file_internal_error": "Error interno de la aplicación",
 	"could_not_save_file_message_writing": "Error escribiendo los datos en el archivo",
 	"could_not_save_file_message_open_file_permission": "No se tienen los suficientes permisos para escribir el archivo",
-	"could_not_save_file_message_open_file_other": "Ha ocurrido un error desconocido al escribir el archivo"
+	"could_not_save_file_message_open_file_other": "Ha ocurrido un error desconocido al escribir el archivo",
+	"cannot_close_operation_in_progress": "No se puede cerrar la aplicación en estos momentos, hay una operación en proceso",
+	"close_without_saving_message": "Cerrar la aplicación perderá los cambios. ¿Desea cerrar la aplicación?",
+	"close_without_saving_title": "Hay cambios sin guardar"
 }

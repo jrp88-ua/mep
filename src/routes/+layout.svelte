@@ -55,21 +55,18 @@
 	appWindow.onCloseRequested(async (event) => {
 		if (!appState.allowsNavigation()) {
 			showWarningToast(toastStore, {
-				title: 'No se puede cerrar la aplicación en estos momentos, hay una operación en proceso',
-				message: appState.lockedNavigationReason() as string
+				title: m.cannot_close_operation_in_progress(),
+				message: appState.lockedNavigationReason()!
 			});
 			event.preventDefault();
 			return;
 		}
 
 		if (appState.isFileSaved()) return;
-		const confirmed = await confirm(
-			'Cerrar la aplicación perderá los cambios. ¿Desea cerrar la aplicación?',
-			{
-				title: 'Hay cambios sin guardar',
-				type: 'warning'
-			}
-		);
+		const confirmed = await confirm(m.close_without_saving_message(), {
+			title: m.close_without_saving_title(),
+			type: 'warning'
+		});
 		if (!confirmed) event.preventDefault();
 	});
 

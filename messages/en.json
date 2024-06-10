@@ -216,9 +216,6 @@
 	"file": "Archive",
 	"open": "Open",
 	"opening_file": "Opening file",
-	"subject_datatable_obligatory": "Obligatory",
-	"subject_datatable_volunteer": "Volunteer",
-	"subject_datatable_unknown": "Unknown",
 	"could_not_open_file_title": "The file could not be opened",
 	"could_not_open_file_message_serialization": "File contents are invalid",
 	"could_not_open_file_message_open_file_not_found": "The file does not exists",
@@ -238,5 +235,11 @@
 	"could_not_save_file_message_open_file_internal_error": "Internal application error",
 	"could_not_save_file_message_writing": "Error writing data to file",
 	"could_not_save_file_message_open_file_permission": "You do not have enough permissions to write the file",
-	"could_not_save_file_message_open_file_other": "An unknown error occurred while writing the file"
+	"could_not_save_file_message_open_file_other": "An unknown error occurred while writing the file",
+	"subject_datatable_obligatory": "Obligatory",
+	"subject_datatable_volunteer": "Volunteer",
+	"subject_datatable_unknown": "Unknown",
+	"cannot_close_operation_in_progress": "Cannot close the application at this time, an operation is in progress",
+	"close_without_saving_message": "Closing the application will lose the changes. Do you want to close the application?",
+	"close_without_saving_title": "There are unsaved changes"
 }
