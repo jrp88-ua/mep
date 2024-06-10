@@ -2,4 +2,4 @@
 import type { SaveToFileOpenFileError } from "./SaveToFileOpenFileError";
 import type { SaveToFileWriteError } from "./SaveToFileWriteError";
 
-export type SaveToFileError = { "type": "writing", part: SaveToFileWriteError, } | { "type": "keyDerivation" } | { "type": "createCipher" } | { "type": "openFile", case: SaveToFileOpenFileError, } | { "type": "serialization" };
+export type SaveToFileError = { "type": "writing", part: SaveToFileWriteError, } | { "type": "keyDerivation" } | { "type": "createCipher" } | { "type": "openFile", case: SaveToFileOpenFileError, } | { "type": "serialization" } | { "type": "passwordCheck" };

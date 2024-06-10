@@ -31,7 +31,7 @@ export const appState = (() => {
 
 	function setOpenedFile(file?: { file: string; password: string }) {
 		update((state) => ({ ...state, openedFile: file }));
-		info(`Setted oppened file ${file}`);
+		info(`Setted oppened file ${file?.file}`);
 	}
 
 	function getOpenedFile() {

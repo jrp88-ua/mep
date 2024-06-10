@@ -16,7 +16,7 @@
 			"dialog": {
 				"all": false,
 				"ask": false,
-				"confirm": false,
+				"confirm": true,
 				"message": false,
 				"open": true,
 				"save": true
@@ -24,7 +24,7 @@
 			"window": {
 				"all": false,
 				"center": false,
-				"close": false,
+				"close": true,
 				"create": false,
 				"hide": false,
 				"maximize": false,

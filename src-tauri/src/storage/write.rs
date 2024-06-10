@@ -2,13 +2,14 @@ use aead::{consts::U7, generic_array::GenericArray};
 use aead_io::{ArrayBuffer, EncryptBE32BufWriter};
 use aes_gcm_siv::Aes256GcmSiv;
 use flate2::{write::ZlibEncoder, Compression};
+use rand::Rng;
 use serde::Serialize;
 use std::{fs::OpenOptions, io::Write};
 use ts_rs::TS;
 
 use crate::models::AppValues;
 
-use super::{derive_key, SaltAndNonce, FILE_HEADER};
+use super::{create_password_check, derive_key, SaltAndNonce, FILE_HEADER, PASSWORD_CHECK_LENGTH};
 
 #[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase", tag = "type")]
@@ -38,6 +39,7 @@ pub enum SaveToFileError {
     CreateCipher,
     OpenFile { case: SaveToFileOpenFileError },
     Serialization,
+    PasswordCheck,
 }
 
 pub fn save_to_file(
@@ -45,9 +47,10 @@ pub fn save_to_file(
     file: String,
     password: String,
 ) -> Result<(), SaveToFileError> {
-    let salt_and_nonce = SaltAndNonce::random();
-    let key =
-        derive_key(&password, &salt_and_nonce.salt).map_err(|_| SaveToFileError::KeyDerivation)?;
+    let data_salt_and_nonce = SaltAndNonce::random();
+    let password_check_salt_and_nonce = SaltAndNonce::random();
+    let key = derive_key(&password, &data_salt_and_nonce.salt)
+        .map_err(|_| SaveToFileError::KeyDerivation)?;
 
     let mut file = OpenOptions::new()
         .write(true)
@@ -62,11 +65,13 @@ pub fn save_to_file(
         })?;
 
     write_header_and_version(&mut file)?;
-    write_salt_and_nonce(&mut file, &salt_and_nonce)?;
+    write_salt_and_nonce(&mut file, &data_salt_and_nonce)?;
+
+    write_password_check(&mut file, &password)?;
 
     let encryptor = EncryptBE32BufWriter::<Aes256GcmSiv, _, _>::new(
         &key,
-        &GenericArray::<u8, U7>::clone_from_slice(&salt_and_nonce.nonce[5..]),
+        &GenericArray::<u8, U7>::clone_from_slice(&data_salt_and_nonce.nonce[5..]),
         ArrayBuffer::<128>::new(),
         file,
     )
@@ -76,6 +81,22 @@ pub fn save_to_file(
 
     serde_json::to_writer(compressor, &values).map_err(|_| SaveToFileError::Serialization)?;
 
+    Ok(())
+}
+
+fn write_password_check(writer: &mut impl Write, password: &String) -> Result<(), SaveToFileError> {
+    let mut salt = [0u8; PASSWORD_CHECK_LENGTH as usize];
+    rand::thread_rng().fill(&mut salt);
+
+    let check =
+        create_password_check(password, &salt).map_err(|_| SaveToFileError::PasswordCheck)?;
+
+    writer
+        .write_all(&salt)
+        .map_err(|_| SaveToFileError::PasswordCheck)?;
+    writer
+        .write_all(&check)
+        .map_err(|_| SaveToFileError::PasswordCheck)?;
     Ok(())
 }
 

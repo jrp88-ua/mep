@@ -1,3 +1,4 @@
+import { setFileIsSaved } from '$lib/services/appState';
 import { writable, get, derived } from 'svelte/store';
 import { error, info } from 'tauri-plugin-log-api';
 import { z } from 'zod';
@@ -18,6 +19,7 @@ export function createStore<M extends Model>(modelName: string) {
 
 	function clear() {
 		store.set(new Map<ModelId, M>());
+		setFileIsSaved(false);
 	}
 
 	function getAllInstances() {
@@ -36,6 +38,7 @@ export function createStore<M extends Model>(modelName: string) {
 				return newMap;
 			});
 			info(`Created new instance of ${modelName}: ${instance.id}`);
+			setFileIsSaved(false);
 			return instance;
 		} catch (e) {
 			error(`Error creating instance of ${modelName}: ${JSON.stringify(e)}`);
@@ -51,6 +54,7 @@ export function createStore<M extends Model>(modelName: string) {
 				return newMap;
 			});
 			info(`Created ${instances.length} new instances of ${modelName}`);
+			setFileIsSaved(false);
 			return instances;
 		} catch (e) {
 			error(`Error creating instances of ${modelName}: ${JSON.stringify(e)}`);
@@ -65,12 +69,13 @@ export function createStore<M extends Model>(modelName: string) {
 				return false;
 			}
 
-			info(`Updated instance of ${modelName}: ${instance.toString()}`);
 			store.update((map) => {
 				const newMap = new Map(map);
 				newMap.set(id, instance);
 				return newMap;
 			});
+			setFileIsSaved(false);
+			info(`Updated instance of ${modelName}: ${instance.toString()}`);
 			return true;
 		} catch (e) {
 			error(`Error updating instance of ${modelName}: ${JSON.stringify(e)}`);
@@ -81,12 +86,13 @@ export function createStore<M extends Model>(modelName: string) {
 	function deleteInstance(id: ModelId) {
 		if (!get(store).has(id)) return false;
 
-		info(`Deleted instance of ${modelName} with id ${id}`);
 		store.update((map) => {
 			const newMap = new Map(map);
 			newMap.delete(id);
 			return newMap;
 		});
+		setFileIsSaved(false);
+		info(`Deleted instance of ${modelName} with id ${id}`);
 		return true;
 	}
 
@@ -102,6 +108,7 @@ export function createStore<M extends Model>(modelName: string) {
 			return newMap;
 		});
 		if (deleted.length > 0) {
+			setFileIsSaved(false);
 			info(`Deleted ${deleted.length} instance(s) of ${modelName} (ids=${deleted})`);
 		}
 		return deleted;

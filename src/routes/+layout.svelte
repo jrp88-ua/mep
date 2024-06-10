@@ -17,6 +17,7 @@
 	import { appWindow } from '@tauri-apps/api/window';
 	import { routeTo } from '$lib/util';
 	import { ipc_invoke } from '$lib/ipc';
+	import { confirm } from '@tauri-apps/api/dialog';
 
 	Settings.throwOnInvalid = true;
 	initializeStores();
@@ -50,6 +51,27 @@
 	document.addEventListener('contextmenu', function (event) {
 		event.preventDefault();
 	});*/
+
+	appWindow.onCloseRequested(async (event) => {
+		if (!appState.allowsNavigation()) {
+			showWarningToast(toastStore, {
+				title: 'No se puede cerrar la aplicación en estos momentos, hay una operación en proceso',
+				message: appState.lockedNavigationReason() as string
+			});
+			event.preventDefault();
+			return;
+		}
+
+		if (appState.isFileSaved()) return;
+		const confirmed = await confirm(
+			'Cerrar la aplicación perderá los cambios. ¿Desea cerrar la aplicación?',
+			{
+				title: 'Hay cambios sin guardar',
+				type: 'warning'
+			}
+		);
+		if (!confirmed) event.preventDefault();
+	});
 
 	ipc_invoke<string[]>('open_file_from_open_with').then((args) => {
 		if (args.length > 1) {

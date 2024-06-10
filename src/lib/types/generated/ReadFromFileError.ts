@@ -3,4 +3,4 @@ import type { ReadFromFileInvalidError } from "./ReadFromFileInvalidError";
 import type { ReadFromFileOpenFileError } from "./ReadFromFileOpenFileError";
 import type { ReadFromFileReadError } from "./ReadFromFileReadError";
 
-export type ReadFromFileError = { "type": "reading", part: ReadFromFileReadError, } | { "type": "invalid", part: ReadFromFileInvalidError, } | { "type": "keyDerivation" } | { "type": "createCipher" } | { "type": "openFile", case: ReadFromFileOpenFileError, } | { "type": "serialization" };
+export type ReadFromFileError = { "type": "reading", part: ReadFromFileReadError, } | { "type": "invalid", part: ReadFromFileInvalidError, } | { "type": "keyDerivation" } | { "type": "createCipher" } | { "type": "openFile", case: ReadFromFileOpenFileError, } | { "type": "serialization" } | { "type": "passwordCheck" };

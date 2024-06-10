@@ -95,6 +95,7 @@
 					break;
 				case 'keyDerivation':
 				case 'createCipher':
+				case 'passwordCheck':
 					showErrorToast(toast, {
 						title,
 						message: m.could_not_open_file_message_open_file_internal_error()

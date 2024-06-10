@@ -8,7 +8,7 @@ use ts_rs::TS;
 
 use crate::models::AppValues;
 
-use super::{derive_key, SaltAndNonce, FILE_HEADER};
+use super::{create_password_check, derive_key, SaltAndNonce, FILE_HEADER, PASSWORD_CHECK_LENGTH};
 
 #[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase", tag = "type")]
@@ -48,6 +48,7 @@ pub enum ReadFromFileError {
     CreateCipher,
     OpenFile { case: ReadFromFileOpenFileError },
     Serialization,
+    PasswordCheck,
 }
 
 pub fn load_from_file(file: String, password: String) -> Result<AppValues, ReadFromFileError> {
@@ -64,13 +65,15 @@ pub fn load_from_file(file: String, password: String) -> Result<AppValues, ReadF
             })?;
 
     verify_header_and_version(&mut file)?;
-    let salt_and_nonce = extract_salt_and_nonce(&mut file)?;
+    let data_salt_and_nonce = extract_salt_and_nonce(&mut file)?;
 
-    let key = derive_key(&password, &salt_and_nonce.salt)
+    verify_password(&mut file, &password)?;
+
+    let data_key = derive_key(&password, &data_salt_and_nonce.salt)
         .map_err(|_| ReadFromFileError::KeyDerivation)?;
 
     let decriptor =
-        DecryptBE32BufReader::<Aes256GcmSiv, _, _>::new(&key, ArrayBuffer::<128>::new(), file)
+        DecryptBE32BufReader::<Aes256GcmSiv, _, _>::new(&data_key, ArrayBuffer::<128>::new(), file)
             .map_err(|_| ReadFromFileError::CreateCipher)?;
 
     let decompressor = ZlibDecoder::new(decriptor);
@@ -79,6 +82,29 @@ pub fn load_from_file(file: String, password: String) -> Result<AppValues, ReadF
         serde_json::from_reader(decompressor).map_err(|_| ReadFromFileError::Serialization)?;
 
     Ok(values)
+}
+
+fn verify_password(reader: &mut impl Read, password: &String) -> Result<(), ReadFromFileError> {
+    let mut salt = [0u8; PASSWORD_CHECK_LENGTH as usize];
+    let mut readed = [0u8; PASSWORD_CHECK_LENGTH as usize];
+
+    reader
+        .read_exact(&mut salt)
+        .map_err(|_| ReadFromFileError::PasswordCheck)?;
+    reader
+        .read_exact(&mut readed)
+        .map_err(|_| ReadFromFileError::PasswordCheck)?;
+
+    let expected =
+        create_password_check(password, &salt).map_err(|_| ReadFromFileError::PasswordCheck)?;
+
+    if expected != readed.to_vec() {
+        return Err(ReadFromFileError::Invalid {
+            part: ReadFromFileInvalidError::Password,
+        });
+    }
+
+    Ok(())
 }
 
 fn verify_header_and_version(reader: &mut impl Read) -> Result<(), ReadFromFileError> {

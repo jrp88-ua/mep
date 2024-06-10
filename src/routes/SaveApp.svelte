@@ -8,7 +8,7 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
-	import { setOpenedFile } from '$lib/services/appState';
+	import { setFileIsSaved, setOpenedFile } from '$lib/services/appState';
 	import type { SaveToFileError } from '$lib/types/generated/SaveToFileError';
 
 	const toast = getToastStore();
@@ -62,6 +62,7 @@
 				message: m.file_saved()
 			});
 			setOpenedFile({ file, password });
+			setFileIsSaved(true);
 		} else {
 			const title = m.could_not_save_file();
 			switch (result.error.type) {
@@ -81,6 +82,7 @@
 							break;
 					}
 					break;
+				case 'passwordCheck':
 				case 'keyDerivation':
 				case 'createCipher':
 					showErrorToast(toast, {
