@@ -48,7 +48,6 @@ pub fn save_to_file(
     password: String,
 ) -> Result<(), SaveToFileError> {
     let data_salt_and_nonce = SaltAndNonce::random();
-    let password_check_salt_and_nonce = SaltAndNonce::random();
     let key = derive_key(&password, &data_salt_and_nonce.salt)
         .map_err(|_| SaveToFileError::KeyDerivation)?;
 
