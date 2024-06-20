@@ -89,7 +89,7 @@ describe('hasEnoughCapacity', () => {
 	describe('With one classroom', () => {
 		beforeEach(() => {
 			instanciate();
-			configuration.asignExaminees(examinees);
+			configuration.addExaminees(examinees);
 			configuration.addClassrooms([firstClassroom]);
 		});
 
@@ -122,7 +122,7 @@ describe('hasEnoughCapacity', () => {
 	describe('With two classrooms', () => {
 		beforeEach(() => {
 			instanciate();
-			configuration.asignExaminees(examinees);
+			configuration.addExaminees(examinees);
 			configuration.addClassrooms([firstClassroom, seccondClassroom]);
 		});
 
@@ -193,13 +193,13 @@ describe('doAssignment', () => {
 
 	it('getExamineesDistribution errors if no distribution is done', () => {
 		instanciate();
-		expect(configuration.getExamineesDistribution()).toEqual('assignment-not-done');
+		expect(configuration.getDistribution()).toEqual('assignment-not-done');
 	});
 
 	describe('With one classroom', () => {
 		beforeEach(() => {
 			instanciate();
-			configuration.asignExaminees(examinees);
+			configuration.addExaminees(examinees);
 			configuration.addClassrooms([firstClassroom]);
 			configuration.addVigilants(vigilants);
 		});
@@ -212,7 +212,7 @@ describe('doAssignment', () => {
 		it('Has just enough total capacity', () => {
 			firstClassroom.setTotalCapacity(10);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
@@ -223,7 +223,7 @@ describe('doAssignment', () => {
 		it('Has just enough exam capacity', () => {
 			firstClassroom.setCapacities(15, 5);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
@@ -234,7 +234,7 @@ describe('doAssignment', () => {
 		it('Has capacity with the total', () => {
 			firstClassroom.setCapacities(11, 1);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [{ classroom: firstClassroom, examinees: examinees, vigilants }]
@@ -245,7 +245,7 @@ describe('doAssignment', () => {
 		it('Has capacity with the exam', () => {
 			firstClassroom.setCapacities(14, 11);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
@@ -257,7 +257,7 @@ describe('doAssignment', () => {
 	describe('With two classrooms', () => {
 		beforeEach(() => {
 			instanciate();
-			configuration.asignExaminees(examinees);
+			configuration.addExaminees(examinees);
 			configuration.addClassrooms([firstClassroom, seccondClassroom]);
 			configuration.addVigilants(vigilants);
 		});
@@ -272,7 +272,7 @@ describe('doAssignment', () => {
 			firstClassroom.setCapacities(5, 1);
 			seccondClassroom.setCapacities(5, 1);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [
@@ -295,7 +295,7 @@ describe('doAssignment', () => {
 			firstClassroom.setCapacities(10, 5);
 			seccondClassroom.setCapacities(10, 5);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [
@@ -318,7 +318,7 @@ describe('doAssignment', () => {
 			firstClassroom.setCapacities(10, 1);
 			seccondClassroom.setCapacities(5, 1);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [
@@ -341,7 +341,7 @@ describe('doAssignment', () => {
 			firstClassroom.setCapacities(15, 10);
 			seccondClassroom.setCapacities(15, 10);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [
@@ -364,7 +364,7 @@ describe('doAssignment', () => {
 			firstClassroom.setCapacities(20, 10);
 			seccondClassroom.setCapacities(3, 2);
 			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getExamineesDistribution()).toEqual([
+			expect(configuration.getDistribution()).toEqual([
 				{
 					subject,
 					distribution: [

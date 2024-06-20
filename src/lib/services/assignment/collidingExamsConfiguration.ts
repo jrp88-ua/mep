@@ -13,8 +13,8 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 		this.availableClassrooms = [];
 	}
 
-	asignExaminees(examinees: Examinee[]) {
-		this.exams.forEach((exam) => exam.asignExaminees(examinees));
+	addExaminees(examinees: Examinee[]) {
+		this.exams.forEach((exam) => exam.addExaminees(examinees));
 	}
 
 	addClassrooms(classrooms: Classroom[]): void {
@@ -33,7 +33,7 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 		throw new Error('Not implemented');
 	}
 
-	getExamineesDistribution(): ExamDistribution[] | 'assignment-not-done' {
+	getDistribution(): ExamDistribution[] | 'assignment-not-done' {
 		throw new Error('Not implemented');
 	}
 

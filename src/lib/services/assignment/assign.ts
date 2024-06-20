@@ -23,11 +23,11 @@ export type AsignmentError = 'not-enough-seats' | 'not-enough-vigilants' | 'no-c
 export type DistributionError = 'assignment-not-done';
 
 export interface ExamConfiguration {
-	asignExaminees(examinees: readonly Examinee[]): void;
+	addExaminees(examinees: readonly Examinee[]): void;
 	addClassrooms(classrooms: readonly Classroom[]): void;
 	addVigilants(vigilants: readonly Vigilant[]): void;
 	doAssignment(): AsignmentError | undefined;
-	getExamineesDistribution(): ExamDistribution[] | DistributionError;
+	getDistribution(): ExamDistribution[] | DistributionError;
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough';
 	getCapacities(): { totalCapacity: number; examCapacity: number };
 }

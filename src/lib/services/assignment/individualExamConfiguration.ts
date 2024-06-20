@@ -30,7 +30,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		this.examineesDistribution = undefined;
 	}
 
-	asignExaminees(examinees: readonly Examinee[]) {
+	addExaminees(examinees: readonly Examinee[]) {
 		examinees
 			.filter((examinee) => examinee.subjectsIds.has(this.subject.id))
 			.forEach(this.examinees.add, this.examinees);
@@ -38,7 +38,9 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	}
 
 	addClassrooms(classrooms: readonly Classroom[]): void {
-		classrooms.forEach(this.classrooms.add, this.classrooms);
+		classrooms
+			.filter(({ courtLocation }) => courtLocation === undefined)
+			.forEach(this.classrooms.add, this.classrooms);
 		this.resetDistribution();
 	}
 
@@ -218,7 +220,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		return this.assignVigilants();
 	}
 
-	getExamineesDistribution(): ExamDistribution[] | DistributionError {
+	getDistribution(): ExamDistribution[] | DistributionError {
 		if (this.examineesDistribution === undefined) return 'assignment-not-done';
 		return [this.examineesDistribution];
 	}
