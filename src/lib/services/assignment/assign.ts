@@ -9,23 +9,25 @@
 import { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
 import type { Subject } from '$lib/models/subjects';
+import type { Vigilant } from '$lib/models/vigilant';
 import { CollidingExamsConfiguration } from './collidingExamsConfiguration';
 import { ExamsConfiguration } from './examsConfiguration';
 import { IndividualExamConfiguration } from './individualExamConfiguration';
 
-export type ExamineeDistribution = {
+export type ExamDistribution = {
 	subject: Subject;
-	distribution: { classroom: Classroom; examinees: Examinee[] }[];
+	distribution: { classroom: Classroom; examinees: Examinee[]; vigilants: Vigilant[] }[];
 };
 
-export type AsignmentError = 'not-enough-seats';
+export type AsignmentError = 'not-enough-seats' | 'not-enough-vigilants' | 'no-classrooms';
 export type DistributionError = 'assignment-not-done';
 
 export interface ExamConfiguration {
 	asignExaminees(examinees: readonly Examinee[]): void;
 	addClassrooms(classrooms: readonly Classroom[]): void;
+	addVigilants(vigilants: readonly Vigilant[]): void;
 	doAssignment(): AsignmentError | undefined;
-	getExamineesDistribution(): ExamineeDistribution[] | DistributionError;
+	getExamineesDistribution(): ExamDistribution[] | DistributionError;
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough';
 	getCapacities(): { totalCapacity: number; examCapacity: number };
 }

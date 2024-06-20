@@ -4,7 +4,7 @@ import { IndividualExamConfiguration } from './individualExamConfiguration';
 import { Subject } from '$lib/models/subjects';
 import { Examinee } from '$lib/models/examinees';
 import { Classroom } from '$lib/models/classroom';
-import type { ExamineeDistribution } from './assign';
+import type { ExamDistribution } from './assign';
 
 beforeEach(() => {
 	id = 0;
@@ -202,9 +202,9 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees] }]
+					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
 				}
-			] satisfies readonly ExamineeDistribution[]);
+			] satisfies readonly ExamDistribution[]);
 		});
 
 		it('Has just enough exam capacity', () => {
@@ -213,9 +213,9 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees] }]
+					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 
 		it('Has capacity with the total', () => {
@@ -224,9 +224,9 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees] }]
+					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 
 		it('Has capacity with the exam', () => {
@@ -235,9 +235,9 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees] }]
+					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 	});
 
@@ -262,11 +262,11 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5) },
-						{ classroom: firstClassroom, examinees: examinees.slice(5) }
+						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5), vigilants: [] },
+						{ classroom: firstClassroom, examinees: examinees.slice(5), vigilants: [] }
 					]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 
 		it('Has just enough exam capacity', () => {
@@ -277,11 +277,11 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5) },
-						{ classroom: firstClassroom, examinees: examinees.slice(5) }
+						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5), vigilants: [] },
+						{ classroom: firstClassroom, examinees: examinees.slice(5), vigilants: [] }
 					]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 
 		it('Has capacity with the total', () => {
@@ -292,11 +292,11 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 4) },
-						{ classroom: firstClassroom, examinees: examinees.slice(4) }
+						{ classroom: seccondClassroom, examinees: examinees.slice(0, 4), vigilants: [] },
+						{ classroom: firstClassroom, examinees: examinees.slice(4), vigilants: [] }
 					]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 
 		it('Has capacity with the exam', () => {
@@ -307,11 +307,11 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5) },
-						{ classroom: firstClassroom, examinees: examinees.slice(5) }
+						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5), vigilants: [] },
+						{ classroom: firstClassroom, examinees: examinees.slice(5), vigilants: [] }
 					]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 
 		it('Most priority is at exam capacity seccond priority does not', () => {
@@ -322,11 +322,11 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 2) },
-						{ classroom: firstClassroom, examinees: examinees.slice(2) }
+						{ classroom: seccondClassroom, examinees: examinees.slice(0, 2), vigilants: [] },
+						{ classroom: firstClassroom, examinees: examinees.slice(2), vigilants: [] }
 					]
 				}
-			] satisfies ExamineeDistribution[]);
+			] satisfies ExamDistribution[]);
 		});
 	});
 });

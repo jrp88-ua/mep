@@ -1,6 +1,6 @@
 import type { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
-import type { AsignmentError, ExamConfiguration, ExamineeDistribution } from './assign';
+import type { AsignmentError, ExamConfiguration, ExamDistribution } from './assign';
 
 export class ExamsConfiguration implements ExamConfiguration {
 	exams: ExamConfiguration[];
@@ -13,15 +13,11 @@ export class ExamsConfiguration implements ExamConfiguration {
 		this.exams.forEach((exam) => exam.asignExaminees(examinees));
 	}
 
-	removeExaminees(): void {
-		throw new Error('Not implemented');
-	}
-
 	addClassrooms(classrooms: Classroom[]): void {
 		this.exams.forEach((exam) => exam.addClassrooms(classrooms));
 	}
 
-	removeClassrooms(): void {
+	addVigilants(vigilants: readonly Vigilant[]): void {
 		throw new Error('Not implemented');
 	}
 
@@ -33,7 +29,7 @@ export class ExamsConfiguration implements ExamConfiguration {
 		throw new Error('Not implemented');
 	}
 
-	getExamineesDistribution(): ExamineeDistribution[] | 'assignment-not-done' {
+	getExamineesDistribution(): ExamDistribution[] | 'assignment-not-done' {
 		throw new Error('Not implemented');
 	}
 

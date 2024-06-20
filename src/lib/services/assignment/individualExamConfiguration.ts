@@ -1,24 +1,29 @@
 import type { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
 import type { Subject } from '$lib/models/subjects';
+import type { Vigilant } from '$lib/models/vigilant';
 import type {
 	AsignmentError as AssignmentError,
 	DistributionError,
 	ExamConfiguration,
-	ExamineeDistribution
+	ExamDistribution
 } from './assign';
 
 export class IndividualExamConfiguration implements ExamConfiguration {
 	subject: Subject;
-	examinees: Examinee[];
-	classrooms: Classroom[];
+	examinees: Set<Examinee>;
+	classrooms: Set<Classroom>;
+	vigilants: Set<Vigilant>;
+	specialists: Set<Vigilant>;
 
-	examineesDistribution: ExamineeDistribution | undefined;
+	examineesDistribution: ExamDistribution | undefined;
 
 	constructor(subject: Subject) {
 		this.subject = subject;
-		this.examinees = [];
-		this.classrooms = [];
+		this.examinees = new Set();
+		this.classrooms = new Set();
+		this.vigilants = new Set();
+		this.specialists = new Set();
 	}
 
 	private resetDistribution() {
@@ -26,17 +31,28 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	}
 
 	asignExaminees(examinees: readonly Examinee[]) {
-		this.examinees = examinees.filter((examinee) => examinee.subjectsIds.has(this.subject.id));
+		examinees
+			.filter((examinee) => examinee.subjectsIds.has(this.subject.id))
+			.forEach(this.examinees.add, this.examinees);
 		this.resetDistribution();
 	}
 
 	addClassrooms(classrooms: readonly Classroom[]): void {
-		this.classrooms = this.classrooms.concat(classrooms);
+		classrooms.forEach(this.classrooms.add, this.classrooms);
 		this.resetDistribution();
 	}
 
+	addVigilants(vigilants: readonly Vigilant[]): void {
+		vigilants
+			.filter((vigilant) => !vigilant.specialtiesIds.has(this.subject.id))
+			.forEach(this.vigilants.add, this.vigilants);
+		vigilants
+			.filter((vigilant) => vigilant.specialtiesIds.has(this.subject.id))
+			.forEach(this.specialists.add, this.specialists);
+	}
+
 	getCapacities(): { totalCapacity: number; examCapacity: number } {
-		return this.classrooms.reduce(
+		return [...this.classrooms].reduce(
 			(acumulator, current) => {
 				acumulator.totalCapacity += current.totalCapacity;
 				acumulator.examCapacity += current.examCapacity;
@@ -47,18 +63,16 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	}
 
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough' {
-		const needed = this.examinees.length;
+		const needed = this.examinees.size;
 		const { totalCapacity, examCapacity } = this.getCapacities();
 		if (needed > totalCapacity) return 'not-enough';
 		if (needed > examCapacity) return 'could-use-more';
 		return 'no-problem';
 	}
 
-	doAssignment(): AssignmentError | undefined {
-		this.resetDistribution();
-		if (this.hasEnoughCapacity() === 'not-enough') return 'not-enough-seats';
-		const examinees = this.examinees.sort(nameSorter);
-		const classrooms = this.classrooms.sort((a, b) => (a.priority - b.priority) * 1);
+	private assignExaminees(): AssignmentError | undefined {
+		const examinees = [...this.examinees].sort(nameSorter);
+		const classrooms = [...this.classrooms].sort((a, b) => (a.priority - b.priority) * 1);
 		const { examCapacity, totalCapacity } = this.getCapacities();
 		const totalExaminees = examinees.length;
 
@@ -127,22 +141,82 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 			return 'not-enough-seats';
 		}
 
-		const examineesDistribution: ExamineeDistribution = { subject: this.subject, distribution: [] };
 		let lastIndex = 0;
 		for (const classroom of classrooms) {
 			const total = distribution.get(classroom)!;
-			examineesDistribution.distribution.push({
+			this.examineesDistribution!.distribution.push({
 				classroom,
-				examinees: examinees.slice(lastIndex, total + lastIndex)
+				examinees: examinees.slice(lastIndex, total + lastIndex),
+				vigilants: []
 			});
 			lastIndex += total;
 		}
-
-		this.examineesDistribution = Object.freeze(examineesDistribution);
 		return undefined;
 	}
 
-	getExamineesDistribution(): ExamineeDistribution[] | DistributionError {
+	private assignVigilants(): AssignmentError | undefined {
+		if (this.vigilants.size < this.classrooms.size) return 'not-enough-vigilants';
+		const vigilants = [...this.vigilants].sort(nameSorter);
+		const totalVigilants = vigilants.length;
+		const distribution = new Map<Classroom, { readonly examinees: number; vigilants: number }>();
+
+		function getHighestExamineeToVigilantRatio() {
+			const distributionAsList = [...distribution];
+			const firstElement = distributionAsList[0];
+			if (distributionAsList.length === 1) return firstElement;
+			let highestRatio = firstElement[1].examinees / firstElement[1].vigilants;
+			return distributionAsList.slice(1).reduce((highest, current) => {
+				const currentRatio = current[1].examinees / current[1].vigilants;
+				if (currentRatio < highestRatio) {
+					return highest;
+				} else if (currentRatio === highestRatio) {
+					return highest[0].priority >= current[0].priority ? highest : current;
+				} else {
+					highestRatio = currentRatio;
+					return current;
+				}
+			}, firstElement);
+		}
+
+		// First make sure every class gets at least one vigilant
+		this.examineesDistribution!.distribution.forEach(({ classroom, examinees }) =>
+			distribution.set(classroom, {
+				examinees: examinees.length,
+				vigilants: 1
+			})
+		);
+
+		let assignedVigilants = distribution.size;
+
+		while (assignedVigilants < totalVigilants) {
+			// We have vigilants left to assign
+			const highestRatio = getHighestExamineeToVigilantRatio();
+			highestRatio[1].vigilants++;
+			assignedVigilants++;
+		}
+
+		// When now know how many vigilants go to each classroom, so, just assign
+		let lastIndex = 0;
+		for (const assignment of this.examineesDistribution!.distribution) {
+			const total = distribution.get(assignment.classroom)!.vigilants;
+			assignment.vigilants = vigilants.slice(lastIndex, total + lastIndex);
+			lastIndex += total;
+		}
+
+		return undefined;
+	}
+
+	doAssignment(): AssignmentError | undefined {
+		this.resetDistribution();
+		if (this.classrooms.size === 0) return 'no-classrooms';
+		if (this.hasEnoughCapacity() === 'not-enough') return 'not-enough-seats';
+		this.examineesDistribution = { subject: this.subject, distribution: [] };
+		const result = this.assignExaminees();
+		if (result !== undefined) return result;
+		return this.assignVigilants();
+	}
+
+	getExamineesDistribution(): ExamDistribution[] | DistributionError {
 		if (this.examineesDistribution === undefined) return 'assignment-not-done';
 		return [this.examineesDistribution];
 	}
