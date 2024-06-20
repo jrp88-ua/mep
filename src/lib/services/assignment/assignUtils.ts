@@ -5,8 +5,6 @@ export function groupExamineesBySubjects(
 	subjects: Subject[],
 	examinees: Examinee[]
 ): Map<Subject, Examinee[]> {
-	subjects = subjects.toSorted((a, b) => a.id - b.id);
-	examinees = examinees.toSorted((a, b) => a.id - b.id);
 	const map = new Map<Subject, Examinee[]>();
 	for (const subject of subjects) {
 		map.set(subject, []);
@@ -62,8 +60,6 @@ export function findExamDateCollisions(subjects: Subject[]) {
 }
 
 export function findExamineesWithExamnDateCollisions(examinees: Examinee[]) {
-	examinees = examinees.toSorted((a, b) => a.id - b.id);
-
 	const examineesWithCollisions = new Map<Examinee, [Subject, Subject][]>();
 
 	for (const examinee of examinees) {

@@ -3,7 +3,7 @@ import {
 	findExamDateCollisions,
 	findExamineesWithExamnDateCollisions,
 	groupExamineesBySubjects
-} from './asign';
+} from './assignUtils';
 import { DateTime, Duration, Settings } from 'luxon';
 import { Subject, subjectsStore } from '$lib/models/subjects';
 import { Examinee, examineesStore } from '$lib/models/examinees';

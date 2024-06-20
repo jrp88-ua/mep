@@ -76,6 +76,13 @@ export class Classroom implements Model {
 		this.examCapacity = Classroom.ExamCapacity.parse(value);
 	}
 
+	setCapacities(total: number, exam?: number): void {
+		total = Classroom.TotalCapacity.parse(total);
+		exam = Classroom.ExamCapacity.parse(exam ?? Math.floor(total / 3));
+		this.totalCapacity = total;
+		this.examCapacity = exam;
+	}
+
 	setPriority(value: number): void {
 		this.priority = Classroom.Priority.parse(value);
 	}
