@@ -43,6 +43,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	}
 
 	addVigilants(vigilants: readonly Vigilant[]): void {
+		vigilants = vigilants.filter(({ role }) => role === 'MEMBER');
 		vigilants
 			.filter((vigilant) => !vigilant.specialtiesIds.has(this.subject.id))
 			.forEach(this.vigilants.add, this.vigilants);
@@ -170,7 +171,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 				if (currentRatio < highestRatio) {
 					return highest;
 				} else if (currentRatio === highestRatio) {
-					return highest[0].priority >= current[0].priority ? highest : current;
+					return highest[0].priority < current[0].priority ? highest : current;
 				} else {
 					highestRatio = currentRatio;
 					return current;
@@ -210,6 +211,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		this.resetDistribution();
 		if (this.classrooms.size === 0) return 'no-classrooms';
 		if (this.hasEnoughCapacity() === 'not-enough') return 'not-enough-seats';
+		if (this.vigilants.size < this.classrooms.size) return 'not-enough-vigilants';
 		this.examineesDistribution = { subject: this.subject, distribution: [] };
 		const result = this.assignExaminees();
 		if (result !== undefined) return result;

@@ -5,6 +5,7 @@ import { Subject } from '$lib/models/subjects';
 import { Examinee } from '$lib/models/examinees';
 import { Classroom } from '$lib/models/classroom';
 import type { ExamDistribution } from './assign';
+import { Vigilant } from '$lib/models/vigilant';
 
 beforeEach(() => {
 	id = 0;
@@ -32,6 +33,17 @@ function makeExaminee(subjects: number[]) {
 		nif: `Nif${id}`,
 		origin: 'B',
 		subjectsIds: subjects
+	});
+}
+
+function makeVigilant(specialties?: number[]) {
+	return new Vigilant({
+		id: id++,
+		name: `Vigilant ${id}`,
+		surenames: `Surenames ${id}`,
+		mainCourt: 1,
+		role: 'MEMBER',
+		specialtiesIds: specialties
 	});
 }
 
@@ -150,7 +162,8 @@ describe('doAssignment', () => {
 	let subject: Subject;
 	let configuration: IndividualExamConfiguration;
 
-	let examinees: readonly Examinee[];
+	let examinees: Examinee[];
+	let vigilants: Vigilant[];
 	let firstClassroom: Classroom;
 	let seccondClassroom: Classroom;
 
@@ -161,20 +174,19 @@ describe('doAssignment', () => {
 			name: 'Test subject'
 		});
 		configuration = new IndividualExamConfiguration(subject);
-		examinees = Object.freeze(
-			[
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0]),
-				makeExaminee([0])
-			].sort(nameSorter)
-		);
+		examinees = [
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0]),
+			makeExaminee([0])
+		].sort(nameSorter);
+		vigilants = [makeVigilant(), makeVigilant(), makeVigilant()];
 		firstClassroom = makeClassroom(2, 3);
 		seccondClassroom = makeClassroom(1, 3);
 	}
@@ -189,6 +201,7 @@ describe('doAssignment', () => {
 			instanciate();
 			configuration.asignExaminees(examinees);
 			configuration.addClassrooms([firstClassroom]);
+			configuration.addVigilants(vigilants);
 		});
 
 		it('Not enough capacity', () => {
@@ -202,7 +215,7 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
+					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
 				}
 			] satisfies readonly ExamDistribution[]);
 		});
@@ -213,7 +226,7 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
+					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
 				}
 			] satisfies ExamDistribution[]);
 		});
@@ -224,7 +237,7 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
+					distribution: [{ classroom: firstClassroom, examinees: examinees, vigilants }]
 				}
 			] satisfies ExamDistribution[]);
 		});
@@ -235,7 +248,7 @@ describe('doAssignment', () => {
 			expect(configuration.getExamineesDistribution()).toEqual([
 				{
 					subject,
-					distribution: [{ classroom: firstClassroom, examinees: [...examinees], vigilants: [] }]
+					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
 				}
 			] satisfies ExamDistribution[]);
 		});
@@ -246,6 +259,7 @@ describe('doAssignment', () => {
 			instanciate();
 			configuration.asignExaminees(examinees);
 			configuration.addClassrooms([firstClassroom, seccondClassroom]);
+			configuration.addVigilants(vigilants);
 		});
 
 		it('Not enough capacity', () => {
@@ -262,8 +276,16 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5), vigilants: [] },
-						{ classroom: firstClassroom, examinees: examinees.slice(5), vigilants: [] }
+						{
+							classroom: seccondClassroom,
+							examinees: examinees.slice(0, 5),
+							vigilants: vigilants.slice(0, 2)
+						},
+						{
+							classroom: firstClassroom,
+							examinees: examinees.slice(5),
+							vigilants: vigilants.slice(2)
+						}
 					]
 				}
 			] satisfies ExamDistribution[]);
@@ -277,8 +299,16 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5), vigilants: [] },
-						{ classroom: firstClassroom, examinees: examinees.slice(5), vigilants: [] }
+						{
+							classroom: seccondClassroom,
+							examinees: examinees.slice(0, 5),
+							vigilants: vigilants.slice(0, 2)
+						},
+						{
+							classroom: firstClassroom,
+							examinees: examinees.slice(5),
+							vigilants: vigilants.slice(2)
+						}
 					]
 				}
 			] satisfies ExamDistribution[]);
@@ -292,8 +322,16 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 4), vigilants: [] },
-						{ classroom: firstClassroom, examinees: examinees.slice(4), vigilants: [] }
+						{
+							classroom: seccondClassroom,
+							examinees: examinees.slice(0, 4),
+							vigilants: vigilants.slice(0, 1)
+						},
+						{
+							classroom: firstClassroom,
+							examinees: examinees.slice(4),
+							vigilants: vigilants.slice(1)
+						}
 					]
 				}
 			] satisfies ExamDistribution[]);
@@ -307,8 +345,16 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 5), vigilants: [] },
-						{ classroom: firstClassroom, examinees: examinees.slice(5), vigilants: [] }
+						{
+							classroom: seccondClassroom,
+							examinees: examinees.slice(0, 5),
+							vigilants: vigilants.slice(0, 2)
+						},
+						{
+							classroom: firstClassroom,
+							examinees: examinees.slice(5),
+							vigilants: vigilants.slice(2)
+						}
 					]
 				}
 			] satisfies ExamDistribution[]);
@@ -322,8 +368,16 @@ describe('doAssignment', () => {
 				{
 					subject,
 					distribution: [
-						{ classroom: seccondClassroom, examinees: examinees.slice(0, 2), vigilants: [] },
-						{ classroom: firstClassroom, examinees: examinees.slice(2), vigilants: [] }
+						{
+							classroom: seccondClassroom,
+							examinees: examinees.slice(0, 2),
+							vigilants: vigilants.slice(0, 1)
+						},
+						{
+							classroom: firstClassroom,
+							examinees: examinees.slice(2),
+							vigilants: vigilants.slice(1)
+						}
 					]
 				}
 			] satisfies ExamDistribution[]);
