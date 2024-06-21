@@ -26,6 +26,8 @@ export interface ExamConfiguration {
 	addExaminees(examinees: readonly Examinee[]): void;
 	addClassrooms(classrooms: readonly Classroom[]): void;
 	addVigilants(vigilants: readonly Vigilant[]): void;
+	removeClassrooms(): void;
+	removeVigilants(): void;
 	doAssignment(): AsignmentError | undefined;
 	getDistribution(): ExamDistribution[] | DistributionError;
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough';

@@ -44,6 +44,11 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		this.resetDistribution();
 	}
 
+	removeClassrooms(): void {
+		this.classrooms.clear();
+		this.resetDistribution();
+	}
+
 	addVigilants(vigilants: readonly Vigilant[]): void {
 		vigilants = vigilants.filter(({ role }) => role === 'MEMBER');
 		vigilants
@@ -52,6 +57,12 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		vigilants
 			.filter((vigilant) => vigilant.specialtiesIds.has(this.subject.id))
 			.forEach(this.specialists.add, this.specialists);
+	}
+
+	removeVigilants(): void {
+		this.vigilants.clear();
+		this.specialists.clear();
+		this.resetDistribution();
 	}
 
 	getCapacities(): { totalCapacity: number; examCapacity: number } {
@@ -223,6 +234,10 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	getDistribution(): ExamDistribution[] | DistributionError {
 		if (this.examineesDistribution === undefined) return 'assignment-not-done';
 		return [this.examineesDistribution];
+	}
+
+	getSubject() {
+		return this.subject;
 	}
 }
 

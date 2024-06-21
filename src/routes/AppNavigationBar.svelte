@@ -48,6 +48,12 @@
 		</svelte:fragment>
 		{m.navbar_classrooms()}
 	</AppRailAnchor>
+	<AppRailAnchor href="/assignment" title="classrooms" selected={route.startsWith('/assignment')}>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-arrows-turn-to-dots text-2xl" />
+		</svelte:fragment>
+		Asignación
+	</AppRailAnchor>
 	<svelte:fragment slot="trail">
 		<AppRailAnchor href="/settings" title="settings" selected={route.startsWith('/settings')}>
 			<svelte:fragment slot="lead">
