@@ -37,7 +37,7 @@
 	});
 
 	// https://github.com/tauri-apps/tauri/discussions/3844
-	document.addEventListener('keydown', function (event) {
+	/*document.addEventListener('keydown', function (event) {
 		// Prevent F5 or Ctrl+R (Windows/Linux) and Command+R (Mac) from refreshing the page
 		if (
 			event.key === 'F5' ||
@@ -50,7 +50,7 @@
 
 	document.addEventListener('contextmenu', function (event) {
 		event.preventDefault();
-	});
+	});*/
 
 	appWindow.onCloseRequested(async (event) => {
 		if (!appState.allowsNavigation()) {

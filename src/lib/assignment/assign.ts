@@ -10,9 +10,56 @@ import { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
 import type { Subject } from '$lib/models/subjects';
 import type { Vigilant } from '$lib/models/vigilant';
+import { derived, get, writable } from 'svelte/store';
 import { CollidingExamsConfiguration } from './collidingExamsConfiguration';
 import { ExamsConfiguration } from './examsConfiguration';
 import { IndividualExamConfiguration } from './individualExamConfiguration';
+import { getAllSubjects } from '$lib/services/subjects';
+import { getAllClassrooms } from '$lib/services/classroom';
+import { getAllVigilants } from '$lib/services/vigilant';
+import { getAllExaminees } from '$lib/services/examinees';
+import { appState } from '$lib/models/appState';
+
+export const assignment = (function () {
+	const { subscribe, set, update } = writable<ExamsConfiguration | undefined>();
+
+	function createNew() {
+		appState.lockNavigation('Creando asignación');
+		let created = orderAndGroupSubjects(get(getAllSubjects()));
+		if (typeof created === 'string') return false;
+		if (
+			created instanceof IndividualExamConfiguration ||
+			created instanceof CollidingExamsConfiguration
+		)
+			created = new ExamsConfiguration([created]);
+		set(created);
+		setTimeout(() => {
+			created.addClassrooms(get(getAllClassrooms()));
+			created.addVigilants(get(getAllVigilants()));
+			created.addExaminees(get(getAllExaminees()));
+			created.doAssignment();
+			update((v) => v);
+			console.log(created.hasDistribution());
+			appState.unlockNavigation();
+		});
+		return true;
+	}
+
+	function removeAssignation() {
+		set(undefined);
+	}
+
+	function parts() {
+		return derived(assignment, (a) => a?.exams);
+	}
+
+	return {
+		subscribe,
+		createNew,
+		removeAssignation,
+		parts
+	};
+})();
 
 export type ExamDistribution = {
 	subject: Subject;

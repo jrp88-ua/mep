@@ -51,7 +51,6 @@
 			file: selectedFile,
 			password
 		});
-		console.log(result);
 		if (result.success) {
 			const values = result.value;
 			useSavedValuesObject(values);

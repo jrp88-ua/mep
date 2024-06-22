@@ -57,6 +57,10 @@ export class ExamsConfiguration implements ExamConfiguration {
 		return capacities;
 	}
 
+	hasDistribution() {
+		return this.exams.length > 0 && this.getDistribution() !== 'assignment-not-done';
+	}
+
 	getDistribution(): ExamDistribution[] | 'assignment-not-done' {
 		const distributions: ExamDistribution[] = [];
 		for (let i = 0; i < this.exams.length; i++) {
