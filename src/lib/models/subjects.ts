@@ -41,7 +41,9 @@ export class Subject implements Model {
 		kind?: SubjectKind | null;
 		examStartDate?: DateTime | string | null;
 		examDuration?: Duration | string | null;
+		examDate?: string | null;
 	}) {
+		if (params.examDate !== undefined) params.examStartDate = params.examDate;
 		this.id = params.id;
 		this.name = params.name;
 		this.kind = params.kind ?? 'UNKNOWN';
