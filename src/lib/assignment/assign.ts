@@ -56,7 +56,8 @@ export const assignment = (function () {
 		subscribe,
 		createNew,
 		removeAssignation,
-		parts
+		parts,
+		set
 	};
 })();
 

@@ -1,4 +1,5 @@
 use academic_centre::AcademicCentre;
+use assignation::AllExamConfiguration;
 use classroom::Classroom;
 use examinee::Examinee;
 use serde::{Deserialize, Serialize};
@@ -7,6 +8,7 @@ use ts_rs::TS;
 use vigilant::Vigilant;
 
 pub mod academic_centre;
+pub mod assignation;
 pub mod classroom;
 pub mod examinee;
 pub mod subject;
@@ -26,4 +28,5 @@ pub struct AppValues {
     pub subjects: Vec<Subject>,
     pub vigilants: Vec<Vigilant>,
     pub classrooms: Vec<Classroom>,
+    pub assignation: Option<AllExamConfiguration>,
 }

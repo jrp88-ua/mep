@@ -15,6 +15,10 @@ import type { Examinee as GeneratedExaminee } from '$lib/types/generated/Examine
 import type { Subject as GeneratedSubject } from '$lib/types/generated/Subject';
 import type { Vigilant as GeneratedVigilant } from '$lib/types/generated/Vigilant';
 import type { Classroom as GeneratedClassroom } from '$lib/types/generated/Classroom';
+import type { AllExamConfiguration as GeneratedAllExamConfiguration } from '$lib/types/generated/AllExamConfiguration';
+import type { ExamDistribution as GeneratedExamDistribution } from '$lib/types/generated/ExamDistribution';
+import type { ExamConfiguration as GeneratedExamConfiguration } from '$lib/types/generated/ExamConfiguration';
+import type { ExamClassroomDistribution as GeneratedExamClassroomDistribution } from '$lib/types/generated/ExamClassroomDistribution';
 import { AcademicCentre, academicCentresStore } from '$lib/models/academicCentres';
 import { Examinee, examineesStore } from '$lib/models/examinees';
 import { Vigilant, vigilantsStore } from '$lib/models/vigilant';
@@ -24,6 +28,44 @@ import {
 	runExamineeAndVigilantHaveSameAcademicCentreCheck,
 	runSubjectsWithoutWarningCheck
 } from './warnings';
+import { assignment, type ExamConfiguration, type ExamDistribution } from '$lib/assignment/assign';
+import { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
+import { ExamsConfiguration } from '$lib/assignment/examsConfiguration';
+
+function useAssignationValuesObject(
+	values: GeneratedAllExamConfiguration,
+	subjects: Subject[],
+	vigilants: Vigilant[],
+	examinees: Examinee[],
+	classrooms: Classroom[]
+) {
+	const exams = values.map((configuration) => {
+		if (configuration.type === 'individualExam') {
+			const exam = new IndividualExamConfiguration(subjects[configuration.subject]!);
+			exam.examinees = new Set(configuration.examinees.map((pos) => examinees[pos]!));
+			exam.classrooms = new Set(configuration.classrooms.map((pos) => classrooms[pos]!));
+			exam.vigilants = new Set(configuration.vigilants.map((pos) => vigilants[pos]!));
+			exam.specialists = new Set(configuration.specialists.map((pos) => vigilants[pos]!));
+			if (configuration.distribution === null) {
+				exam.distribution = undefined;
+			} else {
+				exam.distribution = {
+					subject: subjects[configuration.distribution.subject]!,
+					specialists: configuration.distribution.specialists.map((pos) => vigilants[pos]!),
+					distribution: configuration.distribution.distribution.map((d) => ({
+						classroom: classrooms[d.classroom]!,
+						examinees: d.examinees.map((pos) => examinees[pos]!),
+						vigilants: d.vigilants.map((pos) => vigilants[pos]!)
+					}))
+				} satisfies ExamDistribution;
+			}
+			return exam;
+		} else if (configuration.type === 'collidingExams') {
+			throw new Error('Unimplemented');
+		}
+	}) as ExamConfiguration[];
+	assignment.set(new ExamsConfiguration(exams));
+}
 
 export function useSavedValuesObject(values: AppValues) {
 	const academicCentres = values.academicCentres.map((instance) => new AcademicCentre(instance));
@@ -53,8 +95,66 @@ export function useSavedValuesObject(values: AppValues) {
 		vigilant.getSpecialties();
 	});
 
+	if (values.assignation === null) {
+		assignment.set(undefined);
+	} else {
+		useAssignationValuesObject(
+			values.assignation,
+			subjects.reduce((accumulator, v) => {
+				accumulator[v.id] = v;
+				return accumulator;
+			}, [] as Subject[]),
+			vigilants.reduce((accumulator, v) => {
+				accumulator[v.id] = v;
+				return accumulator;
+			}, [] as Vigilant[]),
+			examinees.reduce((accumulator, v) => {
+				accumulator[v.id] = v;
+				return accumulator;
+			}, [] as Examinee[]),
+			classrooms.reduce((accumulator, v) => {
+				accumulator[v.id] = v;
+				return accumulator;
+			}, [] as Classroom[])
+		);
+	}
+
 	runSubjectsWithoutWarningCheck();
 	runExamineeAndVigilantHaveSameAcademicCentreCheck();
+}
+
+function makeAssignationValuesObject(): GeneratedAllExamConfiguration | null {
+	const exams = get(assignment)?.exams;
+	if (exams === undefined) return null;
+	return exams.map((exam) => {
+		if (exam instanceof IndividualExamConfiguration) {
+			const distribution =
+				exam.distribution === undefined
+					? null
+					: ({
+							subject: exam.distribution.subject.id,
+							specialists: [...exam.distribution.specialists].map((specialist) => specialist.id),
+							distribution: exam.distribution.distribution.map(
+								({ classroom, examinees, vigilants }) =>
+									({
+										classroom: classroom.id,
+										examinees: examinees.map((examinee) => examinee.id),
+										vigilants: vigilants.map((vigilant) => vigilant.id)
+									} satisfies GeneratedExamClassroomDistribution)
+							)
+					  } satisfies GeneratedExamDistribution);
+			return {
+				type: 'individualExam',
+				subject: exam.subject.id,
+				examinees: [...exam.examinees].map((examinee) => examinee.id),
+				classrooms: [...exam.classrooms].map((classroom) => classroom.id),
+				vigilants: [...exam.vigilants].map((vigilant) => vigilant.id),
+				specialists: [...exam.specialists].map((specialist) => specialist.id),
+				distribution
+			} satisfies GeneratedExamConfiguration;
+		}
+		throw new Error('Unknown exam kind: ' + JSON.stringify(exam));
+	});
 }
 
 export function makeSaveValuesObject(): AppValues {
@@ -101,13 +201,15 @@ export function makeSaveValuesObject(): AppValues {
 		priority: classroom.priority,
 		notes: classroom.notes
 	}));
+	const assignation = makeAssignationValuesObject();
 
 	return {
 		examinees,
 		academicCentres,
 		subjects,
 		vigilants,
-		classrooms
+		classrooms,
+		assignation
 	};
 }
 

@@ -19,7 +19,6 @@ pub enum SaveToFileWriteError {
     Version,
     Salt,
     Nonce,
-    Password,
 }
 
 #[derive(Serialize, TS)]
