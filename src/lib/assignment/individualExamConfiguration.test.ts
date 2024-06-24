@@ -6,6 +6,7 @@ import { Examinee } from '$lib/models/examinees';
 import { Classroom } from '$lib/models/classroom';
 import type { ExamDistribution } from './assign';
 import { Vigilant } from '$lib/models/vigilant';
+import { nameSorter } from '$lib/util';
 
 beforeEach(() => {
 	id = 0;
@@ -384,12 +385,3 @@ describe('doAssignment', () => {
 		});
 	});
 });
-
-function nameSorter(
-	a: { name: string; surenames: string },
-	b: { name: string; surenames: string }
-) {
-	let comparison = a.surenames.localeCompare(b.surenames);
-	if (comparison === 0) comparison = a.name.localeCompare(b.name);
-	return comparison;
-}

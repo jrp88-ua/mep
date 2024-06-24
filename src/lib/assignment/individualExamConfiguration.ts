@@ -2,6 +2,7 @@ import type { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
 import type { Subject } from '$lib/models/subjects';
 import type { Vigilant } from '$lib/models/vigilant';
+import { nameSorter } from '$lib/util';
 import type {
 	AsignmentError as AssignmentError,
 	DistributionError,
@@ -16,7 +17,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	vigilants: Set<Vigilant>;
 	specialists: Set<Vigilant>;
 
-	examineesDistribution: ExamDistribution | undefined;
+	distribution: ExamDistribution | undefined;
 
 	constructor(subject: Subject) {
 		this.subject = subject;
@@ -27,7 +28,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	}
 
 	private resetDistribution() {
-		this.examineesDistribution = undefined;
+		this.distribution = undefined;
 	}
 
 	addExaminees(examinees: readonly Examinee[]) {
@@ -158,7 +159,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		let lastIndex = 0;
 		for (const classroom of classrooms) {
 			const total = distribution.get(classroom)!;
-			this.examineesDistribution!.distribution.push({
+			this.distribution!.distribution.push({
 				classroom,
 				examinees: examinees.slice(lastIndex, total + lastIndex),
 				vigilants: []
@@ -192,13 +193,15 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 			}, firstElement);
 		}
 
-		// First make sure every class gets at least one vigilant
-		this.examineesDistribution!.distribution.forEach(({ classroom, examinees }) =>
-			distribution.set(classroom, {
-				examinees: examinees.length,
-				vigilants: 1
-			})
-		);
+		// First make sure every class with examinees gets at least one vigilant
+		this.distribution!.distribution.forEach(({ classroom, examinees }) => {
+			if (examinees.length > 0) {
+				distribution.set(classroom, {
+					examinees: examinees.length,
+					vigilants: 1
+				});
+			}
+		});
 
 		let assignedVigilants = distribution.size;
 
@@ -211,8 +214,10 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 
 		// When now know how many vigilants go to each classroom, so, just assign
 		let lastIndex = 0;
-		for (const assignment of this.examineesDistribution!.distribution) {
-			const total = distribution.get(assignment.classroom)!.vigilants;
+		for (const assignment of this.distribution!.distribution) {
+			const v = distribution.get(assignment.classroom);
+			if (v === undefined) continue;
+			const total = v.vigilants;
 			assignment.vigilants = vigilants.slice(lastIndex, total + lastIndex);
 			lastIndex += total;
 		}
@@ -225,27 +230,18 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		if (this.classrooms.size === 0) return 'no-classrooms';
 		if (this.hasEnoughCapacity() === 'not-enough') return 'not-enough-seats';
 		if (this.vigilants.size < this.classrooms.size) return 'not-enough-vigilants';
-		this.examineesDistribution = { subject: this.subject, distribution: [] };
+		this.distribution = { subject: this.subject, distribution: [] };
 		const result = this.assignExaminees();
 		if (result !== undefined) return result;
 		return this.assignVigilants();
 	}
 
-	getDistribution(): ExamDistribution[] | DistributionError {
-		if (this.examineesDistribution === undefined) return 'assignment-not-done';
-		return [this.examineesDistribution];
+	getDistribution(): ExamDistribution | DistributionError {
+		if (this.distribution === undefined) return 'assignment-not-done';
+		return this.distribution;
 	}
 
 	getSubject() {
 		return this.subject;
 	}
-}
-
-function nameSorter(
-	a: { name: string; surenames: string },
-	b: { name: string; surenames: string }
-) {
-	let comparison = a.surenames.localeCompare(b.surenames);
-	if (comparison === 0) comparison = a.name.localeCompare(b.name);
-	return comparison;
 }

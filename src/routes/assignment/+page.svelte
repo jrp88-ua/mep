@@ -19,6 +19,7 @@
 
 <h1 class="text-3xl mb-4">Asignación</h1>
 {#if $assignment}
+	<a href="/assignment/edit" class="btn variant-filled-primary">Editar asignación</a>
 	<AssignmentDisplay />
 {:else}
 	{#if !hasValues}

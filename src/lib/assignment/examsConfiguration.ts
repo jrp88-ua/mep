@@ -1,7 +1,7 @@
 import type { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
 import type { Vigilant } from '$lib/models/vigilant';
-import type { AsignmentError, ExamConfiguration, ExamDistribution } from './assign';
+import type { AsignmentError, ExamConfiguration } from './assign';
 
 export class ExamsConfiguration implements ExamConfiguration {
 	exams: ExamConfiguration[];
@@ -55,22 +55,6 @@ export class ExamsConfiguration implements ExamConfiguration {
 			capacities.examCapacity += capacity.examCapacity;
 		}
 		return capacities;
-	}
-
-	hasDistribution() {
-		return this.exams.length > 0 && this.getDistribution() !== 'assignment-not-done';
-	}
-
-	getDistribution(): ExamDistribution[] | 'assignment-not-done' {
-		const distributions: ExamDistribution[] = [];
-		for (let i = 0; i < this.exams.length; i++) {
-			const d = this.exams[i].getDistribution();
-			if (typeof d === 'string') return 'assignment-not-done';
-			for (let j = 0; j < d.length; j++) {
-				distributions.push(d[j]);
-			}
-		}
-		return distributions;
 	}
 
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough' {

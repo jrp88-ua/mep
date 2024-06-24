@@ -23,9 +23,25 @@ export function sheetColumnLetter(n: number): string {
 	return s;
 }
 
+export function nameSorter(
+	a: { name: string; surenames: string },
+	b: { name: string; surenames: string }
+) {
+	let comparison = a.surenames.localeCompare(b.surenames);
+	if (comparison === 0) comparison = a.name.localeCompare(b.name);
+	return comparison;
+}
+
 type BaseUrls = '/academic-centres' | '/classrooms' | '/examinees' | '/subjects' | '/vigilants';
 type CrudUrls = '/create' | '/edit' | '';
-type AllUrls = `${BaseUrls}${CrudUrls}` | '/settings' | '/open' | '/examinees/import' | '/';
+type AssignmentUrls = '/assignment' | '/assignment/edit';
+type AllUrls =
+	| `${BaseUrls}${CrudUrls}`
+	| AssignmentUrls
+	| '/settings'
+	| '/open'
+	| '/examinees/import'
+	| '/';
 
 export async function routeTo(url: AllUrls) {
 	goto(i18n.resolveRoute(url));

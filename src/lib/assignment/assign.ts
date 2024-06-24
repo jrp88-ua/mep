@@ -39,7 +39,6 @@ export const assignment = (function () {
 			created.addExaminees(get(getAllExaminees()));
 			created.doAssignment();
 			update((v) => v);
-			console.log(created.hasDistribution());
 			appState.unlockNavigation();
 		});
 		return true;
@@ -76,7 +75,6 @@ export interface ExamConfiguration {
 	removeClassrooms(): void;
 	removeVigilants(): void;
 	doAssignment(): AsignmentError | undefined;
-	getDistribution(): ExamDistribution[] | DistributionError;
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough';
 	getCapacities(): { totalCapacity: number; examCapacity: number };
 }
