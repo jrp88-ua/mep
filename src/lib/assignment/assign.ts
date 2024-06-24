@@ -63,6 +63,7 @@ export const assignment = (function () {
 export type ExamDistribution = {
 	subject: Subject;
 	distribution: { classroom: Classroom; examinees: Examinee[]; vigilants: Vigilant[] }[];
+	specialists: Vigilant[];
 };
 
 export type AsignmentError = 'not-enough-seats' | 'not-enough-vigilants' | 'no-classrooms';

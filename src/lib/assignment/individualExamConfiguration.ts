@@ -85,6 +85,31 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		return 'no-problem';
 	}
 
+	useConfiguration(
+		specialists: Vigilant[],
+		classrooms: Map<Classroom, { examinees: number; vigilants: Vigilant[] }>
+	) {
+		this.addVigilants(specialists);
+		this.distribution = {
+			specialists: [...this.specialists],
+			subject: this.subject,
+			distribution: []
+		};
+		let lastIndex = 0;
+		const allExaminees = [...this.examinees].sort(nameSorter);
+		[...classrooms.entries()]
+			.sort((a, b) => (a[0].priority - b[0].priority) * 1)
+			.forEach(([classroom, examineesAndVigilants]) => {
+				this.addVigilants(examineesAndVigilants.vigilants);
+				this.distribution!.distribution.push({
+					classroom,
+					vigilants: examineesAndVigilants.vigilants.sort(nameSorter),
+					examinees: allExaminees.slice(lastIndex, examineesAndVigilants.examinees + lastIndex)
+				});
+				lastIndex += examineesAndVigilants.examinees;
+			});
+	}
+
 	private assignExaminees(): AssignmentError | undefined {
 		const examinees = [...this.examinees].sort(nameSorter);
 		const classrooms = [...this.classrooms].sort((a, b) => (a.priority - b.priority) * 1);
@@ -230,7 +255,11 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		if (this.classrooms.size === 0) return 'no-classrooms';
 		if (this.hasEnoughCapacity() === 'not-enough') return 'not-enough-seats';
 		if (this.vigilants.size < this.classrooms.size) return 'not-enough-vigilants';
-		this.distribution = { subject: this.subject, distribution: [] };
+		this.distribution = {
+			subject: this.subject,
+			distribution: [],
+			specialists: [...this.specialists]
+		};
 		const result = this.assignExaminees();
 		if (result !== undefined) return result;
 		return this.assignVigilants();

@@ -48,7 +48,7 @@
 							<div class="flex-grow">
 								<p class="text-xl">Vigilantes</p>
 								{#if item.vigilants.length === 0}
-									<p>No hay vigilantes</p>
+									<p class={item.examinees.length > 0 ? 'text-error-500' : ''}>No hay vigilantes</p>
 								{:else}
 									<p>Hay {item.vigilants.length} vigilante(s)</p>
 									<p class="pb-3">

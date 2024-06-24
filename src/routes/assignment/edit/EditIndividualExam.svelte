@@ -2,6 +2,7 @@
 	import type { ExamConfiguration, ExamDistribution } from '$lib/assignment/assign';
 	import type { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
 	import type { Classroom } from '$lib/models/classroom';
+	import { Subject } from '$lib/models/subjects';
 	import type { Vigilant } from '$lib/models/vigilant';
 	import { nameSorter, routeTo } from '$lib/util';
 	import { languageTag } from '$paraglide/runtime';
@@ -11,15 +12,17 @@
 
 	onMount(() => {
 		if (exam === undefined) routeTo('/assignment');
-		distribution = exam.getDistribution();
-		if (distribution === 'assignment-not-done') {
+		const ldistribution = exam.getDistribution();
+		if (ldistribution === 'assignment-not-done') {
 			routeTo('/assignment');
 			return;
 		}
+		distribution = ldistribution;
 		selectedSpecialists = [...exam.specialists];
 		distribution.distribution.forEach((d) => {
 			selectedVigilants[d.classroom.id] = d.vigilants;
 			examineesPerClassroom[d.classroom.id] = d.examinees.length;
+			availableClassrooms[d.classroom.id] = d.classroom;
 		});
 	});
 
@@ -36,7 +39,13 @@
 	$: allVigilants = [...exam.vigilants].sort(nameSorter);
 	$: allSpecialists = [...exam.specialists].sort(nameSorter);
 
-	let distribution: ExamDistribution = { subject: undefined, distribution: [] };
+	let distribution: ExamDistribution = {
+		// for some reason, need this assignment so it doesn't error
+		subject: new Subject({ id: 0, name: 'whatever' }),
+		distribution: [],
+		specialists: []
+	};
+	let availableClassrooms: Classroom[] = [];
 	let selectedSpecialists: Vigilant[] = [];
 	let selectedVigilants: Vigilant[][] = [];
 	let examineesPerClassroom: number[] = [];
@@ -71,6 +80,18 @@
 				}
 			}
 		}
+	}
+
+	export function performSave() {
+		const classrooms = new Map();
+		for (let index = 0; index < selectedVigilants.length; index++) {
+			const classroom = availableClassrooms[index];
+			if (classroom === undefined) continue;
+			const vigilants = selectedVigilants[index];
+			const examinees = examineesPerClassroom[index];
+			classrooms.set(classroom, { vigilants, examinees });
+		}
+		exam.useConfiguration(selectedSpecialists, classrooms);
 	}
 </script>
 
