@@ -133,7 +133,6 @@ dependencies = [
  "aead-io",
  "aes-gcm-siv",
  "calamine",
- "crypto",
  "flate2",
  "log",
  "rand 0.8.5",
@@ -681,16 +680,6 @@ name = "crossbeam-utils"
 version = "0.8.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22ec99545bb0ed0ea7bb9b8e1e9122ea386ff8a48c0922e43f36d45ab09e0e80"
-
-[[package]]
-name = "crypto"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf1e6e5492f8f0830c37f301f6349e0dac8b2466e4fe89eef90e9eef906cd046"
-dependencies = [
- "cipher",
- "crypto-common",
-]
 
 [[package]]
 name = "crypto-common"
