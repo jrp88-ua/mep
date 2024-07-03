@@ -241,5 +241,14 @@
 	"could_not_save_file_message_open_file_other": "Ha ocurrido un error desconocido al escribir el archivo",
 	"cannot_close_operation_in_progress": "No se puede cerrar la aplicación en estos momentos, hay una operación en proceso",
 	"close_without_saving_message": "Cerrar la aplicación perderá los cambios. ¿Desea cerrar la aplicación?",
-	"close_without_saving_title": "Hay cambios sin guardar"
+	"close_without_saving_title": "Hay cambios sin guardar",
+	"unknown": "Desconocido",
+	"making_initial_assignment": "Creando asignación inicial",
+	"assignment_error_message_missing_exam_date": "La asignatura {subject} no tiene la fecha de examen",
+	"assignment_error_message_not_enough_seats": "No hay suficientes sitios para la asignatura {subject}",
+	"assignment_error_message_not_enough_vigilants": "No hay suficientes vigilantes para la asignatura {subject}",
+	"assignment_error_message_no_classrooms": "No hay salas",
+	"assignment_error_message_not_enough_classrooms": "No se han podido distribuir las salas disponibles entre las asignaturas {subjects}",
+	"missing_specialist": "No hay especialistas para la asignatura {subject}",
+	"assignment_error_title": "No se ha podido crear una distribución por defecto, usando una distribución vacía"
 }

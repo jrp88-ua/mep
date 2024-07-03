@@ -69,3 +69,33 @@ export function findExamineesWithExamnDateCollisions(examinees: Examinee[]) {
 
 	return examineesWithCollisions;
 }
+
+export function getHighestExamineeToVigilantRatio<T>(
+	distribution: Map<
+		T,
+		{
+			readonly examinees: number;
+			vigilants: number;
+		}
+	>,
+	comparator: (
+		highest: [T, { readonly examinees: number; vigilants: number }],
+		current: [T, { readonly examinees: number; vigilants: number }]
+	) => [T, { readonly examinees: number; vigilants: number }]
+) {
+	const distributionAsList = [...distribution];
+	const firstElement = distributionAsList[0];
+	if (distributionAsList.length === 1) return firstElement;
+	let highestRatio = firstElement[1].examinees / firstElement[1].vigilants;
+	return distributionAsList.slice(1).reduce((highest, current) => {
+		const currentRatio = current[1].examinees / current[1].vigilants;
+		if (currentRatio < highestRatio) {
+			return highest;
+		} else if (currentRatio === highestRatio) {
+			return comparator(highest, current);
+		} else {
+			highestRatio = currentRatio;
+			return current;
+		}
+	}, firstElement);
+}

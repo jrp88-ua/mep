@@ -236,10 +236,19 @@
 	"could_not_save_file_message_writing": "Error writing data to file",
 	"could_not_save_file_message_open_file_permission": "You do not have enough permissions to write the file",
 	"could_not_save_file_message_open_file_other": "An unknown error occurred while writing the file",
+	"cannot_close_operation_in_progress": "Cannot close the application at this time, an operation is in progress",
+	"close_without_saving_message": "Closing the application will lose the changes. Do you want to close the application?",
+	"close_without_saving_title": "There are unsaved changes",
 	"subject_datatable_obligatory": "Obligatory",
 	"subject_datatable_volunteer": "Volunteer",
 	"subject_datatable_unknown": "Unknown",
-	"cannot_close_operation_in_progress": "Cannot close the application at this time, an operation is in progress",
-	"close_without_saving_message": "Closing the application will lose the changes. Do you want to close the application?",
-	"close_without_saving_title": "There are unsaved changes"
+	"unknown": "Unknown",
+	"making_initial_assignment": "Making initial assignment",
+	"assignment_error_message_missing_exam_date": "The subject {subject} does not have the exam date",
+	"assignment_error_message_not_enough_seats": "There are not enough seats for the subject {subject}",
+	"assignment_error_message_not_enough_vigilants": "There are not enough vigilants for the subject {subject}",
+	"assignment_error_message_no_classrooms": "There are no classrooms",
+	"assignment_error_message_not_enough_classrooms": "The available classrooms could not be distributed between the subjects {subjects}",
+	"missing_specialist": "There are no specialists for the subject {subject}",
+	"assignment_error_title": "Failed to create a default distribution, using an empty distribution"
 }

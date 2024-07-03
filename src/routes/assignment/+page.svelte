@@ -1,13 +1,50 @@
 <script lang="ts">
+	import * as m from '$paraglide/messages';
+
 	import { assignment } from '$lib/assignment/assign';
 	import { classroomsStore } from '$lib/models/classroom';
 	import { examineesStore } from '$lib/models/examinees';
 	import { subjectsStore } from '$lib/models/subjects';
 	import { vigilantsStore } from '$lib/models/vigilant';
+	import { showErrorToast } from '$lib/toast';
+	import { getToastStore } from '@skeletonlabs/skeleton';
 	import AssignmentDisplay from './AssignmentDisplay.svelte';
 
-	function newAssignation() {
-		assignment.createNew();
+	const toastStore = getToastStore();
+
+	async function newAssignation() {
+		const result = await assignment.createNew();
+		if (result === true) return;
+		let message = '';
+		switch (result.type) {
+			case 'missing-exam-date':
+				showErrorToast(toastStore, {
+					message: m.assignment_error_message_missing_exam_date({ subject: result.subject.name })
+				});
+				return;
+			case 'not-enough-seats':
+				message = m.assignment_error_message_not_enough_seats({ subject: result.subject.name });
+				break;
+			case 'not-enough-vigilants':
+				message = m.assignment_error_message_not_enough_vigilants({ subject: result.subject.name });
+				break;
+			case 'no-classrooms':
+				message = m.assignment_error_message_no_classrooms();
+				break;
+			case 'not-enough-classrooms':
+				message = m.assignment_error_message_not_enough_classrooms({
+					subjects: result.subjects.map((subject) => subject.name).join(', ')
+				});
+				break;
+			case 'missing-specialist':
+				message = m.missing_specialist({ subject: result.subject.name });
+				break;
+		}
+		showErrorToast(toastStore, {
+			title: m.assignment_error_title(),
+			message
+		});
+		assignment.useEmptyAssignment();
 	}
 
 	$: hasValues =

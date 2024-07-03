@@ -1,7 +1,7 @@
 import type { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
 import type { Vigilant } from '$lib/models/vigilant';
-import type { AsignmentError, ExamConfiguration } from './assign';
+import type { AssignmentError, ExamConfiguration } from './assign';
 
 export class ExamsConfiguration implements ExamConfiguration {
 	exams: ExamConfiguration[];
@@ -22,28 +22,22 @@ export class ExamsConfiguration implements ExamConfiguration {
 		}
 	}
 
-	removeClassrooms(): void {
-		for (let i = 0; i < this.exams.length; i++) {
-			this.exams[i].removeClassrooms();
-		}
-	}
-
 	addVigilants(vigilants: readonly Vigilant[]): void {
 		for (let i = 0; i < this.exams.length; i++) {
 			this.exams[i].addVigilants(vigilants);
 		}
 	}
 
-	removeVigilants(): void {
-		for (let i = 0; i < this.exams.length; i++) {
-			this.exams[i].removeVigilants();
-		}
-	}
-
-	doAssignment(): AsignmentError | undefined {
+	doAssignment(): AssignmentError | undefined {
 		for (let i = 0; i < this.exams.length; i++) {
 			const result = this.exams[i].doAssignment();
 			if (result !== undefined) return result;
+		}
+	}
+
+	useEmptyAssignment(): void {
+		for (let i = 0; i < this.exams.length; i++) {
+			this.exams[i].useEmptyAssignment();
 		}
 	}
 

@@ -8,6 +8,10 @@ import { DateTime, Duration, Settings } from 'luxon';
 import { Subject, subjectsStore } from '$lib/models/subjects';
 import { Examinee, examineesStore } from '$lib/models/examinees';
 import { clearMocks } from '@tauri-apps/api/mocks';
+// import { setFileIsSaved } from '$lib/services/appState';
+
+// these tests work, but then I added the function setFileIsSaved to the appState store and now I can't figure out how to mock it
+// comment in the file `src/lib/services/appState.ts` the line that uses the tauri api to set the window title and run these tests after
 
 beforeEach(() => {
 	vi.clearAllMocks();
@@ -20,10 +24,17 @@ beforeEach(() => {
 	}));
 	subjectsStore.clear();
 	examineesStore.clear();
+
+	// https://github.com/vitest-dev/vitest/discussions/3548
+	// so mocking exported functions is not possible, that sucks
+	//vi.fn()
+	//	.mockImplementation(setFileIsSaved)
+	//	.mockImplementation(() => {});
 });
 
 afterEach(() => {
 	clearMocks();
+	vi.resetAllMocks();
 });
 
 describe('groupExamineesBySubjects', () => {

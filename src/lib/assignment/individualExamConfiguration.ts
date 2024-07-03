@@ -4,11 +4,12 @@ import type { Subject } from '$lib/models/subjects';
 import type { Vigilant } from '$lib/models/vigilant';
 import { nameSorter } from '$lib/util';
 import type {
-	AsignmentError as AssignmentError,
+	AssignmentError as AssignmentError,
 	DistributionError,
 	ExamConfiguration,
 	ExamDistribution
 } from './assign';
+import { getHighestExamineeToVigilantRatio } from './assignUtils';
 
 export class IndividualExamConfiguration implements ExamConfiguration {
 	subject: Subject;
@@ -45,11 +46,6 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		this.resetDistribution();
 	}
 
-	removeClassrooms(): void {
-		this.classrooms.clear();
-		this.resetDistribution();
-	}
-
 	addVigilants(vigilants: readonly Vigilant[]): void {
 		vigilants = vigilants.filter(({ role }) => role === 'MEMBER');
 		vigilants
@@ -60,9 +56,10 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 			.forEach(this.specialists.add, this.specialists);
 	}
 
-	removeVigilants(): void {
+	resetClassroomsAndVigilants(): void {
 		this.vigilants.clear();
 		this.specialists.clear();
+		this.classrooms.clear();
 		this.resetDistribution();
 	}
 
@@ -178,7 +175,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 				totalExaminees,
 				this
 			);
-			return 'not-enough-seats';
+			return { type: 'not-enough-seats', subject: this.subject };
 		}
 
 		let lastIndex = 0;
@@ -195,28 +192,11 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	}
 
 	private assignVigilants(): AssignmentError | undefined {
-		if (this.vigilants.size < this.classrooms.size) return 'not-enough-vigilants';
+		if (this.vigilants.size < this.classrooms.size)
+			return { type: 'not-enough-vigilants', subject: this.subject };
 		const vigilants = [...this.vigilants].sort(nameSorter);
 		const totalVigilants = vigilants.length;
 		const distribution = new Map<Classroom, { readonly examinees: number; vigilants: number }>();
-
-		function getHighestExamineeToVigilantRatio() {
-			const distributionAsList = [...distribution];
-			const firstElement = distributionAsList[0];
-			if (distributionAsList.length === 1) return firstElement;
-			let highestRatio = firstElement[1].examinees / firstElement[1].vigilants;
-			return distributionAsList.slice(1).reduce((highest, current) => {
-				const currentRatio = current[1].examinees / current[1].vigilants;
-				if (currentRatio < highestRatio) {
-					return highest;
-				} else if (currentRatio === highestRatio) {
-					return highest[0].priority < current[0].priority ? highest : current;
-				} else {
-					highestRatio = currentRatio;
-					return current;
-				}
-			}, firstElement);
-		}
 
 		// First make sure every class with examinees gets at least one vigilant
 		this.distribution!.distribution.forEach(({ classroom, examinees }) => {
@@ -232,7 +212,9 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 
 		while (assignedVigilants < totalVigilants) {
 			// We have vigilants left to assign
-			const highestRatio = getHighestExamineeToVigilantRatio();
+			const highestRatio = getHighestExamineeToVigilantRatio(distribution, (highest, current) =>
+				highest[0].priority < current[0].priority ? highest : current
+			);
 			highestRatio[1].vigilants++;
 			assignedVigilants++;
 		}
@@ -252,9 +234,11 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 
 	doAssignment(): AssignmentError | undefined {
 		this.resetDistribution();
-		if (this.classrooms.size === 0) return 'no-classrooms';
-		if (this.hasEnoughCapacity() === 'not-enough') return 'not-enough-seats';
-		if (this.vigilants.size < this.classrooms.size) return 'not-enough-vigilants';
+		if (this.classrooms.size === 0) return { type: 'no-classrooms' };
+		if (this.hasEnoughCapacity() === 'not-enough')
+			return { type: 'not-enough-seats', subject: this.subject };
+		if (this.vigilants.size < this.classrooms.size)
+			return { type: 'not-enough-vigilants', subject: this.subject };
 		this.distribution = {
 			subject: this.subject,
 			distribution: [],
@@ -263,6 +247,14 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		const result = this.assignExaminees();
 		if (result !== undefined) return result;
 		return this.assignVigilants();
+	}
+
+	useEmptyAssignment(): void {
+		this.distribution = {
+			subject: this.subject,
+			specialists: [],
+			distribution: []
+		};
 	}
 
 	getDistribution(): ExamDistribution | DistributionError {

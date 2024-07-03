@@ -8,7 +8,7 @@
 
 import { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
-import type { Subject } from '$lib/models/subjects';
+import { Subject } from '$lib/models/subjects';
 import type { Vigilant } from '$lib/models/vigilant';
 import { derived, get, writable } from 'svelte/store';
 import { CollidingExamsConfiguration } from './collidingExamsConfiguration';
@@ -23,25 +23,38 @@ import { appState } from '$lib/models/appState';
 export const assignment = (function () {
 	const { subscribe, set, update } = writable<ExamsConfiguration | undefined>();
 
-	function createNew() {
-		appState.lockNavigation('Creando asignación');
-		let created = orderAndGroupSubjects(get(getAllSubjects()));
-		if (typeof created === 'string') return false;
-		if (
-			created instanceof IndividualExamConfiguration ||
-			created instanceof CollidingExamsConfiguration
-		)
-			created = new ExamsConfiguration([created]);
-		set(created);
-		setTimeout(() => {
-			created.addClassrooms(get(getAllClassrooms()));
-			created.addVigilants(get(getAllVigilants()));
-			created.addExaminees(get(getAllExaminees()));
-			created.doAssignment();
-			update((v) => v);
-			appState.unlockNavigation();
+	function createNew(): Promise<AssignmentError | true> {
+		return new Promise((resolve) => {
+			appState.lockNavigation('Creando asignación');
+			const created = orderAndGroupSubjects(get(getAllSubjects()));
+			if (!created.ok) {
+				resolve(created.error);
+				return;
+			}
+			const configuration: ExamsConfiguration =
+				created.configuration instanceof IndividualExamConfiguration ||
+				created.configuration instanceof CollidingExamsConfiguration
+					? new ExamsConfiguration([created.configuration])
+					: (created.configuration as ExamsConfiguration);
+
+			set(configuration);
+			setTimeout(() => {
+				configuration.addClassrooms(get(getAllClassrooms()));
+				configuration.addVigilants(get(getAllVigilants()));
+				configuration.addExaminees(get(getAllExaminees()));
+				const result = configuration.doAssignment();
+				update((v) => v);
+				appState.unlockNavigation();
+				resolve(result || true);
+			});
 		});
-		return true;
+	}
+
+	function useEmptyAssignment() {
+		update((configuration) => {
+			configuration?.useEmptyAssignment();
+			return configuration;
+		});
 	}
 
 	function removeAssignation() {
@@ -57,6 +70,7 @@ export const assignment = (function () {
 		createNew,
 		removeAssignation,
 		parts,
+		useEmptyAssignment,
 		set
 	};
 })();
@@ -67,21 +81,28 @@ export type ExamDistribution = {
 	specialists: Vigilant[];
 };
 
-export type AsignmentError = 'not-enough-seats' | 'not-enough-vigilants' | 'no-classrooms';
+export type AssignmentError =
+	| { type: 'not-enough-seats'; subject: Subject }
+	| { type: 'not-enough-vigilants'; subject: Subject }
+	| { type: 'no-classrooms' }
+	| { type: 'not-enough-classrooms'; subjects: Subject[] }
+	| { type: 'missing-exam-date'; subject: Subject }
+	| { type: 'missing-specialist'; subject: Subject };
 export type DistributionError = 'assignment-not-done';
 
 export interface ExamConfiguration {
 	addExaminees(examinees: readonly Examinee[]): void;
 	addClassrooms(classrooms: readonly Classroom[]): void;
 	addVigilants(vigilants: readonly Vigilant[]): void;
-	removeClassrooms(): void;
-	removeVigilants(): void;
-	doAssignment(): AsignmentError | undefined;
+	doAssignment(): AssignmentError | undefined;
+	useEmptyAssignment(): void;
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough';
 	getCapacities(): { totalCapacity: number; examCapacity: number };
 }
 
-export function orderAndGroupSubjects(subjects: Subject[]) {
+export function orderAndGroupSubjects(
+	subjects: Subject[]
+): { ok: false; error: AssignmentError } | { ok: true; configuration: ExamConfiguration } {
 	function examDateCollides(firstSubject: Subject, seccondSubject: Subject) {
 		return (
 			firstSubject.examStartDate! <= seccondSubject.examStartDate! &&
@@ -90,10 +111,11 @@ export function orderAndGroupSubjects(subjects: Subject[]) {
 	}
 
 	const totalSubjects = subjects.length;
-	if (totalSubjects === 0) return new ExamsConfiguration([]);
+	if (totalSubjects === 0) return { ok: true, configuration: new ExamsConfiguration([]) };
 	for (let i = 0; i < totalSubjects; i++) {
 		const subject = subjects[i];
-		if (subject.examStartDate === undefined || subject.examDuration === undefined) return 'error';
+		if (subject.examStartDate === undefined || subject.examDuration === undefined)
+			return { ok: false, error: { type: 'missing-exam-date', subject } };
 	}
 
 	const orderedSubjects = subjects.sort((a, b) =>
@@ -115,7 +137,7 @@ export function orderAndGroupSubjects(subjects: Subject[]) {
 		lastSubject = subject;
 	}
 
-	return collidingExamnsToConfiguration(grouped);
+	return { ok: true, configuration: collidingExamnsToConfiguration(grouped) };
 }
 
 export function collidingExamnsToConfiguration(grouped: Subject[][]) {
