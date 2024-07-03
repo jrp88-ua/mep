@@ -10,7 +10,11 @@ import { get } from 'svelte/store';
 import { getOrCreateAcademicCentre } from './academicCentres';
 import { runExamineeAndVigilantHaveSameAcademicCentreCheck } from './warnings';
 
-let currentId = 0;
+export let currentId = 0;
+
+export function setCurrentId(id: number) {
+	currentId = id;
+}
 
 export function createVigilant(values: VigilantForCreate) {
 	const parsed = VigilantForCreate.safeParse(values);

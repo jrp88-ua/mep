@@ -2,7 +2,11 @@ import { Classroom, ClassroomForCreate, classroomsStore } from '$lib/models/clas
 import type { ModelId } from '$lib/models/models';
 import { get } from 'svelte/store';
 
-let currentId = 0;
+export let currentId = 0;
+
+export function setCurrentId(id: number) {
+	currentId = id;
+}
 
 export function createClassroom(values: ClassroomForCreate) {
 	const parsed = ClassroomForCreate.safeParse(values);

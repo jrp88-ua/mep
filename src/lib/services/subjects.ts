@@ -6,7 +6,11 @@ import { examineesStore } from '$lib/models/examinees';
 import { vigilantsStore } from '$lib/models/vigilant';
 import { runSubjectsWithoutWarningCheck } from './warnings';
 
-let currentId = 0;
+export let currentId = 0;
+
+export function setCurrentId(id: number) {
+	currentId = id;
+}
 
 export function createSubject(values: SubjectForCreate) {
 	const parsed = SubjectForCreate.safeParse(values);

@@ -29,4 +29,16 @@ pub struct AppValues {
     pub vigilants: Vec<Vigilant>,
     pub classrooms: Vec<Classroom>,
     pub assignation: Option<AllExamConfiguration>,
+    pub ids: Ids,
+}
+
+#[derive(Debug, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub struct Ids {
+    examinees: EntityId,
+    academic_centres: EntityId,
+    subjects: EntityId,
+    vigilants: EntityId,
+    classrooms: EntityId,
 }

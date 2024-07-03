@@ -4,7 +4,11 @@ import { get } from 'svelte/store';
 import { getOrCreateAcademicCentre } from './academicCentres';
 import { runExamineeAndVigilantHaveSameAcademicCentreCheck } from './warnings';
 
-let currentId = 0;
+export let currentId = 0;
+
+export function setCurrentId(id: number) {
+	currentId = id;
+}
 
 export function createExaminee(values: ExamineeForCreate) {
 	const parsed = ExamineeForCreate.safeParse(values);

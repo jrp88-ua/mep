@@ -8,7 +8,11 @@ import type { ModelId } from '$lib/models/models';
 import { vigilantsStore } from '$lib/models/vigilant';
 import { get } from 'svelte/store';
 
-let currentId = 0;
+export let currentId = 0;
+
+export function setCurrentId(id: number) {
+	currentId = id;
+}
 
 export function createAcademicCentre(values: AcademicCentreForCreate) {
 	const parsed = AcademicCentreForCreate.safeParse(values);

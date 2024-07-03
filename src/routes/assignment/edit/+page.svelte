@@ -10,6 +10,7 @@
 	import { CollidingExamsConfiguration } from '$lib/assignment/collidingExamsConfiguration';
 	import { showSuccessToast } from '$lib/toast';
 	import { getToastStore } from '@skeletonlabs/skeleton';
+	import EditCollidingExam from './EditCollidingExam.svelte';
 
 	const toastStore = getToastStore();
 
@@ -18,13 +19,13 @@
 	});
 
 	const configuration = derived(assignment, (v) => v!);
-	let editors: EditIndividualExam[] = [];
+	let editors: (EditIndividualExam | EditCollidingExam)[] = [];
 
 	function saveAssignation() {
 		editors.forEach((editor) => editor.performSave());
 		routeTo('/assignment');
 		showSuccessToast(toastStore, {
-			message: 'Asignación actualizada'
+			message: m.assignment_updated()
 		});
 	}
 </script>
@@ -43,9 +44,9 @@
 		{#if exam instanceof IndividualExamConfiguration}
 			<EditIndividualExam {exam} bind:this={editors[i]} />
 		{:else if exam instanceof CollidingExamsConfiguration}
-			TODO
+			<EditCollidingExam {exam} bind:this={editors[i]} />
 		{:else}
-			Desconocido
+			{m.unknown}
 		{/if}
 	{/each}
 </div>

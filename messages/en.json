@@ -250,5 +250,6 @@
 	"assignment_error_message_no_classrooms": "There are no classrooms",
 	"assignment_error_message_not_enough_classrooms": "The available classrooms could not be distributed between the subjects {subjects}",
 	"missing_specialist": "There are no specialists for the subject {subject}",
-	"assignment_error_title": "Failed to create a default distribution, using an empty distribution"
+	"assignment_error_title": "Failed to create a default distribution, using an empty distribution",
+	"assignment_updated": "Updated assignment"
 }

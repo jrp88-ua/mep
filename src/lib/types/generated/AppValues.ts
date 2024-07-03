@@ -3,7 +3,8 @@ import type { AcademicCentre } from "./AcademicCentre";
 import type { AllExamConfiguration } from "./AllExamConfiguration";
 import type { Classroom } from "./Classroom";
 import type { Examinee } from "./Examinee";
+import type { Ids } from "./Ids";
 import type { Subject } from "./Subject";
 import type { Vigilant } from "./Vigilant";
 
-export type AppValues = { examinees: Array<Examinee>, academicCentres: Array<AcademicCentre>, subjects: Array<Subject>, vigilants: Array<Vigilant>, classrooms: Array<Classroom>, assignation: AllExamConfiguration | null, };
+export type AppValues = { examinees: Array<Examinee>, academicCentres: Array<AcademicCentre>, subjects: Array<Subject>, vigilants: Array<Vigilant>, classrooms: Array<Classroom>, assignation: AllExamConfiguration | null, ids: Ids, };

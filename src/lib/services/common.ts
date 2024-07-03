@@ -3,12 +3,34 @@ import { get } from 'svelte/store';
 import {
 	createAcademicCentre,
 	findAcademicCentreByName,
-	getAllAcademicCentres
+	getAllAcademicCentres,
+	currentId as academicCentresId,
+	setCurrentId as setAcademicCentresId
 } from './academicCentres';
-import { createExaminee, getAllExaminees } from './examinees';
-import { createSubject, getAllSubjects, getOrCreateSubject, subjectExists } from './subjects';
-import { getAllVigilants } from './vigilant';
-import { getAllClassrooms } from './classroom';
+import {
+	createExaminee,
+	getAllExaminees,
+	currentId as examineesId,
+	setCurrentId as setExamineesId
+} from './examinees';
+import {
+	createSubject,
+	getAllSubjects,
+	getOrCreateSubject,
+	subjectExists,
+	currentId as subjectsId,
+	setCurrentId as setSubjectsId
+} from './subjects';
+import {
+	getAllVigilants,
+	currentId as vigilantsId,
+	setCurrentId as setVigilantsId
+} from './vigilant';
+import {
+	getAllClassrooms,
+	currentId as classroomsId,
+	setCurrentId as setClassroomsId
+} from './classroom';
 import type { AppValues } from '$lib/types/generated/AppValues';
 import type { AcademicCentre as GeneratedAcademicCentre } from '$lib/types/generated/AcademicCentre';
 import type { Examinee as GeneratedExaminee } from '$lib/types/generated/Examinee';
@@ -119,6 +141,12 @@ export function useSavedValuesObject(values: AppValues) {
 		);
 	}
 
+	setExamineesId(values.ids.examinees);
+	setAcademicCentresId(values.ids.examinees);
+	setVigilantsId(values.ids.vigilants);
+	setClassroomsId(values.ids.classrooms);
+	setSubjectsId(values.ids.subjects);
+
 	runSubjectsWithoutWarningCheck();
 	runExamineeAndVigilantHaveSameAcademicCentreCheck();
 }
@@ -209,7 +237,14 @@ export function makeSaveValuesObject(): AppValues {
 		subjects,
 		vigilants,
 		classrooms,
-		assignation
+		assignation,
+		ids: {
+			examinees: examineesId,
+			academicCentres: academicCentresId,
+			classrooms: classroomsId,
+			subjects: subjectsId,
+			vigilants: vigilantsId
+		}
 	};
 }
 
