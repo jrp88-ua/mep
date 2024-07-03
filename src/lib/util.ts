@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import * as m from '$paraglide/messages';
+import { tick } from 'svelte';
 import { i18n } from './i18n';
 
 export function createSheetColumns(amount: number): string[] {
@@ -44,5 +45,6 @@ type AllUrls =
 	| '/';
 
 export async function routeTo(url: AllUrls) {
+	await tick();
 	goto(i18n.resolveRoute(url));
 }
