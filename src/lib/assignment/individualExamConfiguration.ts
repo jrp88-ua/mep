@@ -16,7 +16,6 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	examinees: Set<Examinee>;
 	classrooms: Set<Classroom>;
 	vigilants: Set<Vigilant>;
-	specialists: Set<Vigilant>;
 
 	distribution: ExamDistribution | undefined;
 
@@ -25,7 +24,6 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		this.examinees = new Set();
 		this.classrooms = new Set();
 		this.vigilants = new Set();
-		this.specialists = new Set();
 	}
 
 	private resetDistribution() {
@@ -47,18 +45,11 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 	}
 
 	addVigilants(vigilants: readonly Vigilant[]): void {
-		vigilants = vigilants.filter(({ role }) => role === 'MEMBER');
-		vigilants
-			.filter((vigilant) => !vigilant.specialtiesIds.has(this.subject.id))
-			.forEach(this.vigilants.add, this.vigilants);
-		vigilants
-			.filter((vigilant) => vigilant.specialtiesIds.has(this.subject.id))
-			.forEach(this.specialists.add, this.specialists);
+		vigilants.filter(({ role }) => role === 'MEMBER').forEach(this.vigilants.add, this.vigilants);
 	}
 
 	resetClassroomsAndVigilants(): void {
 		this.vigilants.clear();
-		this.specialists.clear();
 		this.classrooms.clear();
 		this.resetDistribution();
 	}
@@ -86,9 +77,8 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 		specialists: Vigilant[],
 		classrooms: Map<Classroom, { examinees: number; vigilants: Vigilant[] }>
 	) {
-		this.addVigilants(specialists);
 		this.distribution = {
-			specialists: [...this.specialists],
+			specialists: specialists,
 			subject: this.subject,
 			distribution: []
 		};
@@ -107,7 +97,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 			});
 	}
 
-	private assignExaminees(): AssignmentError | undefined {
+	private assignExaminees(): AssignmentError[] {
 		const examinees = [...this.examinees].sort(nameSorter);
 		const classrooms = [...this.classrooms].sort((a, b) => (a.priority - b.priority) * 1);
 		const { examCapacity, totalCapacity } = this.getCapacities();
@@ -175,7 +165,7 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 				totalExaminees,
 				this
 			);
-			return { type: 'not-enough-seats', subject: this.subject };
+			return [{ type: 'not-enough-seats', subject: this.subject }];
 		}
 
 		let lastIndex = 0;
@@ -188,13 +178,15 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 			});
 			lastIndex += total;
 		}
-		return undefined;
+		return [];
 	}
 
-	private assignVigilants(): AssignmentError | undefined {
-		if (this.vigilants.size < this.classrooms.size)
-			return { type: 'not-enough-vigilants', subject: this.subject };
-		const vigilants = [...this.vigilants].sort(nameSorter);
+	private assignVigilants(): AssignmentError[] {
+		const vigilants = [...this.vigilants]
+			.filter((v) => !v.specialtiesIds.has(this.subject.id))
+			.sort(nameSorter);
+		if (vigilants.length < this.classrooms.size)
+			return [{ type: 'not-enough-vigilants', subject: this.subject }];
 		const totalVigilants = vigilants.length;
 		const distribution = new Map<Classroom, { readonly examinees: number; vigilants: number }>();
 
@@ -229,23 +221,23 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 			lastIndex += total;
 		}
 
-		return undefined;
+		return [];
 	}
 
-	doAssignment(): AssignmentError | undefined {
+	doAssignment(): AssignmentError[] {
 		this.resetDistribution();
-		if (this.classrooms.size === 0) return { type: 'no-classrooms' };
+		if (this.classrooms.size === 0) return [{ type: 'no-classrooms' }];
 		if (this.hasEnoughCapacity() === 'not-enough')
-			return { type: 'not-enough-seats', subject: this.subject };
+			return [{ type: 'not-enough-seats', subject: this.subject }];
 		if (this.vigilants.size < this.classrooms.size)
-			return { type: 'not-enough-vigilants', subject: this.subject };
+			return [{ type: 'not-enough-vigilants', subject: this.subject }];
 		this.distribution = {
 			subject: this.subject,
 			distribution: [],
-			specialists: [...this.specialists]
+			specialists: [...this.vigilants].filter((v) => v.specialtiesIds.has(this.subject.id))
 		};
 		const result = this.assignExaminees();
-		if (result !== undefined) return result;
+		if (result.length > 0) return result;
 		return this.assignVigilants();
 	}
 

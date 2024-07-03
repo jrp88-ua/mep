@@ -1,12 +1,17 @@
 import type { ToastSettings, getToastStore } from '@skeletonlabs/skeleton';
 import { appConfiguration } from './models/configuration';
 
-export type CustomToastSettings = ToastSettings & { title?: string | undefined };
+export type CustomToastSettings = Omit<ToastSettings, 'message'> & {
+	title?: string;
+	message: string | string[];
+};
 
 export function showToast(
 	toastStore: ReturnType<typeof getToastStore>,
 	settings: CustomToastSettings
 ) {
+	settings.message =
+		typeof settings.message === 'string' ? settings.message : settings.message.join('<br>');
 	if (settings.autohide !== false) {
 		const timeout = settings.message.split(' ').length * appConfiguration.getToastTime();
 		settings = {
@@ -16,10 +21,10 @@ export function showToast(
 		};
 	}
 	if (settings.title !== undefined) {
-		const { title, message } = settings;
-		settings.message = `<strong>${title}</strong><br>${message}`;
+		const { title } = settings;
+		settings.message = `<strong>${title}</strong><br>${settings.message}`;
 	}
-	return toastStore.trigger(settings);
+	return toastStore.trigger(settings as ToastSettings);
 }
 
 export function showSuccessToast(

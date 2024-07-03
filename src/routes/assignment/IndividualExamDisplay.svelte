@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
+	import { nameSorter } from '$lib/util';
 	import { languageTag } from '$paraglide/runtime';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 
@@ -28,7 +29,10 @@
 				<div class="card p-4 pb-2 text-lg">
 					<header class="cars-header text-lg"><strong>Especialistas</strong></header>
 					<section class="p-4 pt-0 pb-0">
-						{[...exam.specialists].map((s) => `${s.surenames}, ${s.name}`).join(';')}
+						{exam.distribution?.specialists
+							.toSorted(nameSorter)
+							.map((s) => `${s.surenames}, ${s.name}`)
+							.join(';')}
 					</section>
 				</div>
 				{#each distribution.distribution as item (item.classroom.id)}

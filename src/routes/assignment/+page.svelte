@@ -7,44 +7,56 @@
 	import { subjectsStore } from '$lib/models/subjects';
 	import { vigilantsStore } from '$lib/models/vigilant';
 	import { showErrorToast } from '$lib/toast';
-	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import AssignmentDisplay from './AssignmentDisplay.svelte';
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
 
-	async function newAssignation() {
-		const result = await assignment.createNew();
-		if (result === true) return;
-		let message = '';
-		switch (result.type) {
-			case 'missing-exam-date':
-				showErrorToast(toastStore, {
-					message: m.assignment_error_message_missing_exam_date({ subject: result.subject.name })
-				});
-				return;
-			case 'not-enough-seats':
-				message = m.assignment_error_message_not_enough_seats({ subject: result.subject.name });
-				break;
-			case 'not-enough-vigilants':
-				message = m.assignment_error_message_not_enough_vigilants({ subject: result.subject.name });
-				break;
-			case 'no-classrooms':
-				message = m.assignment_error_message_no_classrooms();
-				break;
-			case 'not-enough-classrooms':
-				message = m.assignment_error_message_not_enough_classrooms({
-					subjects: result.subjects.map((subject) => subject.name).join(', ')
-				});
-				break;
-			case 'missing-specialist':
-				message = m.missing_specialist({ subject: result.subject.name });
-				break;
-		}
+	async function doAssignation() {
+		const results = await assignment.createNew();
+		if (results === true) return;
+
+		const message = results.map((result) => {
+			switch (result.type) {
+				case 'missing-exam-date':
+					return m.assignment_error_message_missing_exam_date({ subject: result.subject.name });
+				case 'not-enough-seats':
+					return m.assignment_error_message_not_enough_seats({ subject: result.subject.name });
+				case 'not-enough-vigilants':
+					return m.assignment_error_message_not_enough_vigilants({ subject: result.subject.name });
+				case 'no-classrooms':
+					return m.assignment_error_message_no_classrooms();
+				case 'not-enough-classrooms':
+					return m.assignment_error_message_not_enough_classrooms({
+						subjects: result.subjects.map((subject) => subject.name).join(', ')
+					});
+				case 'missing-specialist':
+					return m.missing_specialist({ subject: result.subject.name });
+			}
+		});
+
 		showErrorToast(toastStore, {
 			title: m.assignment_error_title(),
 			message
 		});
-		assignment.useEmptyAssignment();
+	}
+
+	function newAssignation(showWarning: boolean) {
+		if (showWarning) {
+			modalStore.trigger({
+				type: 'confirm',
+				title: 'Ya existe una distribución',
+				body: 'Si creas una asignación, la ya existente se perderá.',
+				buttonTextConfirm: 'Crear nueva asignación',
+				buttonTextCancel: m.cancel(),
+				response(doNew: boolean) {
+					if (doNew) doAssignation();
+				}
+			});
+		} else {
+			doAssignation();
+		}
 	}
 
 	$: hasValues =
@@ -57,6 +69,13 @@
 <h1 class="text-3xl mb-4">Asignación</h1>
 {#if $assignment}
 	<a href="/assignment/edit" class="btn variant-filled-primary">Editar asignación</a>
+	<button
+		class="btn variant-filled-primary"
+		on:click={() => newAssignation(true)}
+		disabled={!hasValues}
+	>
+		Nueva asignación
+	</button>
 	<AssignmentDisplay />
 {:else}
 	{#if !hasValues}
@@ -78,7 +97,11 @@
 		</div>
 	{/if}
 	<div class="p-4">
-		<button class="btn variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
+		<button
+			class="btn variant-filled-primary"
+			on:click={() => newAssignation(false)}
+			disabled={!hasValues}
+		>
 			Nueva asignación
 		</button>
 	</div>

@@ -33,7 +33,7 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 		vigilants.forEach(this.availableVigilants.add, this.availableVigilants);
 	}
 
-	doAssignment(): AssignmentError | undefined {
+	doAssignment(): AssignmentError[] {
 		for (let i = 0; i < this.exams.length; i++) {
 			this.exams[i].resetClassroomsAndVigilants();
 		}
@@ -41,7 +41,9 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 		if (result != undefined) return result;
 		result = this.assignVigilants();
 		if (result != undefined) return result;
-		this.exams.forEach((exam) => exam.doAssignment());
+		return this.exams
+			.map((exam) => exam.doAssignment())
+			.reduce((accumulator, current) => accumulator.concat(current), []);
 	}
 
 	useEmptyAssignment(): void {
@@ -50,9 +52,9 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 		}
 	}
 
-	private assignClassrooms(): AssignmentError | undefined {
+	private assignClassrooms(): AssignmentError[] {
 		if (this.availableClassrooms.size < this.exams.length)
-			return { type: 'not-enough-classrooms', subjects: this.exams.map((exam) => exam.subject) };
+			return [{ type: 'not-enough-classrooms', subjects: this.exams.map((exam) => exam.subject) }];
 		const classrooms = [...this.availableClassrooms].sort((a, b) => a.priority - b.priority);
 		const exams = this.exams.toSorted((a, b) =>
 			a.subject.examStartDate! < b.subject.examFinishDate!
@@ -91,7 +93,7 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 			assignmentByExamCapacity.assignments.forEach((assignedClassrooms, exam) =>
 				exam.addClassrooms(assignedClassrooms)
 			);
-			return undefined;
+			return [];
 		}
 
 		const assignmentByTotalCapacity = doAssignmentWith((c) => c.totalCapacity);
@@ -99,13 +101,13 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 			assignmentByTotalCapacity.assignments.forEach((assignedClassrooms, exam) =>
 				exam.addClassrooms(assignedClassrooms)
 			);
-			return undefined;
+			return [];
 		}
 
-		return { type: 'not-enough-classrooms', subjects: this.exams.map((exam) => exam.subject) };
+		return [{ type: 'not-enough-classrooms', subjects: this.exams.map((exam) => exam.subject) }];
 	}
 
-	private assignVigilants(): AssignmentError | undefined {
+	private assignVigilants(): AssignmentError[] {
 		const vigilants = [...this.availableVigilants].sort(nameSorter);
 		const distribution = new Map<
 			IndividualExamConfiguration,
@@ -118,7 +120,7 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 			const subject = exam.subject;
 			const index = vigilants.findIndex((vigilant) => vigilant.specialtiesIds.has(subject.id));
 
-			if (index === -1) return { type: 'missing-specialist', subject };
+			if (index === -1) return [{ type: 'missing-specialist', subject }];
 			const specialist = vigilants[index];
 			vigilants.splice(index, 1);
 			exam.addVigilants([specialist]);
@@ -142,7 +144,7 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 			lastIndex += total;
 		}
 
-		return undefined;
+		return [];
 	}
 
 	getCapacities(): { totalCapacity: number; examCapacity: number } {

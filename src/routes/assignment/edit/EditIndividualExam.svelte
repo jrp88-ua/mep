@@ -1,29 +1,29 @@
 <script lang="ts">
-	import type { ExamConfiguration, ExamDistribution } from '$lib/assignment/assign';
 	import type { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
 	import type { Classroom } from '$lib/models/classroom';
-	import { Subject } from '$lib/models/subjects';
 	import type { Vigilant } from '$lib/models/vigilant';
-	import { nameSorter, routeTo } from '$lib/util';
+	import { routeTo, nameSorter } from '$lib/util';
 	import { languageTag } from '$paraglide/runtime';
-	import { onMount } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
 	export let exam: IndividualExamConfiguration;
+	export let availableVigilants: Vigilant[] = [];
+	export let availableClassrooms: Classroom[] = [];
+
+	const dispatcher = createEventDispatcher();
 
 	onMount(() => {
 		if (exam === undefined) routeTo('/assignment');
-		const ldistribution = exam.getDistribution();
-		if (ldistribution === 'assignment-not-done') {
+		const distribution = exam.getDistribution();
+		if (distribution === 'assignment-not-done') {
 			routeTo('/assignment');
 			return;
 		}
-		distribution = ldistribution;
-		selectedSpecialists = [...exam.specialists];
-		distribution.distribution.forEach((d) => {
-			selectedVigilants[d.classroom.id] = d.vigilants;
-			examineesPerClassroom[d.classroom.id] = d.examinees.length;
-			availableClassrooms[d.classroom.id] = d.classroom;
-		});
+
+		selectedClassrooms = distribution.distribution.map((v) => v.classroom);
+		selectedSpecialists = distribution.specialists;
+		distribution.distribution.forEach((v) => (selectedVigilants[v.classroom.id] = v.vigilants));
+		examineesPerClassroom = distribution.distribution.map((v) => v.examinees.length);
 	});
 
 	$: startDate = exam.subject.examStartDate!.toLocaleString(
@@ -35,28 +35,71 @@
 		{ locale: languageTag() }
 	);
 	$: duration = exam.subject.examDuration!.toFormat("h'h' m'm' ");
+	$: availableSpecialists = availableVigilants.filter((vigilant) =>
+		vigilant.specialtiesIds.has(exam.subject.id)
+	);
 
-	$: allVigilants = [...exam.vigilants].sort(nameSorter);
-	$: allSpecialists = [...exam.specialists].sort(nameSorter);
-
-	let distribution: ExamDistribution = {
-		// for some reason, need this assignment so it doesn't error
-		subject: new Subject({ id: 0, name: 'whatever' }),
-		distribution: [],
-		specialists: []
-	};
-	let availableClassrooms: Classroom[] = [];
+	let selectedClassrooms: Classroom[] = [];
 	let selectedSpecialists: Vigilant[] = [];
 	let selectedVigilants: Vigilant[][] = [];
 	let examineesPerClassroom: number[] = [];
+	$: {
+		selectedSpecialists.sort(nameSorter);
+		selectedClassrooms.sort((a, b) => a.priority - b.priority);
+		const selectedVigilantsBackup = selectedVigilants;
+		const examineesPerClassroomBackup = examineesPerClassroom;
+		selectedVigilants = [];
+		examineesPerClassroom = [];
+		for (const classroom of selectedClassrooms) {
+			selectedVigilants[classroom.id] = selectedVigilantsBackup[classroom.id] ?? [];
+			examineesPerClassroom[classroom.id] = examineesPerClassroomBackup[classroom.id] ?? 0;
+		}
+	}
 	$: totalExamineesInFields = examineesPerClassroom.reduce(
 		(accumulator, actual) => accumulator + actual,
 		0
 	);
 
-	function deselectOtherVigilants(classroom: Classroom, vigilant: Vigilant) {
+	export function getExam() {
+		return exam;
+	}
+
+	export function deselectVigilant(vigilant: Vigilant) {
+		for (let index = 0; index < selectedVigilants.length; index++) {
+			const selected = selectedVigilants[index];
+			if (selected === undefined) continue;
+			const vigilantIndex = selected.indexOf(vigilant);
+			if (vigilantIndex === -1) continue;
+			selected.splice(vigilantIndex, 1);
+		}
+		const index = selectedSpecialists.indexOf(vigilant);
+		if (index !== -1) selectedSpecialists.splice(index, 1);
+		selectedVigilants = selectedVigilants;
+		selectedSpecialists = selectedSpecialists;
+	}
+
+	export function deselectClassroom(classroom: Classroom) {
+		const index = selectedClassrooms.indexOf(classroom);
+		if (index === -1) return;
+		selectedClassrooms.splice(index, 1);
+		selectedClassrooms = selectedClassrooms;
+	}
+
+	function deselectOtherVigilantsAndSpecialist(vigilant: Vigilant, classroom: Classroom) {
 		for (let index = 0; index < selectedVigilants.length; index++) {
 			if (index === classroom.id) continue;
+			const selected = selectedVigilants[index];
+			if (selected === undefined) continue;
+			const vigilantIndex = selected.indexOf(vigilant);
+			if (vigilantIndex === -1) continue;
+			selected.splice(vigilantIndex, 1);
+		}
+		const index = selectedSpecialists.indexOf(vigilant);
+		if (index !== -1) selectedSpecialists.splice(index, 1);
+	}
+
+	function deselectVigilants(vigilant: Vigilant) {
+		for (let index = 0; index < selectedVigilants.length; index++) {
 			const selected = selectedVigilants[index];
 			if (selected === undefined) continue;
 			const vigilantIndex = selected.indexOf(vigilant);
@@ -83,12 +126,10 @@
 	}
 
 	export function performSave() {
-		const classrooms = new Map();
-		for (let index = 0; index < selectedVigilants.length; index++) {
-			const classroom = availableClassrooms[index];
-			if (classroom === undefined) continue;
-			const vigilants = selectedVigilants[index];
-			const examinees = examineesPerClassroom[index];
+		const classrooms = new Map<Classroom, { examinees: number; vigilants: Vigilant[] }>();
+		for (const classroom of selectedClassrooms) {
+			const vigilants = selectedVigilants[classroom.id];
+			const examinees = examineesPerClassroom[classroom.id];
 			classrooms.set(classroom, { vigilants, examinees });
 		}
 		exam.useConfiguration(selectedSpecialists, classrooms);
@@ -105,32 +146,59 @@
 			</p>
 		{/if}
 		<div class="flex flex-col gap-2">
-			<div class="card p-4 pb-2 text-lg">
-				<header class="cars-header text-lg"><strong>Especialistas</strong></header>
-				<section class="p-4 pt-0 pb-0 flex gap-8">
-					{#each allSpecialists as specialist}
+			<div class="card p-4 pb-2">
+				<header class="cars-header text-lg"><strong>Salas a usar</strong></header>
+				<section class="p-4 pt-0 pb-0 flex gap-8 flex-wrap">
+					{#each availableClassrooms as classroom}
 						<label class="flex items-center space-x-2">
 							<input
 								type="checkbox"
 								class="checkbox"
-								bind:group={selectedSpecialists}
-								name={`specialists-${exam.subject.name}`}
-								value={specialist}
+								bind:group={selectedClassrooms}
+								name={`classroom-${exam.subject.name}`}
+								on:input={() => dispatcher('selected-classroom', { classroom, exam })}
+								value={classroom}
 							/>
-							<p>{specialist.surenames}, {specialist.name}</p>
+							<p>{classroom.code}, {classroom.locationCode}</p>
 						</label>
 					{/each}
 				</section>
 			</div>
-			{#each distribution.distribution as d}
+			<div class="card p-4 pb-2 text-lg">
+				<header class="cars-header text-lg"><strong>Especialistas</strong></header>
+				<section class="p-4 pt-0 pb-0">
+					{#if selectedSpecialists.length === 0}
+						<p class="pb-3 text-error-500">No hay vigilantes seleccionados</p>
+					{/if}
+					<div class="flex gap-8 flex-wrap">
+						{#each availableSpecialists as specialist}
+							<label class="flex items-center space-x-2">
+								<input
+									type="checkbox"
+									class="checkbox"
+									bind:group={selectedSpecialists}
+									name={`specialists-${exam.subject.name}`}
+									on:input={() => {
+										deselectVigilants(specialist);
+										dispatcher('selected-vigilant', { vigilant: specialist, exam });
+									}}
+									value={specialist}
+								/>
+								<p>{specialist.surenames}, {specialist.name}</p>
+							</label>
+						{/each}
+					</div>
+				</section>
+			</div>
+			{#each selectedClassrooms as classroom (classroom.id)}
 				<div class="card p-4 pb-2 text-lg">
 					<header class="cars-header text-lg">
 						<strong>
 							Sala
 							<i>
-								{d.classroom.code}
-								{#if d.classroom.locationCode !== ''}
-									({d.classroom.locationCode})
+								{classroom.code}
+								{#if classroom.locationCode !== ''}
+									({classroom.locationCode})
 								{/if}
 							</i>
 						</strong>
@@ -138,31 +206,32 @@
 					<section class="p-4 flex flex-row gap-4">
 						<div class="flex-grow">
 							<p class="text-xl">Vigilantes</p>
-							{#if selectedVigilants[d.classroom.id].length === 0}
+							{#if selectedVigilants[classroom.id].length === 0}
 								<p
-									class={`pb-3 ${
-										examineesPerClassroom[d.classroom.id] > 0 ? 'text-error-500' : ''
-									}`}
+									class={`pb-3 ${examineesPerClassroom[classroom.id] > 0 ? 'text-error-500' : ''}`}
 								>
 									No hay vigilantes seleccionados
 								</p>
 							{:else}
 								<p class="pb-3">
 									Hay {Math.ceil(
-										examineesPerClassroom[d.classroom.id] / selectedVigilants[d.classroom.id].length
+										examineesPerClassroom[classroom.id] / selectedVigilants[classroom.id].length
 									)} examinados por cada vigilante
 								</p>
 							{/if}
-							<div class="p-4 pt-0 pb-0 flex gap-8">
-								{#each allVigilants as vigilant}
+							<div class="p-4 pt-0 pb-0 flex gap-8 flex-wrap">
+								{#each availableVigilants as vigilant}
 									<label class="flex items-center space-x-2">
 										<input
 											type="checkbox"
 											class="checkbox"
-											bind:group={selectedVigilants[d.classroom.id]}
+											bind:group={selectedVigilants[classroom.id]}
 											name={`vigilants-${exam.subject.name}`}
 											value={vigilant}
-											on:input={() => deselectOtherVigilants(d.classroom, vigilant)}
+											on:input={() => {
+												deselectOtherVigilantsAndSpecialist(vigilant, classroom);
+												dispatcher('selected-vigilant', { vigilant, exam });
+											}}
 										/>
 										<p>{vigilant.surenames}, {vigilant.name}</p>
 									</label>
@@ -173,24 +242,24 @@
 							<p class="text-xl">Examinados</p>
 							<ul>
 								<li
-									class={examineesPerClassroom[d.classroom.id] > d.classroom.examCapacity
+									class={examineesPerClassroom[classroom.id] > classroom.examCapacity
 										? 'text-error-500'
 										: ''}
 								>
 									Se ha usado un {(
-										(examineesPerClassroom[d.classroom.id] / d.classroom.examCapacity) *
+										(examineesPerClassroom[classroom.id] / classroom.examCapacity) *
 										100
-									).toFixed(2)}% de la capacidad del examen ({d.classroom.examCapacity})
+									).toFixed(2)}% de la capacidad del examen ({classroom.examCapacity})
 								</li>
 								<li
-									class={examineesPerClassroom[d.classroom.id] > d.classroom.totalCapacity
+									class={examineesPerClassroom[classroom.id] > classroom.totalCapacity
 										? 'text-error-500'
 										: ''}
 								>
 									Se ha usado un {(
-										(examineesPerClassroom[d.classroom.id] / d.classroom.totalCapacity) *
+										(examineesPerClassroom[classroom.id] / classroom.totalCapacity) *
 										100
-									).toFixed(2)}% de la capacidad total ({d.classroom.totalCapacity})
+									).toFixed(2)}% de la capacidad total ({classroom.totalCapacity})
 								</li>
 							</ul>
 							<label class="label">
@@ -201,8 +270,8 @@
 									step="1"
 									min="0"
 									max={exam.examinees.size}
-									bind:value={examineesPerClassroom[d.classroom.id]}
-									on:input={() => reduceOtherExamineesAmount(d.classroom)}
+									bind:value={examineesPerClassroom[classroom.id]}
+									on:input={() => reduceOtherExamineesAmount(classroom)}
 								/>
 							</label>
 						</div>

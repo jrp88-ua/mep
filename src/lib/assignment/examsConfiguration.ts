@@ -28,11 +28,16 @@ export class ExamsConfiguration implements ExamConfiguration {
 		}
 	}
 
-	doAssignment(): AssignmentError | undefined {
+	doAssignment(): AssignmentError[] {
+		const errors = [] as AssignmentError[];
 		for (let i = 0; i < this.exams.length; i++) {
 			const result = this.exams[i].doAssignment();
-			if (result !== undefined) return result;
+			if (result.length > 0) {
+				this.exams[i].useEmptyAssignment();
+				errors.push(...result);
+			}
 		}
+		return errors;
 	}
 
 	useEmptyAssignment(): void {

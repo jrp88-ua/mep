@@ -23,12 +23,12 @@ import { appState } from '$lib/models/appState';
 export const assignment = (function () {
 	const { subscribe, set, update } = writable<ExamsConfiguration | undefined>();
 
-	function createNew(): Promise<AssignmentError | true> {
+	function createNew(): Promise<AssignmentError[] | true> {
 		return new Promise((resolve) => {
 			appState.lockNavigation('Creando asignación');
 			const created = orderAndGroupSubjects(get(getAllSubjects()));
 			if (!created.ok) {
-				resolve(created.error);
+				resolve([created.error]);
 				return;
 			}
 			const configuration: ExamsConfiguration =
@@ -94,7 +94,7 @@ export interface ExamConfiguration {
 	addExaminees(examinees: readonly Examinee[]): void;
 	addClassrooms(classrooms: readonly Classroom[]): void;
 	addVigilants(vigilants: readonly Vigilant[]): void;
-	doAssignment(): AssignmentError | undefined;
+	doAssignment(): AssignmentError[];
 	useEmptyAssignment(): void;
 	hasEnoughCapacity(): 'no-problem' | 'could-use-more' | 'not-enough';
 	getCapacities(): { totalCapacity: number; examCapacity: number };
