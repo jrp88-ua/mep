@@ -10,6 +10,12 @@
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { setFileIsSaved, setOpenedFile } from '$lib/services/appState';
 	import type { SaveToFileError } from '$lib/types/generated/SaveToFileError';
+	import { examineesStore } from '$lib/models/examinees';
+	import { classroomsStore } from '$lib/models/classroom';
+	import { subjectsStore } from '$lib/models/subjects';
+	import { vigilantsStore } from '$lib/models/vigilant';
+	import { academicCentresStore } from '$lib/models/academicCentres';
+	import { assignment } from '$lib/assignment/assign';
 
 	const toast = getToastStore();
 
@@ -124,52 +130,64 @@
 		if (selected === null) return;
 		selectedFile = selected;
 	}
+
+	$: hasValues =
+		$academicCentresStore.size > 0 ||
+		$classroomsStore.size > 0 ||
+		$examineesStore.size > 0 ||
+		$subjectsStore.size > 0 ||
+		$vigilantsStore.size > 0 ||
+		$assignment !== undefined ||
+		$appState.openedFile !== undefined;
 </script>
 
-{#if saving}
-	<div class=" flex flex-col items-center">
-		<h2 class="text-2xl mb-5">{m.saving_file()}</h2>
-		<ProgressRadial />
-	</div>
-{:else}
-	<form class="card p-4" on:submit|preventDefault={onSubmit}>
-		<h3 class="text-xl p-2">{m.save_file()}</h3>
-		<div class="p-2">
-			<span>{m.file()}</span>
-			<FileDropzone name="file" on:click={promptSelectFile}>
-				<svelte:fragment slot="lead">
-					<i class="fa-solid fa-file-import text-4xl" />
-				</svelte:fragment>
-				<svelte:fragment slot="message">
-					{#if selectedFile === undefined}
-						{m.select_file_drag_drop()}
-					{:else}
-						{selectedFile}
-					{/if}
-				</svelte:fragment>
-				<svelte:fragment slot="meta">.mep</svelte:fragment>
-			</FileDropzone>
+{#if hasValues}
+	{#if saving}
+		<div class=" flex flex-col items-center">
+			<h2 class="text-2xl mb-5">{m.saving_file()}</h2>
+			<ProgressRadial />
 		</div>
-		<label class="label p-2">
-			<span>{m.password()}</span>
-			<input
-				type="password"
-				name="password"
-				class="input"
-				title="password"
-				bind:value={password}
-				required
-			/>
-		</label>
-		<div class="btn-group variant-filled-primary m-2">
-			<button id="save">
-				<span><i class="fa-solid fa-floppy-disk" /></span>
-				{m.save()}
-			</button>
-			<button id="save-as">
-				<span><i class="fa-solid fa-floppy-disk" /></span>
-				{m.save_as()}
-			</button>
-		</div>
-	</form>
+	{:else}
+		<form class="card p-4" on:submit|preventDefault={onSubmit}>
+			<h3 class="text-xl p-2">{m.save_file()}</h3>
+			<div class="p-2">
+				<span>{m.file()}</span>
+				<FileDropzone name="file" on:click={promptSelectFile} disabled={!hasValues}>
+					<svelte:fragment slot="lead">
+						<i class="fa-solid fa-file-import text-4xl" />
+					</svelte:fragment>
+					<svelte:fragment slot="message">
+						{#if selectedFile === undefined}
+							{m.select_file_drag_drop()}
+						{:else}
+							{selectedFile}
+						{/if}
+					</svelte:fragment>
+					<svelte:fragment slot="meta">.mep</svelte:fragment>
+				</FileDropzone>
+			</div>
+			<label class="label p-2">
+				<span>{m.password()}</span>
+				<input
+					type="password"
+					name="password"
+					class="input"
+					title="password"
+					bind:value={password}
+					disabled={!hasValues}
+					required
+				/>
+			</label>
+			<div class="btn-group variant-filled-primary m-2">
+				<button id="save" disabled={!hasValues}>
+					<span><i class="fa-solid fa-floppy-disk" /></span>
+					{m.save()}
+				</button>
+				<button id="save-as" disabled={!hasValues}>
+					<span><i class="fa-solid fa-floppy-disk" /></span>
+					{m.save_as()}
+				</button>
+			</div>
+		</form>
+	{/if}
 {/if}
