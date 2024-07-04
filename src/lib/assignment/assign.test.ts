@@ -77,6 +77,6 @@ describe('orderAndGroupSubjects', () => {
 	it('works', () => {
 		const grouped = orderAndGroupSubjects(subjects);
 
-		expect(grouped).toEqual(expected);
+		expect(grouped).toEqual({ ok: true, configuration: expected });
 	});
 });

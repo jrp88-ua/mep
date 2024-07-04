@@ -207,51 +207,47 @@ describe('doAssignment', () => {
 
 		it('Not enough capacity', () => {
 			firstClassroom.setTotalCapacity(1);
-			expect(configuration.doAssignment()).toEqual('not-enough-seats');
+			expect(configuration.doAssignment()).toEqual([{ type: 'not-enough-seats', subject }]);
 		});
 
 		it('Has just enough total capacity', () => {
 			firstClassroom.setTotalCapacity(10);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
-				}
-			] satisfies readonly ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [{ classroom: firstClassroom, examinees, vigilants }]
+			} satisfies ExamDistribution);
 		});
 
 		it('Has just enough exam capacity', () => {
 			firstClassroom.setCapacities(15, 5);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [{ classroom: firstClassroom, examinees, vigilants }]
+			} satisfies ExamDistribution);
 		});
 
 		it('Has capacity with the total', () => {
 			firstClassroom.setCapacities(11, 1);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [{ classroom: firstClassroom, examinees: examinees, vigilants }]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [{ classroom: firstClassroom, examinees: examinees, vigilants }]
+			} satisfies ExamDistribution);
 		});
 
 		it('Has capacity with the exam', () => {
 			firstClassroom.setCapacities(14, 11);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [{ classroom: firstClassroom, examinees, vigilants }]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [{ classroom: firstClassroom, examinees, vigilants }]
+			} satisfies ExamDistribution);
 		});
 	});
 
@@ -266,122 +262,117 @@ describe('doAssignment', () => {
 		it('Not enough capacity', () => {
 			firstClassroom.setCapacities(1, 1);
 			seccondClassroom.setCapacities(1, 1);
-			expect(configuration.doAssignment()).toEqual('not-enough-seats');
+			expect(configuration.doAssignment()).toEqual([{ type: 'not-enough-seats', subject }]);
 		});
 
 		it('Has just enough total capacity', () => {
 			firstClassroom.setCapacities(5, 1);
 			seccondClassroom.setCapacities(5, 1);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [
-						{
-							classroom: seccondClassroom,
-							examinees: examinees.slice(0, 5),
-							vigilants: vigilants.slice(0, 2)
-						},
-						{
-							classroom: firstClassroom,
-							examinees: examinees.slice(5),
-							vigilants: vigilants.slice(2)
-						}
-					]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [
+					{
+						classroom: seccondClassroom,
+						examinees: examinees.slice(0, 5),
+						vigilants: vigilants.slice(0, 2)
+					},
+					{
+						classroom: firstClassroom,
+						examinees: examinees.slice(5),
+						vigilants: vigilants.slice(2)
+					}
+				]
+			} satisfies ExamDistribution);
 		});
 
 		it('Has just enough exam capacity', () => {
 			firstClassroom.setCapacities(10, 5);
 			seccondClassroom.setCapacities(10, 5);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [
-						{
-							classroom: seccondClassroom,
-							examinees: examinees.slice(0, 5),
-							vigilants: vigilants.slice(0, 2)
-						},
-						{
-							classroom: firstClassroom,
-							examinees: examinees.slice(5),
-							vigilants: vigilants.slice(2)
-						}
-					]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [
+					{
+						classroom: seccondClassroom,
+						examinees: examinees.slice(0, 5),
+						vigilants: vigilants.slice(0, 2)
+					},
+					{
+						classroom: firstClassroom,
+						examinees: examinees.slice(5),
+						vigilants: vigilants.slice(2)
+					}
+				]
+			} satisfies ExamDistribution);
 		});
 
 		it('Has capacity with the total', () => {
 			firstClassroom.setCapacities(10, 1);
 			seccondClassroom.setCapacities(5, 1);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [
-						{
-							classroom: seccondClassroom,
-							examinees: examinees.slice(0, 4),
-							vigilants: vigilants.slice(0, 1)
-						},
-						{
-							classroom: firstClassroom,
-							examinees: examinees.slice(4),
-							vigilants: vigilants.slice(1)
-						}
-					]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [
+					{
+						classroom: seccondClassroom,
+						examinees: examinees.slice(0, 4),
+						vigilants: vigilants.slice(0, 1)
+					},
+					{
+						classroom: firstClassroom,
+						examinees: examinees.slice(4),
+						vigilants: vigilants.slice(1)
+					}
+				]
+			} satisfies ExamDistribution);
 		});
 
 		it('Has capacity with the exam', () => {
 			firstClassroom.setCapacities(15, 10);
 			seccondClassroom.setCapacities(15, 10);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [
-						{
-							classroom: seccondClassroom,
-							examinees: examinees.slice(0, 5),
-							vigilants: vigilants.slice(0, 2)
-						},
-						{
-							classroom: firstClassroom,
-							examinees: examinees.slice(5),
-							vigilants: vigilants.slice(2)
-						}
-					]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [
+					{
+						classroom: seccondClassroom,
+						examinees: examinees.slice(0, 5),
+						vigilants: vigilants.slice(0, 2)
+					},
+					{
+						classroom: firstClassroom,
+						examinees: examinees.slice(5),
+						vigilants: vigilants.slice(2)
+					}
+				]
+			} satisfies ExamDistribution);
 		});
 
 		it('Most priority is at exam capacity seccond priority does not', () => {
 			firstClassroom.setCapacities(20, 10);
 			seccondClassroom.setCapacities(3, 2);
-			expect(configuration.doAssignment()).toEqual(undefined);
-			expect(configuration.getDistribution()).toEqual([
-				{
-					subject,
-					distribution: [
-						{
-							classroom: seccondClassroom,
-							examinees: examinees.slice(0, 2),
-							vigilants: vigilants.slice(0, 1)
-						},
-						{
-							classroom: firstClassroom,
-							examinees: examinees.slice(2),
-							vigilants: vigilants.slice(1)
-						}
-					]
-				}
-			] satisfies ExamDistribution[]);
+			expect(configuration.doAssignment()).toEqual([]);
+			expect(configuration.getDistribution()).toEqual({
+				subject,
+				specialists: [],
+				distribution: [
+					{
+						classroom: seccondClassroom,
+						examinees: examinees.slice(0, 2),
+						vigilants: vigilants.slice(0, 1)
+					},
+					{
+						classroom: firstClassroom,
+						examinees: examinees.slice(2),
+						vigilants: vigilants.slice(1)
+					}
+				]
+			} satisfies ExamDistribution);
 		});
 	});
 });
