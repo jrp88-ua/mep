@@ -6,7 +6,7 @@
 	import { examineesStore } from '$lib/models/examinees';
 	import { subjectsStore } from '$lib/models/subjects';
 	import { vigilantsStore } from '$lib/models/vigilant';
-	import { showErrorToast } from '$lib/toast';
+	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import AssignmentDisplay from './AssignmentDisplay.svelte';
 
@@ -36,10 +36,16 @@
 			}
 		});
 
-		showErrorToast(toastStore, {
-			title: m.assignment_error_title(),
-			message
-		});
+		if (message.length > 0) {
+			showErrorToast(toastStore, {
+				title: m.assignment_error_title(),
+				message
+			});
+		} else {
+			showSuccessToast(toastStore, {
+				message: m.assignment_made()
+			});
+		}
 	}
 
 	function newAssignation(showWarning: boolean) {

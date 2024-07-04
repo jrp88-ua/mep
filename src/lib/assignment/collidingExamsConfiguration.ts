@@ -39,10 +39,11 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 		for (let i = 0; i < this.exams.length; i++) {
 			this.exams[i].resetClassroomsAndVigilants();
 		}
-		let result = this.assignClassrooms();
-		if (result != undefined) return result;
-		result = this.assignVigilants();
-		if (result != undefined) return result;
+		const classroomResult = this.assignClassrooms();
+		const vigilantResult = this.assignVigilants();
+		const result = classroomResult.concat(vigilantResult);
+		if (result.length > 0) return result;
+
 		return this.exams
 			.map((exam) => exam.doAssignment())
 			.reduce((accumulator, current) => accumulator.concat(current), []);

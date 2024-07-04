@@ -251,5 +251,6 @@
 	"assignment_error_message_not_enough_classrooms": "No se han podido distribuir las salas disponibles entre las asignaturas {subjects}",
 	"missing_specialist": "No hay especialistas para la asignatura {subject}",
 	"assignment_error_title": "No se ha podido crear una distribución por defecto, usando una distribución vacía",
-	"assignment_updated": "Asignación actualizada"
+	"assignment_updated": "Asignación actualizada",
+	"assignment_made": "Asignación creada"
 }

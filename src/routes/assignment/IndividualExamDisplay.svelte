@@ -16,6 +16,11 @@
 	);
 	$: duration = exam.subject.examDuration!.toFormat("h'h' m'm' ");
 	$: distribution = exam.getDistribution();
+
+	$: assignedExaminees = exam.distribution!.distribution.reduce(
+		(accumulator, current) => accumulator + current.examinees.length,
+		0
+	);
 </script>
 
 <div class="card mb-4">
@@ -25,10 +30,18 @@
 		{#if distribution === 'assignment-not-done'}
 			<p class="alert variant-filled-error">Sin asignación</p>
 		{:else}
+			{#if assignedExaminees < exam.examinees.size}
+				<p class="text-error-500 text-xl">
+					Hay {exam.examinees.size - assignedExaminees} examinado(s) sin asignar
+				</p>
+			{/if}
 			<div class="flex flex-col gap-2">
 				<div class="card p-4 pb-2 text-lg">
 					<header class="cars-header text-lg"><strong>Especialistas</strong></header>
 					<section class="p-4 pt-0 pb-0">
+						{#if exam.distribution?.specialists.length === 0}
+							<p class="pb-3 text-error-500">No hay vigilantes seleccionados</p>
+						{/if}
 						{exam.distribution?.specialists
 							.toSorted(nameSorter)
 							.map((s) => `${s.surenames}, ${s.name}`)
