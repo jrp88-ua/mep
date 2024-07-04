@@ -53,6 +53,7 @@ import {
 import { assignment, type ExamConfiguration, type ExamDistribution } from '$lib/assignment/assign';
 import { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
 import { ExamsConfiguration } from '$lib/assignment/examsConfiguration';
+import { CollidingExamsConfiguration } from '$lib/assignment/collidingExamsConfiguration';
 
 function useAssignationValuesObject(
 	values: GeneratedAllExamConfiguration,
@@ -61,13 +62,14 @@ function useAssignationValuesObject(
 	examinees: Examinee[],
 	classrooms: Classroom[]
 ) {
-	const exams = values.map((configuration) => {
+	function parse(
+		configuration: GeneratedExamConfiguration
+	): IndividualExamConfiguration | CollidingExamsConfiguration {
 		if (configuration.type === 'individualExam') {
 			const exam = new IndividualExamConfiguration(subjects[configuration.subject]!);
 			exam.examinees = new Set(configuration.examinees.map((pos) => examinees[pos]!));
 			exam.classrooms = new Set(configuration.classrooms.map((pos) => classrooms[pos]!));
 			exam.vigilants = new Set(configuration.vigilants.map((pos) => vigilants[pos]!));
-			exam.specialists = new Set(configuration.specialists.map((pos) => vigilants[pos]!));
 			if (configuration.distribution === null) {
 				exam.distribution = undefined;
 			} else {
@@ -83,9 +85,20 @@ function useAssignationValuesObject(
 			}
 			return exam;
 		} else if (configuration.type === 'collidingExams') {
-			throw new Error('Unimplemented');
+			const exam = new CollidingExamsConfiguration(
+				configuration.exams.map(
+					(e) => parse({ type: 'individualExam', ...e }) as IndividualExamConfiguration
+				)
+			);
+			exam.availableClassrooms = new Set(configuration.classrooms.map((pos) => classrooms[pos]!));
+			exam.availableVigilants = new Set(configuration.vigilants.map((pos) => vigilants[pos]!));
+			return exam;
+		} else {
+			throw new Error('Unknown type: ' + JSON.stringify(configuration));
 		}
-	}) as ExamConfiguration[];
+	}
+
+	const exams = values.map(parse) as ExamConfiguration[];
 	assignment.set(new ExamsConfiguration(exams));
 }
 
@@ -154,31 +167,42 @@ export function useSavedValuesObject(values: AppValues) {
 function makeAssignationValuesObject(): GeneratedAllExamConfiguration | null {
 	const exams = get(assignment)?.exams;
 	if (exams === undefined) return null;
+
+	function parseIndividual(exam: IndividualExamConfiguration) {
+		const distribution =
+			exam.distribution === undefined
+				? null
+				: ({
+						subject: exam.distribution.subject.id,
+						specialists: [...exam.distribution.specialists].map((specialist) => specialist.id),
+						distribution: exam.distribution.distribution.map(
+							({ classroom, examinees, vigilants }) =>
+								({
+									classroom: classroom.id,
+									examinees: examinees.map((examinee) => examinee.id),
+									vigilants: vigilants.map((vigilant) => vigilant.id)
+								} satisfies GeneratedExamClassroomDistribution)
+						)
+				  } satisfies GeneratedExamDistribution);
+		return {
+			type: 'individualExam',
+			subject: exam.subject.id,
+			examinees: [...exam.examinees].map((examinee) => examinee.id),
+			classrooms: [...exam.classrooms].map((classroom) => classroom.id),
+			vigilants: [...exam.vigilants].map((vigilant) => vigilant.id),
+			distribution
+		} satisfies GeneratedExamConfiguration;
+	}
+
 	return exams.map((exam) => {
 		if (exam instanceof IndividualExamConfiguration) {
-			const distribution =
-				exam.distribution === undefined
-					? null
-					: ({
-							subject: exam.distribution.subject.id,
-							specialists: [...exam.distribution.specialists].map((specialist) => specialist.id),
-							distribution: exam.distribution.distribution.map(
-								({ classroom, examinees, vigilants }) =>
-									({
-										classroom: classroom.id,
-										examinees: examinees.map((examinee) => examinee.id),
-										vigilants: vigilants.map((vigilant) => vigilant.id)
-									} satisfies GeneratedExamClassroomDistribution)
-							)
-					  } satisfies GeneratedExamDistribution);
+			return parseIndividual(exam);
+		} else if (exam instanceof CollidingExamsConfiguration) {
 			return {
-				type: 'individualExam',
-				subject: exam.subject.id,
-				examinees: [...exam.examinees].map((examinee) => examinee.id),
-				classrooms: [...exam.classrooms].map((classroom) => classroom.id),
-				vigilants: [...exam.vigilants].map((vigilant) => vigilant.id),
-				specialists: [...exam.specialists].map((specialist) => specialist.id),
-				distribution
+				type: 'collidingExams',
+				classrooms: [...exam.availableClassrooms].map((classroom) => classroom.id),
+				vigilants: [...exam.availableVigilants].map((vigilant) => vigilant.id),
+				exams: exam.exams.map(parseIndividual)
 			} satisfies GeneratedExamConfiguration;
 		}
 		throw new Error('Unknown exam kind: ' + JSON.stringify(exam));

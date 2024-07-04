@@ -30,7 +30,9 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 	}
 
 	addVigilants(vigilants: readonly Vigilant[]): void {
-		vigilants.forEach(this.availableVigilants.add, this.availableVigilants);
+		vigilants
+			.filter((v) => v.role === 'MEMBER')
+			.forEach(this.availableVigilants.add, this.availableVigilants);
 	}
 
 	doAssignment(): AssignmentError[] {
@@ -57,7 +59,7 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 			return [{ type: 'not-enough-classrooms', subjects: this.exams.map((exam) => exam.subject) }];
 		const classrooms = [...this.availableClassrooms].sort((a, b) => a.priority - b.priority);
 		const exams = this.exams.toSorted((a, b) =>
-			a.subject.examStartDate! < b.subject.examFinishDate!
+			a.subject.examStartDate! < b.subject.examStartDate!
 				? -1
 				: a.subject.examStartDate! > b.subject.examStartDate!
 				? 1

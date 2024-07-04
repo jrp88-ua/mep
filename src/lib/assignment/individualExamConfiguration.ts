@@ -4,7 +4,7 @@ import type { Subject } from '$lib/models/subjects';
 import type { Vigilant } from '$lib/models/vigilant';
 import { nameSorter } from '$lib/util';
 import type {
-	AssignmentError as AssignmentError,
+	AssignmentError,
 	DistributionError,
 	ExamConfiguration,
 	ExamDistribution

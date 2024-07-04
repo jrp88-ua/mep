@@ -14,15 +14,24 @@ pub struct AllExamConfiguration(Vec<ExamConfiguration>);
 #[serde(rename_all = "camelCase", tag = "type")]
 #[ts(export, export_to = "../../src/lib/types/generated/")]
 pub enum ExamConfiguration {
-    IndividualExam {
-        subject: EntityId,
-        examinees: Vec<EntityId>,
+    IndividualExam(IndividualExam),
+    CollidingExams {
+        exams: Vec<IndividualExam>,
         classrooms: Vec<EntityId>,
         vigilants: Vec<EntityId>,
-        specialists: Vec<EntityId>,
-        distribution: Option<ExamDistribution>,
     },
-    CollidingExams,
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, export_to = "../../src/lib/types/generated/")]
+pub struct IndividualExam {
+    pub subject: EntityId,
+    pub examinees: Vec<EntityId>,
+    pub classrooms: Vec<EntityId>,
+    pub vigilants: Vec<EntityId>,
+    pub distribution: Option<ExamDistribution>,
 }
 
 #[skip_serializing_none]
