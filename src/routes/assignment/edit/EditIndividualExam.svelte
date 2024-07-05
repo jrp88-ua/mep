@@ -25,7 +25,9 @@
 		selectedClassrooms = distribution.distribution.map((v) => v.classroom);
 		selectedSpecialists = distribution.specialists;
 		distribution.distribution.forEach((v) => (selectedVigilants[v.classroom.id] = v.vigilants));
-		examineesPerClassroom = distribution.distribution.map((v) => v.examinees.length);
+		distribution.distribution.forEach(
+			(v) => (examineesPerClassroom[v.classroom.id] = v.examinees.length)
+		);
 	});
 
 	$: startDate = exam.subject.examStartDate!.toLocaleString(
