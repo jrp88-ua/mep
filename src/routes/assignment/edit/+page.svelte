@@ -15,6 +15,7 @@
 	import type { Classroom } from '$lib/models/classroom';
 	import { getAllVigilants } from '$lib/services/vigilant';
 	import { getAllClassrooms } from '$lib/services/classroom';
+	import { setFileIsSaved } from '$lib/services/appState';
 
 	const toastStore = getToastStore();
 
@@ -36,6 +37,7 @@
 
 	function saveAssignation() {
 		editors.forEach((editor) => editor.performSave());
+		setFileIsSaved(false);
 		routeTo('/assignment');
 		showSuccessToast(toastStore, {
 			message: m.assignment_updated()

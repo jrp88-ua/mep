@@ -1,11 +1,4 @@
-/**
- * ASIGNMENT:
- * 1. Get all subjects ordered by start date in an array of arrays of {subjects} ({subjects}[] = array group)
- *  1.1. Collitions are placed in the same inner array
- *  1.2. Add all the examinees to this
- * 2. Split classrooms into each array group
- */
-
+import * as m from '$paraglide/messages';
 import { Classroom } from '$lib/models/classroom';
 import type { Examinee } from '$lib/models/examinees';
 import { Subject } from '$lib/models/subjects';
@@ -23,9 +16,9 @@ import { appState } from '$lib/models/appState';
 export const assignment = (function () {
 	const { subscribe, set, update } = writable<ExamsConfiguration | undefined>();
 
-	function createNew(): Promise<AssignmentError[] | true> {
+	function createNew(): Promise<AssignmentError[]> {
 		return new Promise((resolve) => {
-			appState.lockNavigation('Creando asignación');
+			appState.lockNavigation(m.making_assignment());
 			const created = orderAndGroupSubjects(get(getAllSubjects()));
 			if (!created.ok) {
 				resolve([created.error]);
@@ -44,7 +37,7 @@ export const assignment = (function () {
 				const result = configuration.doAssignment();
 				set(configuration);
 				appState.unlockNavigation();
-				resolve(result || true);
+				resolve(result);
 			});
 		});
 	}

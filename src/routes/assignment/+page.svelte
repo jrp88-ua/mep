@@ -16,13 +16,17 @@
 	import { ipc_invoke_result } from '$lib/ipc';
 	import { open } from '@tauri-apps/api/dialog';
 	import type { ExportAssignmentError } from '$lib/types/generated/ExportAssignmentError';
+	import { setFileIsSaved } from '$lib/services/appState';
 
 	const toastStore = getToastStore();
 	const modalStore = getModalStore();
 
 	async function doAssignation() {
 		const results = await assignment.createNew();
-		if (results === true) return;
+		if (results.length === 0) {
+			setFileIsSaved(false);
+			return;
+		}
 
 		const message = results.map((result) => {
 			switch (result.type) {

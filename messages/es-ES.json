@@ -323,5 +323,6 @@
 	"could_not_export_assignment_unknown_error": "Error desconocido",
 	"could_not_export_assignment_could_not_create_directory": "No se ha podido crear el directorio {path}",
 	"could_not_export_assignment_could_not_create_file": "No se ha podido crear el archivo {file}",
-	"could_not_export_assignment_could_not_write_file": "No se ha podido escribir en el archivo {file}"
+	"could_not_export_assignment_could_not_write_file": "No se ha podido escribir en el archivo {file}",
+	"making_assignment": "Creando asignación"
 }
