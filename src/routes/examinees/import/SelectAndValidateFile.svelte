@@ -35,7 +35,7 @@
 			multiple: false,
 			filters: [
 				{
-					name: 'Hoja de cálculo',
+					name: m.examinees_import_file_excel(),
 					extensions: ['xls', 'xlsx', 'xlsm', 'xlsb', 'xla', 'xlam', 'ods']
 				}
 			]
@@ -54,12 +54,12 @@
 				filePath: selectedFile
 			})) as ExcelSheet[];
 			if (sheets.length === 0) {
-				invalidFileMessage = 'No hay hojas en el archivo seleccioando';
+				invalidFileMessage = m.examinees_import_file_no_sheets();
 				state = States.INVALID_FILE;
 				return;
 			}
 			if (sheets.find((sheet) => !sheet.empty) === undefined) {
-				invalidFileMessage = 'No hay hojas que tengan datos en el archivo seleccionado';
+				invalidFileMessage = m.examinees_import_file_no_sheets_with_values();
 				state = States.INVALID_FILE;
 				return;
 			}
@@ -88,27 +88,27 @@
 	</svelte:fragment>
 	<svelte:fragment slot="meta">
 		{#if selectedFile === undefined}
-			Se permiten los formatos xls, xlsx, xlsm, xlsb, xla, xlam y ods
+			{m.examinees_import_file_allowed_formats()}
 		{/if}
 	</svelte:fragment>
 </FileDropzone>
 
 <div class={state === States.VERIFYING_FILE ? '' : 'hidden'}>
-	<h3 class="text-2xl">Verificando archivo</h3>
+	<h3 class="text-2xl">{m.examinees_import_file_verifying()}</h3>
 	<ProgressBar />
 </div>
 
 <div class={state === States.FILE_OK ? '' : 'hidden'}>
-	<h3 class="text-2xl">Archivo correcto</h3>
+	<h3 class="text-2xl">{m.examinees_import_file_valid_file()}</h3>
 </div>
 
 <div class={state === States.INVALID_FILE ? '' : 'hidden'}>
-	<h3 class="text-2xl">Archivo inválido</h3>
+	<h3 class="text-2xl">{m.examinees_import_file_invalid_file()}</h3>
 	<h4 class="text-xl">
 		{#if invalidFileMessage !== undefined}
 			{invalidFileMessage}
 		{:else}
-			No se ha podido comprobar este archivo, vuelve a intentarlo o elige otro
+			{m.examinees_import_file_could_not_check_file()}
 		{/if}
 	</h4>
 </div>

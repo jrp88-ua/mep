@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$paraglide/messages';
+
 	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
 	import { createEventDispatcher, onMount } from 'svelte';
 
@@ -41,8 +43,8 @@
 	<aside class="alert variant-ghost-warning">
 		<i class="fa-solid fa-triangle-exclamation text-4xl" />
 		<div class="alert-message">
-			<h3 class="h3">Sin datos</h3>
-			<p>La hoja seleccionada no parece tener datos</p>
+			<h3 class="h3">{m.examinees_import_sheet_no_data()}</h3>
+			<p>{m.examinees_import_sheet_has_no_data()}</p>
 		</div>
 	</aside>
 </div>

@@ -27,6 +27,7 @@
 	import { examineesStore } from '$lib/models/examinees';
 	import { subjectsStore } from '$lib/models/subjects';
 	import { academicCentresStore } from '$lib/models/academicCentres';
+	import { get } from 'svelte/store';
 
 	enum WhatToShow {
 		Indicate,
@@ -58,7 +59,7 @@
 		appState.lockNavigation(m.locked_navigation_examinees_being_imported());
 		if (selectedSheet === undefined) {
 			showErrorToast(toastStore, {
-				message: 'Estado del programa inválido, se ha cancelado el importado'
+				message: m.examinees_import_invalid_program_state()
 			});
 			appState.unlockNavigation();
 			routeTo('/examinees');
@@ -106,11 +107,13 @@
 		};
 	}
 
-	$: canImport =
-		$examineesStore.size === 0 && $subjectsStore.size === 0 && $academicCentresStore.size === 0;
+	const canImport =
+		get(examineesStore).size === 0 &&
+		get(subjectsStore).size === 0 &&
+		get(academicCentresStore).size === 0;
 </script>
 
-<h1 class="text-3xl mb-4">Importar examinados</h1>
+<h1 class="text-3xl mb-4">{m.examinees_import_page_title()}</h1>
 {#if canImport}
 	{#if whatToShow === WhatToShow.Indicate}
 		<div class="w-full card p-4 text-token">
@@ -122,7 +125,7 @@
 				on:complete={onComplete}
 			>
 				<Step locked={selectedFile === undefined}>
-					<svelte:fragment slot="header">Elegir origen de datos a importar</svelte:fragment>
+					<svelte:fragment slot="header">{m.examinees_import_select_origin()}</svelte:fragment>
 					<SelectAndValidateFile
 						{selectedFile}
 						on:fileready={(e) => {
@@ -132,7 +135,7 @@
 					/>
 				</Step>
 				<Step locked={selectedSheet === undefined || !selectedSheet.valid}>
-					<svelte:fragment slot="header">Indicar la hoja con los datos</svelte:fragment>
+					<svelte:fragment slot="header">{m.examinees_import_select_sheet()}</svelte:fragment>
 					{#if sheets !== undefined}
 						<SelectSheetToImport
 							selectedSheet={selectedSheet?.name}
@@ -145,7 +148,7 @@
 					{/if}
 				</Step>
 				<Step locked={!importSettingsAreValid}>
-					<svelte:fragment slot="header">Indicar cómo se deben importar los datos</svelte:fragment>
+					<svelte:fragment slot="header">{m.examinees_import_indicate_columns()}</svelte:fragment>
 					<IndicateHowToImport
 						bind:importSettings
 						on:importsettingsvalidity={(e) => (importSettingsAreValid = e.detail)}
@@ -153,26 +156,26 @@
 					/>
 				</Step>
 				<Step>
-					<svelte:fragment slot="header">Importar datos</svelte:fragment>
+					<svelte:fragment slot="header">{m.examinees_import_final()}</svelte:fragment>
 					<ImportResume />
 				</Step>
 			</Stepper>
 			<a href="/examinees" class="btn variant-filled-tertiary mt-4">
 				<i class="fa-solid fa-xmark" />
-				<span>Cancelar</span>
+				<span>{m.cancel()}</span>
 			</a>
 		</div>
 	{:else if whatToShow === WhatToShow.ProcessWaiting}
 		<div class=" flex flex-col items-center">
-			<h2 class="text-2xl mb-5">Importando</h2>
+			<h2 class="text-2xl mb-5">{m.importing()}</h2>
 			<ProgressRadial />
 		</div>
 	{:else}
 		<div class=" flex flex-col items-center">
-			<h2 class="text-2xl mb-5">Creando instancias</h2>
+			<h2 class="text-2xl mb-5">{m.examinees_import_creating_instances()}</h2>
 			<progress max={importState?.total || 0} value={importState?.done || 0} />
 		</div>
 	{/if}
 {:else}
-	<p>Ya hay examinados, vigilantes o centros académicos cargados. No se puede importar</p>
+	<p>{m.examinees_import_can_not_import()}</p>
 {/if}

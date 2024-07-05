@@ -3,5 +3,5 @@
 </script>
 
 <h3>
-	Al pulsar en <i>{m.import_examinees_do_import()}</i>, se importarán los examinados
+	{m.examinees_import_resume_finish()}
 </h3>
