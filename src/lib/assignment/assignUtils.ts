@@ -83,6 +83,7 @@ export function getHighestExamineeToVigilantRatio<T>(
 		current: [T, { readonly examinees: number; vigilants: number }]
 	) => [T, { readonly examinees: number; vigilants: number }]
 ) {
+	if (distribution.size === 0) return undefined;
 	const distributionAsList = [...distribution];
 	const firstElement = distributionAsList[0];
 	if (distributionAsList.length === 1) return firstElement;

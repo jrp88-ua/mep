@@ -130,10 +130,12 @@ export class CollidingExamsConfiguration implements ExamConfiguration {
 			distribution.set(exam, { examinees: exam.examinees.size, vigilants: 1 });
 		}
 
+		if (distribution.size === 0) return [];
+
 		let distributedVigilants = distribution.size;
 		while (distributedVigilants < totalVigilants) {
 			// We have vigilants left to assign
-			const highestRatio = getHighestExamineeToVigilantRatio(distribution, (highest) => highest);
+			const highestRatio = getHighestExamineeToVigilantRatio(distribution, (highest) => highest)!;
 			highestRatio[1].vigilants++;
 			distributedVigilants++;
 		}

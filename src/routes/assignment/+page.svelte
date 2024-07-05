@@ -9,6 +9,7 @@
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import AssignmentDisplay from './AssignmentDisplay.svelte';
+	import { showActionWillDeleteAssignment } from '../actionWillDeleteAssignment';
 
 	const toastStore = getToastStore();
 	const modalStore = getModalStore();
@@ -48,21 +49,9 @@
 		}
 	}
 
-	function newAssignation(showWarning: boolean) {
-		if (showWarning) {
-			modalStore.trigger({
-				type: 'confirm',
-				title: 'Ya existe una distribución',
-				body: 'Si creas una asignación, la ya existente se perderá.',
-				buttonTextConfirm: 'Crear nueva asignación',
-				buttonTextCancel: m.cancel(),
-				response(doNew: boolean) {
-					if (doNew) doAssignation();
-				}
-			});
-		} else {
-			doAssignation();
-		}
+	async function newAssignation() {
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
+		doAssignation();
 	}
 
 	$: hasValues =
@@ -75,11 +64,7 @@
 <h1 class="text-3xl mb-4">Asignación</h1>
 {#if $assignment}
 	<a href="/assignment/edit" class="btn variant-filled-primary">Editar asignación</a>
-	<button
-		class="btn variant-filled-primary"
-		on:click={() => newAssignation(true)}
-		disabled={!hasValues}
-	>
+	<button class="btn variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
 		Nueva asignación
 	</button>
 	<AssignmentDisplay />
@@ -103,11 +88,7 @@
 		</div>
 	{/if}
 	<div class="p-4">
-		<button
-			class="btn variant-filled-primary"
-			on:click={() => newAssignation(false)}
-			disabled={!hasValues}
-		>
+		<button class="btn variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
 			Nueva asignación
 		</button>
 	</div>

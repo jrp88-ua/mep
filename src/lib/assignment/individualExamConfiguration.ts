@@ -200,13 +200,15 @@ export class IndividualExamConfiguration implements ExamConfiguration {
 			}
 		});
 
+		if (distribution.size === 0) return [];
+
 		let assignedVigilants = distribution.size;
 
 		while (assignedVigilants < totalVigilants) {
 			// We have vigilants left to assign
 			const highestRatio = getHighestExamineeToVigilantRatio(distribution, (highest, current) =>
 				highest[0].priority < current[0].priority ? highest : current
-			);
+			)!;
 			highestRatio[1].vigilants++;
 			assignedVigilants++;
 		}
