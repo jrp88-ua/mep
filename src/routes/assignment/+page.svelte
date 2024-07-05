@@ -61,11 +61,11 @@
 		$vigilantsStore.size > 0;
 </script>
 
-<h1 class="text-3xl mb-4">Asignación</h1>
+<h1 class="text-3xl mb-4">{m.assignment_page_title()}</h1>
 {#if $assignment}
-	<a href="/assignment/edit" class="btn variant-filled-primary">Editar asignación</a>
+	<a href="/assignment/edit" class="btn variant-filled-primary">{m.edit_assignment()}</a>
 	<button class="btn variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
-		Nueva asignación
+		{m.new_assignment()}
 	</button>
 	<AssignmentDisplay />
 {:else}
@@ -73,23 +73,23 @@
 		<div class="alert variant-filled-error">
 			<div class="alert-message">
 				{#if $examineesStore.size === 0}
-					<p><strong>Sin examinados</strong></p>
+					<p><strong>{m.no_examinees()}</strong></p>
 				{/if}
 				{#if $classroomsStore.size === 0}
-					<p><strong>Sin clases</strong></p>
+					<p><strong>{m.no_classrooms()}</strong></p>
 				{/if}
 				{#if $subjectsStore.size === 0}
-					<p><strong>Sin asignaturas</strong></p>
+					<p><strong>{m.no_subjects()}</strong></p>
 				{/if}
 				{#if $vigilantsStore.size === 0}
-					<p><strong>Sin vigilantes</strong></p>
+					<p><strong>{m.no_vigilants()}</strong></p>
 				{/if}
 			</div>
 		</div>
 	{/if}
 	<div class="p-4">
 		<button class="btn variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
-			Nueva asignación
+			{m.new_assignment()}
 		</button>
 	</div>
 {/if}

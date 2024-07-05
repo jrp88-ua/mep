@@ -43,7 +43,7 @@
 	}
 </script>
 
-<h1 class="text-3xl mb-4">Editar asignación</h1>
+<h1 class="text-3xl mb-4">{m.assignment_edit_page_title()}</h1>
 <button class="btn variant-filled-primary" on:click={() => saveAssignation()}>
 	<i class="fa-solid fa-floppy-disk" />
 	<span>{m.save()}</span>

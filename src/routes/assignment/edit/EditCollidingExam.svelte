@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$paraglide/messages';
+
 	import type { CollidingExamsConfiguration } from '$lib/assignment/collidingExamsConfiguration';
 	import type { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
 	import type { Classroom } from '$lib/models/classroom';
@@ -36,7 +38,7 @@
 </script>
 
 <div class="card mb-4">
-	<header class="card-header text-3xl">Grupo de asignaturas</header>
+	<header class="card-header text-3xl">{m.subject_group}</header>
 	<section class="p-4 flex flex-col">
 		{#each exam.exams as individualExam, i (individualExam.subject.id)}
 			<EditIndividualExam

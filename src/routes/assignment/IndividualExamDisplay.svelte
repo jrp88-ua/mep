@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$paraglide/messages';
+
 	import type { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
 	import { nameSorter } from '$lib/util';
 	import { languageTag } from '$paraglide/runtime';
@@ -28,19 +30,21 @@
 	<section class="p-4">
 		<p><small>{startDate}, {duration} ({finishDate})</small></p>
 		{#if distribution === 'assignment-not-done'}
-			<p class="alert variant-filled-error">Sin asignación</p>
+			<p class="alert variant-filled-error">{m.no_assignation()}</p>
 		{:else}
 			{#if assignedExaminees < exam.examinees.size}
 				<p class="text-error-500 text-xl">
-					Hay {exam.examinees.size - assignedExaminees} examinado(s) sin asignar
+					{m.there_are_examinees_without_assignation({
+						missing: exam.examinees.size - assignedExaminees
+					})}
 				</p>
 			{/if}
 			<div class="flex flex-col gap-2">
 				<div class="card p-4 pb-2 text-lg">
-					<header class="cars-header text-lg"><strong>Especialistas</strong></header>
+					<header class="cars-header text-lg"><strong>{m.specialists()}</strong></header>
 					<section class="p-4 pt-0 pb-0">
 						{#if exam.distribution?.specialists.length === 0}
-							<p class="pb-3 text-error-500">No hay vigilantes seleccionados</p>
+							<p class="pb-3 text-error-500">{m.no_vigilants_selected()}</p>
 						{/if}
 						{exam.distribution?.specialists
 							.toSorted(nameSorter)
@@ -52,7 +56,7 @@
 					<div class="card">
 						<header class="card-header text-lg">
 							<strong>
-								Sala
+								{m.classroom()}
 								<i>
 									{item.classroom.code}
 									{#if item.classroom.locationCode !== ''}
@@ -63,21 +67,24 @@
 						</header>
 						<section class="p-4 flex flex-row gap-4">
 							<div class="flex-grow">
-								<p class="text-xl">Vigilantes</p>
+								<p class="text-xl">{m.vigilants()}</p>
 								{#if item.vigilants.length === 0}
-									<p class={item.examinees.length > 0 ? 'text-error-500' : ''}>No hay vigilantes</p>
+									<p class={item.examinees.length > 0 ? 'text-error-500' : ''}>
+										{m.there_are_no_vigilants()}
+									</p>
 								{:else}
-									<p>Hay {item.vigilants.length} vigilante(s)</p>
+									<p>{m.there_are_x_vigilants({ amount: item.vigilants.length })}</p>
 									<p class="pb-3">
-										Hay {Math.ceil(item.examinees.length / item.vigilants.length)} examinados por cada
-										vigilante
+										{m.examinees_to_vigilant_ratio({
+											ratio: Math.ceil(item.examinees.length / item.vigilants.length)
+										})}
 									</p>
 
 									<p>
 										<Accordion>
 											<AccordionItem>
 												<svelte:fragment slot="summary">
-													<strong> Lista de vigilantes</strong>
+													<strong>{m.vigilant_list()}</strong>
 												</svelte:fragment>
 												<svelte:fragment slot="content">
 													{#each item.vigilants as vigilants (vigilants.id)}
@@ -90,38 +97,44 @@
 								{/if}
 							</div>
 							<div class="flex-grow">
-								<p class="text-xl">Examinados</p>
+								<p class="text-xl">{m.examinees()}</p>
 								{#if item.examinees.length === 0}
-									<p>No hay examinados</p>
+									<p>{m.there_are_no_examinees()}</p>
 								{:else}
 									<ul>
-										<li>Ocupados {item.examinees.length} sitio(s)</li>
+										<li>{m.used_x_seats({ amount: item.examinees.length })}</li>
 										<li
 											class={item.examinees.length > item.classroom.examCapacity
 												? 'text-error-500'
 												: ''}
 										>
-											Se ha usado un {(
-												(item.examinees.length / item.classroom.examCapacity) *
-												100
-											).toFixed(2)}% de la capacidad del examen ({item.classroom.examCapacity})
+											{m.used_percentage_of_exam_capacity({
+												percentage: (
+													(item.examinees.length / item.classroom.examCapacity) *
+													100
+												).toFixed(2),
+												total: item.classroom.examCapacity
+											})}
 										</li>
 										<li
 											class={item.examinees.length > item.classroom.totalCapacity
 												? 'text-error-500'
 												: ''}
 										>
-											Se ha usado un {(
-												(item.examinees.length / item.classroom.totalCapacity) *
-												100
-											).toFixed(2)}% de la capacidad total ({item.classroom.totalCapacity})
+											{m.used_percentage_of_total_capacity({
+												percentage: (
+													(item.examinees.length / item.classroom.totalCapacity) *
+													100
+												).toFixed(2),
+												total: item.classroom.totalCapacity
+											})}
 										</li>
 									</ul>
 									<p>
 										<Accordion>
 											<AccordionItem>
 												<svelte:fragment slot="summary">
-													<strong>Lista de examinados</strong>
+													<strong>{m.examinees_list()}</strong>
 												</svelte:fragment>
 												<svelte:fragment slot="content">
 													{#each item.examinees as examinee (examinee.id)}

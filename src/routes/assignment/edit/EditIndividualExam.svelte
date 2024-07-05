@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$paraglide/messages';
+
 	import type { IndividualExamConfiguration } from '$lib/assignment/individualExamConfiguration';
 	import type { Classroom } from '$lib/models/classroom';
 	import type { Vigilant } from '$lib/models/vigilant';
@@ -137,17 +139,21 @@
 </script>
 
 <div class="card mb-4">
-	<header class="card-header text-2xl">Editar {exam.subject.name}</header>
+	<header class="card-header text-2xl">
+		{m.edit_subject_assignation({ subject: exam.subject.name })}
+	</header>
 	<section class="p-4 flex flex-col">
 		<p><small>{startDate}, {duration} ({finishDate})</small></p>
 		{#if totalExamineesInFields < exam.examinees.size}
 			<p class="text-error-500 text-xl">
-				Hay {exam.examinees.size - totalExamineesInFields} examinado(s) sin asignar
+				{m.there_are_examinees_without_assignation({
+					missing: exam.examinees.size - totalExamineesInFields
+				})}
 			</p>
 		{/if}
 		<div class="flex flex-col gap-2">
 			<div class="card p-4 pb-2">
-				<header class="cars-header text-lg"><strong>Salas a usar</strong></header>
+				<header class="cars-header text-lg"><strong>{m.classrooms_to_use()}</strong></header>
 				<section class="p-4 pt-0 pb-0 flex gap-8 flex-wrap">
 					{#each availableClassrooms as classroom}
 						<label class="flex items-center space-x-2">
@@ -165,10 +171,10 @@
 				</section>
 			</div>
 			<div class="card p-4 pb-2 text-lg">
-				<header class="cars-header text-lg"><strong>Especialistas</strong></header>
+				<header class="cars-header text-lg"><strong>{m.specialists()}</strong></header>
 				<section class="p-4 pt-0 pb-0">
 					{#if selectedSpecialists.length === 0}
-						<p class="pb-3 text-error-500">No hay vigilantes seleccionados</p>
+						<p class="pb-3 text-error-500">{m.no_vigilants_selected()}</p>
 					{/if}
 					<div class="flex gap-8 flex-wrap">
 						{#each availableSpecialists as specialist}
@@ -194,7 +200,7 @@
 				<div class="card p-4 pb-2 text-lg">
 					<header class="cars-header text-lg">
 						<strong>
-							Sala
+							{m.classroom()}
 							<i>
 								{classroom.code}
 								{#if classroom.locationCode !== ''}
@@ -205,18 +211,20 @@
 					</header>
 					<section class="p-4 flex flex-row gap-4">
 						<div class="flex-grow">
-							<p class="text-xl">Vigilantes</p>
+							<p class="text-xl">{m.vigilants()}</p>
 							{#if selectedVigilants[classroom.id].length === 0}
 								<p
 									class={`pb-3 ${examineesPerClassroom[classroom.id] > 0 ? 'text-error-500' : ''}`}
 								>
-									No hay vigilantes seleccionados
+									{m.there_are_no_selected_vigilants()}
 								</p>
 							{:else}
 								<p class="pb-3">
-									Hay {Math.ceil(
-										examineesPerClassroom[classroom.id] / selectedVigilants[classroom.id].length
-									)} examinados por cada vigilante
+									{m.examinees_to_vigilant_ratio({
+										ratio: Math.ceil(
+											examineesPerClassroom[classroom.id] / selectedVigilants[classroom.id].length
+										)
+									})}
 								</p>
 							{/if}
 							<div class="p-4 pt-0 pb-0 flex gap-8 flex-wrap">
@@ -239,31 +247,37 @@
 							</div>
 						</div>
 						<div class="flex-grow">
-							<p class="text-xl">Examinados</p>
+							<p class="text-xl">{m.examinees()}</p>
 							<ul>
 								<li
 									class={examineesPerClassroom[classroom.id] > classroom.examCapacity
 										? 'text-error-500'
 										: ''}
 								>
-									Se ha usado un {(
-										(examineesPerClassroom[classroom.id] / classroom.examCapacity) *
-										100
-									).toFixed(2)}% de la capacidad del examen ({classroom.examCapacity})
+									{m.used_percentage_of_exam_capacity({
+										percentage: (
+											(examineesPerClassroom[classroom.id] / classroom.examCapacity) *
+											100
+										).toFixed(2),
+										total: classroom.examCapacity
+									})}
 								</li>
 								<li
 									class={examineesPerClassroom[classroom.id] > classroom.totalCapacity
 										? 'text-error-500'
 										: ''}
 								>
-									Se ha usado un {(
-										(examineesPerClassroom[classroom.id] / classroom.totalCapacity) *
-										100
-									).toFixed(2)}% de la capacidad total ({classroom.totalCapacity})
+									{m.used_percentage_of_total_capacity({
+										percentage: (
+											(examineesPerClassroom[classroom.id] / classroom.totalCapacity) *
+											100
+										).toFixed(2),
+										total: classroom.totalCapacity
+									})}
 								</li>
 							</ul>
 							<label class="label">
-								<span>Cantidad de examinados en este aula</span>
+								<span>{m.amount_of_examinees_in_classroom()}</span>
 								<input
 									class="input"
 									type="number"
