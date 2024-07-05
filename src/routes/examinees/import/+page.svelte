@@ -1,6 +1,12 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
-	import { ProgressRadial, Step, Stepper, getToastStore } from '@skeletonlabs/skeleton';
+	import {
+		ProgressRadial,
+		Step,
+		Stepper,
+		getModalStore,
+		getToastStore
+	} from '@skeletonlabs/skeleton';
 	import SelectAndValidateFile from './SelectAndValidateFile.svelte';
 	import SelectSheetToImport from './SelectSheetToImport.svelte';
 	import IndicateHowToImport from './IndicateHowToImport.svelte';
@@ -17,6 +23,10 @@
 	import type { ExamineeImportSettings } from '$lib/types/generated/ExamineeImportSettings';
 	import type { ExcelSheet } from '$lib/types/generated/ExcelSheet';
 	import { routeTo } from '$lib/util';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
+	import { examineesStore } from '$lib/models/examinees';
+	import { subjectsStore } from '$lib/models/subjects';
+	import { academicCentresStore } from '$lib/models/academicCentres';
 
 	enum WhatToShow {
 		Indicate,
@@ -27,6 +37,7 @@
 	let whatToShow = WhatToShow.Indicate;
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
 
 	let selectedFile: string | undefined;
 	let sheets: ExcelSheet[] | undefined;
@@ -39,6 +50,10 @@
 	onDestroy(() => ipc_invoke('cancel_examinee_import'));
 
 	async function onComplete() {
+		if (!canImport) return;
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
+
 		whatToShow = WhatToShow.ProcessWaiting;
 		appState.lockNavigation(m.locked_navigation_examinees_being_imported());
 		if (selectedSheet === undefined) {
@@ -90,67 +105,74 @@
 			subjectNameColumn: 1
 		};
 	}
+
+	$: canImport =
+		$examineesStore.size === 0 && $subjectsStore.size === 0 && $academicCentresStore.size === 0;
 </script>
 
 <h1 class="text-3xl mb-4">Importar examinados</h1>
-{#if whatToShow === WhatToShow.Indicate}
-	<div class="w-full card p-4 text-token">
-		<Stepper
-			stepTerm={m.stepper_step()}
-			buttonNextLabel={m.stepper_next()}
-			buttonBackLabel={m.stepper_back()}
-			buttonCompleteLabel={m.import_examinees_do_import()}
-			on:complete={onComplete}
-		>
-			<Step locked={selectedFile === undefined}>
-				<svelte:fragment slot="header">Elegir origen de datos a importar</svelte:fragment>
-				<SelectAndValidateFile
-					{selectedFile}
-					on:fileready={(e) => {
-						selectedFile = e.detail.selectedFile;
-						sheets = e.detail.sheets;
-					}}
-				/>
-			</Step>
-			<Step locked={selectedSheet === undefined || !selectedSheet.valid}>
-				<svelte:fragment slot="header">Indicar la hoja con los datos</svelte:fragment>
-				{#if sheets !== undefined}
-					<SelectSheetToImport
-						selectedSheet={selectedSheet?.name}
-						on:sheetselected={(e) => {
-							if (selectedSheet?.name !== e.detail.name) importSettings = defaultImputSettings();
-							selectedSheet = e.detail;
+{#if canImport}
+	{#if whatToShow === WhatToShow.Indicate}
+		<div class="w-full card p-4 text-token">
+			<Stepper
+				stepTerm={m.stepper_step()}
+				buttonNextLabel={m.stepper_next()}
+				buttonBackLabel={m.stepper_back()}
+				buttonCompleteLabel={m.import_examinees_do_import()}
+				on:complete={onComplete}
+			>
+				<Step locked={selectedFile === undefined}>
+					<svelte:fragment slot="header">Elegir origen de datos a importar</svelte:fragment>
+					<SelectAndValidateFile
+						{selectedFile}
+						on:fileready={(e) => {
+							selectedFile = e.detail.selectedFile;
+							sheets = e.detail.sheets;
 						}}
-						{sheets}
 					/>
-				{/if}
-			</Step>
-			<Step locked={!importSettingsAreValid}>
-				<svelte:fragment slot="header">Indicar cómo se deben importar los datos</svelte:fragment>
-				<IndicateHowToImport
-					bind:importSettings
-					on:importsettingsvalidity={(e) => (importSettingsAreValid = e.detail)}
-					sheet={sheets?.find((sheet) => sheet.name === selectedSheet?.name)}
-				/>
-			</Step>
-			<Step>
-				<svelte:fragment slot="header">Importar datos</svelte:fragment>
-				<ImportResume />
-			</Step>
-		</Stepper>
-		<a href="/examinees" class="btn variant-filled-tertiary mt-4">
-			<i class="fa-solid fa-xmark" />
-			<span>Cancelar</span>
-		</a>
-	</div>
-{:else if whatToShow === WhatToShow.ProcessWaiting}
-	<div class=" flex flex-col items-center">
-		<h2 class="text-2xl mb-5">Importando</h2>
-		<ProgressRadial />
-	</div>
+				</Step>
+				<Step locked={selectedSheet === undefined || !selectedSheet.valid}>
+					<svelte:fragment slot="header">Indicar la hoja con los datos</svelte:fragment>
+					{#if sheets !== undefined}
+						<SelectSheetToImport
+							selectedSheet={selectedSheet?.name}
+							on:sheetselected={(e) => {
+								if (selectedSheet?.name !== e.detail.name) importSettings = defaultImputSettings();
+								selectedSheet = e.detail;
+							}}
+							{sheets}
+						/>
+					{/if}
+				</Step>
+				<Step locked={!importSettingsAreValid}>
+					<svelte:fragment slot="header">Indicar cómo se deben importar los datos</svelte:fragment>
+					<IndicateHowToImport
+						bind:importSettings
+						on:importsettingsvalidity={(e) => (importSettingsAreValid = e.detail)}
+						sheet={sheets?.find((sheet) => sheet.name === selectedSheet?.name)}
+					/>
+				</Step>
+				<Step>
+					<svelte:fragment slot="header">Importar datos</svelte:fragment>
+					<ImportResume />
+				</Step>
+			</Stepper>
+			<a href="/examinees" class="btn variant-filled-tertiary mt-4">
+				<i class="fa-solid fa-xmark" />
+				<span>Cancelar</span>
+			</a>
+		</div>
+	{:else if whatToShow === WhatToShow.ProcessWaiting}
+		<div class=" flex flex-col items-center">
+			<h2 class="text-2xl mb-5">Importando</h2>
+			<ProgressRadial />
+		</div>
+	{:else}
+		<div class=" flex flex-col items-center">
+			<h2 class="text-2xl mb-5">Creando instancias</h2>
+			<progress max={importState?.total || 0} value={importState?.done || 0} />
+		</div>
+	{/if}
 {:else}
-	<div class=" flex flex-col items-center">
-		<h2 class="text-2xl mb-5">Creando instancias</h2>
-		<progress max={importState?.total || 0} value={importState?.done || 0} />
-	</div>
+	<p>Ya hay examinados, vigilantes o centros académicos cargados. No se puede importar</p>
 {/if}
