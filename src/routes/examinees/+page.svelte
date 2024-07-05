@@ -15,6 +15,7 @@
 	import { appState } from '$lib/models/appState';
 
 	import { routeTo } from '$lib/util';
+	import { showActionWillDeleteAssignment } from '../actionWillDeleteAssignment';
 
 	const examineesStore = getAllExaminees();
 	const modalStore = getModalStore();
@@ -27,8 +28,9 @@
 
 	$: disableDelete = $selected.length === 0;
 
-	function deleteSelection() {
+	async function deleteSelection() {
 		if (disableDelete) return;
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 		modalStore.trigger({
 			type: 'confirm',
 			title: m.delete_examinee_modal_title(),

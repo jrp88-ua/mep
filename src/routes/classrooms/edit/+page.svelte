@@ -10,12 +10,15 @@
 	} from '$lib/services/classroom';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { routeTo } from '$lib/util';
-	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import ClassroomPopupWarning from '../ClassroomPopupWarning.svelte';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
+
 	let classroom: Classroom;
 
 	onMount(() => {
@@ -56,7 +59,7 @@
 		matchingLocationCode = findClassroomByLocationCode(event.currentTarget.value);
 	}
 
-	function submitForm(e: SubmitEvent) {
+	async function submitForm(e: SubmitEvent) {
 		if (matchingCode !== undefined || matchingLocationCode !== undefined) {
 			const classroom = (matchingCode ?? matchingLocationCode)!;
 			showErrorToast(toastStore, {
@@ -75,6 +78,8 @@
 			});
 			return;
 		}
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = ClassroomForCreate.safeParse(raw);

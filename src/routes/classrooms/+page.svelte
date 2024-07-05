@@ -15,6 +15,7 @@
 	import { appState } from '$lib/models/appState';
 
 	import { routeTo } from '$lib/util';
+	import { showActionWillDeleteAssignment } from '../actionWillDeleteAssignment';
 
 	const modalStore = getModalStore();
 	const classroomStore = getAllClassrooms();
@@ -27,8 +28,9 @@
 	$: disableDelete = $selected.length === 0;
 	const isAllSelected = handler.isAllSelected();
 
-	function deleteSelection() {
+	async function deleteSelection() {
 		if (disableDelete) return;
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 		modalStore.trigger({
 			type: 'confirm',
 			title: m.delete_classroom_modal_title(),
@@ -55,7 +57,7 @@
 			</a>
 			<button disabled={disableDelete} on:click={deleteSelection} class="btn variant-filled-error">
 				<span><i class="fa-solid fa-trash" /></span>
-				<span>Borrar</span>
+				<span>{m.deletem()}</span>
 			</button>
 		</div>
 		<div class="flex gap-4">

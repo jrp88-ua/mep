@@ -12,12 +12,15 @@
 	} from '$lib/services/subjects';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
-	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { routeTo } from '$lib/util';
 	import { languageTag } from '$paraglide/runtime';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
+
 	let subject: Subject;
 
 	onMount(() => {
@@ -48,7 +51,7 @@
 		matchingSubject = findSubjectByName(event.currentTarget.value);
 	}
 
-	function submitForm(e: SubmitEvent) {
+	async function submitForm(e: SubmitEvent) {
 		if (matchingSubject !== undefined) {
 			const subject = matchingSubject;
 			showErrorToast(toastStore, {
@@ -63,6 +66,8 @@
 			});
 			return;
 		}
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = SubjectForCreate.safeParse(raw);

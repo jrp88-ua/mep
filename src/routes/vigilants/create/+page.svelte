@@ -2,7 +2,7 @@
 	import * as m from '$paraglide/messages';
 
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
-	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore, popup } from '@skeletonlabs/skeleton';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
 	import { VIGILANT_ROLE_VALUES, Vigilant, VigilantForCreate } from '$lib/models/vigilant';
 	import {
@@ -16,8 +16,11 @@
 	import { routeTo } from '$lib/util';
 	import { appState } from '$lib/models/appState';
 	import PopupWarning from '../PopupWarning.svelte';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
+
 	let academicCentreSelector: AcademicCentreSearch;
 	let subjectsSelector: SubjectsSelector;
 	let vigilantName: HTMLInputElement;
@@ -25,7 +28,7 @@
 	let selectedCourt: HTMLInputElement;
 	let selectedRole: HTMLSelectElement;
 
-	function submitForm(e: SubmitEvent) {
+	async function submitForm(e: SubmitEvent) {
 		if (matchingRole !== undefined || matchingName !== undefined) {
 			const matching = (matchingRole ?? matchingName)!;
 			showErrorToast(toastStore, {
@@ -49,6 +52,8 @@
 			});
 			return;
 		}
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 
 		const raw = {
 			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),

@@ -15,15 +15,18 @@
 	} from '$lib/services/vigilant';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { routeTo } from '$lib/util';
-	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { createAcademicCentre, findAcademicCentreByName } from '$lib/services/academicCentres';
 	import PopupWarning from '../PopupWarning.svelte';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
+
+	const toastStore = getToastStore();
+	const modalStore = getModalStore();
 
 	let vigilant: Vigilant;
 
-	const toastStore = getToastStore();
 	let academicCentreSelector: AcademicCentreSearch;
 	let subjectsSelector: SubjectsSelector;
 	let vigilantName: HTMLInputElement;
@@ -49,7 +52,7 @@
 
 	onDestroy(() => appState.setEdittingVigilant(undefined));
 
-	function submitForm(e: SubmitEvent) {
+	async function submitForm(e: SubmitEvent) {
 		if (matchingRole !== undefined || matchingName !== undefined) {
 			const matching = (matchingRole ?? matchingName)!;
 			showErrorToast(toastStore, {
@@ -73,6 +76,8 @@
 			});
 			return;
 		}
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 
 		const raw = {
 			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),

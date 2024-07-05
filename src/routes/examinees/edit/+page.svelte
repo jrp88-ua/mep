@@ -6,15 +6,18 @@
 	import { findExamineeByNif, getExaminee, updatedExaminee } from '$lib/services/examinees';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
 	import { routeTo } from '$lib/util';
-	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import PopupWarning from '../PopupWarning.svelte';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
 	import SubjectsSelector from '$lib/components/SubjectsSelector.svelte';
 	import { createAcademicCentre, findAcademicCentreByName } from '$lib/services/academicCentres';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
+
 	let academicCentreSelector: AcademicCentreSearch;
 	let subjectsSelector: SubjectsSelector;
 	let examinee: Examinee;
@@ -47,7 +50,7 @@
 		matchingExaminee = findExamineeByNif(nif);
 	}
 
-	function submitForm(e: SubmitEvent) {
+	async function submitForm(e: SubmitEvent) {
 		if (matchingExaminee !== undefined) {
 			const examinee = matchingExaminee;
 			showErrorToast(toastStore, {
@@ -62,6 +65,8 @@
 			});
 			return;
 		}
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 
 		const raw = {
 			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),

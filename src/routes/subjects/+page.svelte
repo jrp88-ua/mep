@@ -21,6 +21,7 @@
 	import { get } from 'svelte/store';
 	import type { ModelId } from '$lib/models/models';
 	import { routeTo } from '$lib/util';
+	import { showActionWillDeleteAssignment } from '../actionWillDeleteAssignment';
 
 	const modalStore = getModalStore();
 	const subjectsStore = getAllSubjects();
@@ -33,8 +34,9 @@
 	$: disableDelete = $selected.length === 0;
 	const isAllSelected = handler.isAllSelected();
 
-	function deleteSelection() {
+	async function deleteSelection() {
 		if (disableDelete) return;
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 		modalStore.trigger({
 			type: 'confirm',
 			title: m.delete_subject_modal_title(),

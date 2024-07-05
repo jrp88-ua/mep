@@ -37,13 +37,12 @@ export const assignment = (function () {
 					? new ExamsConfiguration([created.configuration])
 					: (created.configuration as ExamsConfiguration);
 
-			set(configuration);
 			setTimeout(() => {
 				configuration.addClassrooms(get(getAllClassrooms()));
 				configuration.addVigilants(get(getAllVigilants()));
 				configuration.addExaminees(get(getAllExaminees()));
 				const result = configuration.doAssignment();
-				update((v) => v);
+				set(configuration);
 				appState.unlockNavigation();
 				resolve(result || true);
 			});

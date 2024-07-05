@@ -252,5 +252,9 @@
 	"missing_specialist": "No hay especialistas para la asignatura {subject}",
 	"assignment_error_title": "No se ha podido crear una distribución por defecto, usando una distribución vacía",
 	"assignment_updated": "Asignación actualizada",
-	"assignment_made": "Asignación creada"
+	"assignment_made": "Asignación creada",
+	"action_will_delete_assignment_title": "Esta acción eliminará la asignación actual",
+	"action_will_delete_assignment_message": "Si procede, se perderá la asignación actual. <strong>Esta acción no se puede deshacer.</strong>",
+	"action_will_delete_assignment_confirm": "Proceder",
+	"action_will_delete_assignment_cancel": "Cancelar"
 }

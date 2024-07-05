@@ -86,7 +86,7 @@
 	"classroom_datatable_priority": "Priority",
 	"classroom_datatable_court_location": "Court location",
 	"deletem": "Delete",
-	"create": "Create",
+	"create": "Add",
 	"delete_academic_centree_modal_title": "Delete selected academic centers?",
 	"delete_academic_centree_modal_body": "If you accept, the selected academic centers will be deleted ({total} in total). <strong>This action can not be undone.</strong>",
 	"confirm_delete_selected_academic_centres": "Delete selected centers",
@@ -249,8 +249,12 @@
 	"missing_specialist": "There are no specialists for the subject {subject}",
 	"assignment_error_title": "Failed to create a default distribution, using an empty distribution",
 	"assignment_updated": "Updated assignment",
+	"assignment_made": "Assignment created",
 	"subject_datatable_obligatory": "Obligatory",
 	"subject_datatable_volunteer": "Volunteer",
 	"subject_datatable_unknown": "Unknown",
-	"assignment_made": "Assignment created"
+	"action_will_delete_assignment_title": "This action will delete the current assignment",
+	"action_will_delete_assignment_message": "If you proceed, the current assignment will be lost. <strong>This action can not be undone.</strong>",
+	"action_will_delete_assignment_confirm": "Proceed",
+	"action_will_delete_assignment_cancel": "Cancel"
 }

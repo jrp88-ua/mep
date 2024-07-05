@@ -2,7 +2,7 @@
 	import * as m from '$paraglide/messages';
 
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
-	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { Examinee, ExamineeForCreate } from '$lib/models/examinees';
 	import { createExaminee, findExamineeByNif } from '$lib/services/examinees';
 	import AcademicCentreSearch from '$lib/components/AcademicCentreSearch.svelte';
@@ -10,8 +10,11 @@
 	import { routeTo } from '$lib/util';
 	import PopupWarning from '../PopupWarning.svelte';
 	import { appState } from '$lib/models/appState';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
+
 	let academicCentreSelector: AcademicCentreSearch;
 	let subjectsSelector: SubjectsSelector;
 
@@ -25,7 +28,7 @@
 		matchingExaminee = findExamineeByNif(nif);
 	}
 
-	function submitForm(e: SubmitEvent) {
+	async function submitForm(e: SubmitEvent) {
 		if (matchingExaminee !== undefined) {
 			const examinee = matchingExaminee;
 			showErrorToast(toastStore, {
@@ -40,6 +43,8 @@
 			});
 			return;
 		}
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 
 		const raw = {
 			...Object.fromEntries(new FormData(e.target as HTMLFormElement)),

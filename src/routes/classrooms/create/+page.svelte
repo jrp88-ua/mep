@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages';
 	import { showErrorToast, showSuccessToast } from '$lib/toast';
-	import { getToastStore, popup } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore, popup } from '@skeletonlabs/skeleton';
 	import { Classroom, ClassroomForCreate } from '$lib/models/classroom';
 	import {
 		createClassroom,
@@ -11,8 +11,10 @@
 	import { routeTo } from '$lib/util';
 	import ClassroomPopupWarning from '../ClassroomPopupWarning.svelte';
 	import { appState } from '$lib/models/appState';
+	import { showActionWillDeleteAssignment } from '../../actionWillDeleteAssignment';
 
 	const toastStore = getToastStore();
+	const modalStore = getModalStore();
 
 	let matchingCode: Classroom | undefined = undefined;
 	function checkCode(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
@@ -28,7 +30,7 @@
 		matchingLocationCode = findClassroomByLocationCode(event.currentTarget.value);
 	}
 
-	function submitForm(e: SubmitEvent) {
+	async function submitForm(e: SubmitEvent) {
 		if (matchingCode !== undefined || matchingLocationCode !== undefined) {
 			const classroom = (matchingCode ?? matchingLocationCode)!;
 			showErrorToast(toastStore, {
@@ -47,6 +49,8 @@
 			});
 			return;
 		}
+
+		if (!(await showActionWillDeleteAssignment(modalStore))) return;
 
 		const raw = Object.fromEntries(new FormData(e.target as HTMLFormElement));
 		const result = ClassroomForCreate.safeParse(raw);
