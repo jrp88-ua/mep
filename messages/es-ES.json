@@ -312,5 +312,16 @@
 	"amount_of_examinees_in_classroom": "Cantidad de examinados en esta sala",
 	"used_x_seats": "Ocupados {amount} sitio(s)",
 	"used_percentage_of_exam_capacity": "Se ha usado un {percentage}% de la capacidad del examen ({total})",
-	"used_percentage_of_total_capacity": "Se ha usado un {percentage}% de la capacidad total ({total})"
+	"used_percentage_of_total_capacity": "Se ha usado un {percentage}% de la capacidad total ({total})",
+	"export_assignment": "Exportar asignación",
+	"exported_specialists": "Especialistas",
+	"exported_classrooms": "Salas",
+	"exported_vigilants": "Vigilantes",
+	"exported_examinees": "Examinados",
+	"exported_assignation": "Asignación exportada",
+	"could_not_export_assignment_title": "No se ha podido exportar la asignación",
+	"could_not_export_assignment_unknown_error": "Error desconocido",
+	"could_not_export_assignment_could_not_create_directory": "No se ha podido crear el directorio {path}",
+	"could_not_export_assignment_could_not_create_file": "No se ha podido crear el archivo {file}",
+	"could_not_export_assignment_could_not_write_file": "No se ha podido escribir en el archivo {file}"
 }
