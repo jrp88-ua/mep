@@ -337,5 +337,8 @@
 	"subject_datatable_obligatory": "Obligatory",
 	"subject_datatable_volunteer": "Volunteer",
 	"subject_datatable_unknown": "Unknown",
-	"examinees_with_exam_collitions": "Examinees with exams at the same time"
+	"examinees_with_exam_collitions": "Examinees with exams at the same time",
+	"assignment_examinees_page_title": "Examinees with exams at the same time",
+	"there_are_x_examinees_with_colliding_exams": "There are {amount} examinees who have exams at the same time",
+	"subjects_overlap_text": "The subjects {firstSubject} and {secondSubject} overlap by {overlap} minutes at {instant}"
 }

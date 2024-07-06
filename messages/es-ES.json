@@ -337,5 +337,8 @@
 	"could_not_open_export_folder_io": "Ocurrió un error del sistema de archivos",
 	"could_not_open_export_folder_unexpected": "Ha ocurrido un error inesperado",
 	"could_not_open_export_folder_status": "Se cerró la aplicación con un código inesperado",
-	"examinees_with_exam_collitions": "Examinados con exámenes en el mismo horario"
+	"examinees_with_exam_collitions": "Examinados con exámenes en el mismo horario",
+	"assignment_examinees_page_title": "Examinados con exámenes en el mismo horario",
+	"there_are_x_examinees_with_colliding_exams": "Hay {amount} examinados que tienen exámenes en el mismo horario",
+	"subjects_overlap_text": "Las asignaturas {firstSubject} y {secondSubject} coinciden por {overlap} minutos a las {instant}"
 }
