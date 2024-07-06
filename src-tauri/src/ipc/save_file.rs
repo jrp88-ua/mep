@@ -12,6 +12,6 @@ pub async fn save_file(
     file: String,
     password: String,
 ) -> Result<(), SaveToFileError> {
-    info!("Saving to file {file} with password {password}");
+    info!("Saving to file {file}");
     save_to_file(values, file, password)
 }

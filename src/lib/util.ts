@@ -35,7 +35,7 @@ export function nameSorter(
 
 type BaseUrls = '/academic-centres' | '/classrooms' | '/examinees' | '/subjects' | '/vigilants';
 type CrudUrls = '/create' | '/edit' | '';
-type AssignmentUrls = '/assignment' | '/assignment/edit';
+type AssignmentUrls = '/assignment' | '/assignment/edit' | '/assignment/examinees';
 type AllUrls =
 	| `${BaseUrls}${CrudUrls}`
 	| AssignmentUrls

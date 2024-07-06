@@ -324,5 +324,18 @@
 	"could_not_export_assignment_could_not_create_directory": "No se ha podido crear el directorio {path}",
 	"could_not_export_assignment_could_not_create_file": "No se ha podido crear el archivo {file}",
 	"could_not_export_assignment_could_not_write_file": "No se ha podido escribir en el archivo {file}",
-	"making_assignment": "Creando asignación"
+	"making_assignment": "Creando asignación",
+	"no_specialists_selected": "No hay especialistas seleccionados",
+	"open_file": "Abrir archivo",
+	"open_logs_folder": "Abrir carpeta de logs",
+	"open_folder": "Abrir carpeta",
+	"could_not_open_logs_title": "No se ha podido abrir la capeta de logs",
+	"could_not_open_logs_io": "Ocurrió un error del sistema de archivos",
+	"could_not_open_logs_unexpected": "Ha ocurrido un error inesperado",
+	"could_not_open_logs_status": "Se cerró la aplicación con un código inesperado",
+	"could_not_open_export_folder_title": "No se ha podido abrir la carpeta de exportado",
+	"could_not_open_export_folder_io": "Ocurrió un error del sistema de archivos",
+	"could_not_open_export_folder_unexpected": "Ha ocurrido un error inesperado",
+	"could_not_open_export_folder_status": "Se cerró la aplicación con un código inesperado",
+	"examinees_with_exam_collitions": "Examinados con exámenes en el mismo horario"
 }

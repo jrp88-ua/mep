@@ -38,7 +38,7 @@
 </script>
 
 <div class="card mb-4">
-	<header class="card-header text-3xl">{m.subject_group}</header>
+	<header class="card-header text-3xl">{m.subject_group()}</header>
 	<section class="p-4 flex flex-col">
 		{#each exam.exams as individualExam, i (individualExam.subject.id)}
 			<EditIndividualExam

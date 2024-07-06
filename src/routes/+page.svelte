@@ -5,6 +5,6 @@
 
 <h1 class="text-3xl mb-4">{m.home_page_title()}</h1>
 
-<p><a href="/open" class="btn variant-filled-primary m-4">Abrir archivo</a></p>
+<p><a href="/open" class="btn variant-filled-primary m-4">{m.open_file()}</a></p>
 
 <SaveApp />

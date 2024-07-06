@@ -30,8 +30,9 @@ async fn main() -> Result<(), ()> {
             crate::ipc::import::cancel_examinee_import,
             crate::ipc::export::export_assignment,
             crate::ipc::open_file::open_file_from_open_with,
-            crate::ipc::open_file::open_file,
+            crate::ipc::open_file::load_file,
             crate::ipc::save_file::save_file,
+            crate::ipc::open::open_file,
         ])
         .plugin(
             tauri_plugin_log::Builder::default()

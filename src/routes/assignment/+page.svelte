@@ -17,6 +17,9 @@
 	import { open } from '@tauri-apps/api/dialog';
 	import type { ExportAssignmentError } from '$lib/types/generated/ExportAssignmentError';
 	import { setFileIsSaved } from '$lib/services/appState';
+	import { findExamineesWithExamnDateCollisions } from '$lib/assignment/assignUtils';
+	import { getAllExaminees } from '$lib/services/examinees';
+	import type { OpenFileError } from '$lib/types/generated/OpenFileError';
 
 	const toastStore = getToastStore();
 	const modalStore = getModalStore();
@@ -134,7 +137,29 @@
 		});
 		if (result.success) {
 			showSuccessToast(toastStore, {
-				message: m.exported_assignation()
+				message: m.exported_assignation(),
+				action: {
+					label: m.open_folder(),
+					async response() {
+						const result = await ipc_invoke_result<void, OpenFileError>('open_file', { path });
+						if (!result.success) {
+							const title = m.could_not_open_export_folder_title();
+							let message;
+							switch (result.error!.type) {
+								case 'io':
+									message = m.could_not_open_export_folder_io();
+									break;
+								case 'internal':
+									message = m.could_not_open_export_folder_unexpected();
+									break;
+								case 'status':
+									message = m.could_not_open_export_folder_status();
+									break;
+							}
+							showErrorToast(toastStore, { title, message });
+						}
+					}
+				}
 			});
 		} else {
 			const title = m.could_not_export_assignment_title();
@@ -163,44 +188,57 @@
 		$classroomsStore.size > 0 &&
 		$subjectsStore.size > 0 &&
 		$vigilantsStore.size > 0;
+
+	const examineesWithCollidingExamDate =
+		findExamineesWithExamnDateCollisions(get(getAllExaminees())).size > 0;
 </script>
 
 <h1 class="text-3xl mb-4">{m.assignment_page_title()}</h1>
-{#if $assignment}
-	<a href="/assignment/edit" class="btn variant-filled-primary">{m.edit_assignment()}</a>
-	<button
-		class="btn variant-filled-primary"
-		disabled={$assignment === undefined}
-		on:click={exportAssignment}
-	>
-		{m.export_assignment()}
-	</button>
-	<button class="btn variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
-		{m.new_assignment()}
-	</button>
-	<AssignmentDisplay />
-{:else}
-	{#if !hasValues}
-		<div class="alert variant-filled-error">
-			<div class="alert-message">
-				{#if $examineesStore.size === 0}
-					<p><strong>{m.no_examinees()}</strong></p>
-				{/if}
-				{#if $classroomsStore.size === 0}
-					<p><strong>{m.no_classrooms()}</strong></p>
-				{/if}
-				{#if $subjectsStore.size === 0}
-					<p><strong>{m.no_subjects()}</strong></p>
-				{/if}
-				{#if $vigilantsStore.size === 0}
-					<p><strong>{m.no_vigilants()}</strong></p>
-				{/if}
-			</div>
-		</div>
-	{/if}
-	<div class="p-4">
-		<button class="btn variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
-			{m.new_assignment()}
+<p class="btn-group variant-filled mb-4">
+	{#if $assignment}
+		<a href="/assignment/edit" class="variant-filled-primary">
+			<span><i class="fa-solid fa-pen-to-square" /></span>
+			<span>{m.edit_assignment()}</span>
+		</a>
+		<button
+			class="variant-filled-primary"
+			disabled={$assignment === undefined}
+			on:click={exportAssignment}
+		>
+			<span><i class="fa-solid fa-file-export" /></span>
+			<span>{m.export_assignment()}</span>
 		</button>
+	{/if}
+	<button class="variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
+		<span><i class="fa-solid fa-plus" /></span>
+		<span>{m.new_assignment()}</span>
+	</button>
+</p>
+{#if examineesWithCollidingExamDate}
+	<p class="mb-4">
+		<a href="/assignment/examinees" class="btn variant-filled-primary">
+			{m.examinees_with_exam_collitions()}
+		</a>
+	</p>
+{/if}
+{#if !hasValues}
+	<div class="alert variant-filled-error">
+		<div class="alert-message">
+			{#if $examineesStore.size === 0}
+				<p><strong>{m.no_examinees()}</strong></p>
+			{/if}
+			{#if $classroomsStore.size === 0}
+				<p><strong>{m.no_classrooms()}</strong></p>
+			{/if}
+			{#if $subjectsStore.size === 0}
+				<p><strong>{m.no_subjects()}</strong></p>
+			{/if}
+			{#if $vigilantsStore.size === 0}
+				<p><strong>{m.no_vigilants()}</strong></p>
+			{/if}
+		</div>
 	</div>
+{/if}
+{#if $assignment}
+	<AssignmentDisplay />
 {/if}

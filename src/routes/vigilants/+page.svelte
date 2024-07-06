@@ -54,7 +54,7 @@
 </script>
 
 <h1 class="text-3xl mb-4">{m.vigilants_page_title()}</h1>
-<div class=" overflow-x-auto space-y-4">
+<div class="overflow-x-auto space-y-4">
 	<!-- Header -->
 	<header class="flex justify-between gap-4">
 		<div class="flex items-center gap-1">

@@ -21,6 +21,9 @@
 				"open": true,
 				"save": true
 			},
+			"path": {
+				"all": true
+			},
 			"window": {
 				"all": false,
 				"center": false,

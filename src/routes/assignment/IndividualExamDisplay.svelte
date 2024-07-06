@@ -44,7 +44,7 @@
 					<header class="cars-header text-lg"><strong>{m.specialists()}</strong></header>
 					<section class="p-4 pt-0 pb-0">
 						{#if exam.distribution?.specialists.length === 0}
-							<p class="pb-3 text-error-500">{m.no_vigilants_selected()}</p>
+							<p class="pb-3 text-error-500">{m.no_specialists_selected()}</p>
 						{/if}
 						{exam.distribution?.specialists
 							.toSorted(nameSorter)

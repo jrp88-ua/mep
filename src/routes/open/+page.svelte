@@ -47,7 +47,7 @@
 		appState.lockNavigation(m.opening_file());
 
 		openingFile = true;
-		const result = await ipc_invoke_result<AppValues, ReadFromFileError>('open_file', {
+		const result = await ipc_invoke_result<AppValues, ReadFromFileError>('load_file', {
 			file: selectedFile,
 			password
 		});
