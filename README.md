@@ -1,29 +1,25 @@
-# Skeleton - Tauri Starter Project
+# MEP
+Aplicación desarrollada como trabajo de fin de grado de la carrera de Ingeniería Informática en la Universidad de Alicante.
 
-Welcome to the official Skeleton - Tauri template that allows you to start creating your desktop apps now.
 
-## What's Skeleton?
-
-Skeleton is a powerful UI toolkit built using Svelte and Tailwind CSS. Create adaptive, accessible design systems for your web apps.
-
-## What's Tauri?
-
-Tauri is a toolkit that helps developers make applications for the major desktop platforms - using virtually any frontend framework in existence. The core is built with Rust, and the CLI leverages Node.js making Tauri a genuinely polyglot approach to creating and maintaining great apps.
-
-## Prerequisites
-
-Before you begin, make sure to install all required Rust language and system dependencies per the guide below.
-
-[Tauri Prerequisites Guide](https://tauri.app/v1/guides/getting-started/prerequisites/)
-
-## How to use
-
-This project is already setup to start working on it. You only need to clone it.
-
-```shell
-git clone https://github.com/skeletonlabs/skeleton-starter-tauri.git
+## Cómo compilar
+En la sección de "Releases" ya se ofrecen binarios compilados para cada plataforma, sin embargo, compilar el proyecto es sencillo.
+### Requisitos
+1. Cumplir con los requisitos expuestos en la [guía de Tauri](https://tauri.app/v1/guides/getting-started/prerequisites/)
+2. NodeJS v20.11.0 o superior
+3. NPM v10.2.4 o superior
+4. rustc 1.76.0 o superior
+5. cargo 1.76.0 o superior
+### Pasos para compilar
+Primero instalar las dependencias de NPM con el comando
 ```
-
-Take into account that this is an opinionated template, which uses the Skeleton theme, Typescript and npm. If you prefer to start from scratch, you can follow our [step-by-step guide](https://www.skeleton.dev/docs/tauri)
-
-Have fun!
+npm i
+```
+Luego, construír el proyecto con
+```
+npm run tauri build
+```
+Para ejecutar una instancia de desarrollo usar
+```
+npm run tauri dev
+```
