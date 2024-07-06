@@ -340,5 +340,6 @@
 	"examinees_with_exam_collitions": "Examinados con exámenes en el mismo horario",
 	"assignment_examinees_page_title": "Examinados con exámenes en el mismo horario",
 	"there_are_x_examinees_with_colliding_exams": "Hay {amount} examinados que tienen exámenes en el mismo horario",
-	"subjects_overlap_text": "Las asignaturas {firstSubject} y {secondSubject} coinciden por {overlap} minutos a las {instant}"
+	"subjects_overlap_text": "Las asignaturas {firstSubject} y {secondSubject} coinciden por {overlap} minutos a las {instant}",
+	"subjects_without_exam_date_or_duration": "Hay asignaturas sin fecha o duración de examen"
 }

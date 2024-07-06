@@ -20,11 +20,11 @@ export function groupExamineesBySubjects(
 export function findExamDateCollisions(subjects: Subject[]) {
 	subjects = subjects.toSorted((a, b) => a.id - b.id);
 	for (const subject of subjects) {
-		if (subject.examStartDate === undefined || !subject.examStartDate.isValid)
+		if (subject.examStartDate !== undefined && !subject.examStartDate.isValid)
 			throw new Error(
 				`Invalid exam date in subject id=${subject.id}, exam date is ${subject.examStartDate}`
 			);
-		if (subject.examDuration === undefined || !subject.examDuration.isValid)
+		if (subject.examDuration !== undefined && !subject.examDuration.isValid)
 			throw new Error(
 				`Invalid exam duration in subject id=${subject.id}, exam duration is ${subject.examDuration}`
 			);
@@ -34,8 +34,10 @@ export function findExamDateCollisions(subjects: Subject[]) {
 
 	for (let i = 0; i < subjects.length; i++) {
 		const subjectA = subjects[i];
+		if (subjectA.examStartDate === undefined || subjectA.examDuration === undefined) continue;
 		for (let j = i + 1; j < subjects.length; j++) {
 			const subjectB = subjects[j];
+			if (subjectB.examStartDate === undefined || subjectB.examDuration === undefined) continue;
 
 			let firstSubject;
 			let seccondSubject;

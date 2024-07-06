@@ -173,32 +173,6 @@ describe('findExamDateCollisions with collisions', () => {
 });
 
 describe('findExamDateCollisions with invalid data', () => {
-	it('has no exam date', () => {
-		expect(() =>
-			findExamDateCollisions([
-				new Subject({
-					id: 0,
-					name: 'sub',
-					examStartDate: undefined,
-					examDuration: Duration.fromMillis(1)
-				})
-			])
-		).toThrowError();
-	});
-
-	it('has no exam duration', () => {
-		expect(() =>
-			findExamDateCollisions([
-				new Subject({
-					id: 0,
-					name: 'sub',
-					examStartDate: DateTime.now(),
-					examDuration: undefined
-				})
-			])
-		).toThrowError();
-	});
-
 	it('has an invalid exam date', () => {
 		const oldThrowOnInvalid = Settings.throwOnInvalid;
 		Settings.throwOnInvalid = false;

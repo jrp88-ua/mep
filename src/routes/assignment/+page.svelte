@@ -183,33 +183,34 @@
 		}
 	}
 
+	$: allSubjectsHaveExamDateAndDuration =
+		[...$subjectsStore.values()].find(
+			(subject) => subject.examStartDate === undefined || subject.examDuration === undefined
+		) === undefined;
 	$: hasValues =
 		$examineesStore.size > 0 &&
 		$classroomsStore.size > 0 &&
 		$subjectsStore.size > 0 &&
-		$vigilantsStore.size > 0;
+		$vigilantsStore.size > 0 &&
+		allSubjectsHaveExamDateAndDuration;
 
 	const examineesWithCollidingExamDate =
 		findExamineesWithExamnDateCollisions(get(getAllExaminees())).size > 0;
 </script>
 
 <h1 class="text-3xl mb-4">{m.assignment_page_title()}</h1>
-<p class="btn-group variant-filled mb-4">
+<p class="btn-group variant-filled-primary mb-4">
 	{#if $assignment}
-		<a href="/assignment/edit" class="variant-filled-primary">
+		<a href="/assignment/edit">
 			<span><i class="fa-solid fa-pen-to-square" /></span>
 			<span>{m.edit_assignment()}</span>
 		</a>
-		<button
-			class="variant-filled-primary"
-			disabled={$assignment === undefined}
-			on:click={exportAssignment}
-		>
+		<button disabled={$assignment === undefined} on:click={exportAssignment}>
 			<span><i class="fa-solid fa-file-export" /></span>
 			<span>{m.export_assignment()}</span>
 		</button>
 	{/if}
-	<button class="variant-filled-primary" on:click={newAssignation} disabled={!hasValues}>
+	<button on:click={newAssignation} disabled={!hasValues}>
 		<span><i class="fa-solid fa-plus" /></span>
 		<span>{m.new_assignment()}</span>
 	</button>
@@ -235,6 +236,9 @@
 			{/if}
 			{#if $vigilantsStore.size === 0}
 				<p><strong>{m.no_vigilants()}</strong></p>
+			{/if}
+			{#if !allSubjectsHaveExamDateAndDuration}
+				<p><strong>{m.subjects_without_exam_date_or_duration()}</strong></p>
 			{/if}
 		</div>
 	</div>
