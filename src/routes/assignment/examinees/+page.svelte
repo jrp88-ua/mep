@@ -6,9 +6,10 @@
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import { DateTime, Duration } from 'luxon';
 	import { languageTag } from '$paraglide/runtime';
+	import { get } from 'svelte/store';
 
 	const examinees = getAllExaminees();
-	$: examineesWithCollitions = findExamineesWithExamnDateCollisions($examinees);
+	const examineesWithCollitions = findExamineesWithExamnDateCollisions(get(examinees));
 </script>
 
 <h1 class="text-3xl mb-4">{m.assignment_examinees_page_title()}</h1>
@@ -34,16 +35,10 @@
 											?.diff(collition[1].examStartDate ?? DateTime.now())
 											.toFormat('m') ?? '',
 									instant:
-										collition[1].examStartDate
-											?.minus(
-												collition[0].examFinishDate?.diff(
-													collition[1].examStartDate ?? DateTime.now()
-												) ?? 0
-											)
-											.toLocaleString(
-												{ dateStyle: 'short', timeStyle: 'short' },
-												{ locale: languageTag() }
-											) ?? ''
+										collition[1].examStartDate?.toLocaleString(
+											{ dateStyle: 'short', timeStyle: 'short' },
+											{ locale: languageTag() }
+										) ?? ''
 								})}
 							</li>
 						{/each}
