@@ -126,30 +126,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b3d1d046238990b9cf5bcde22a3fb3584ee5cf65fb2765f454ed428c7a0063da"
 
 [[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "aead",
- "aead-io",
- "aes-gcm-siv",
- "calamine",
- "flate2",
- "log",
- "opener",
- "rand 0.8.5",
- "rust-argon2",
- "serde",
- "serde_json",
- "serde_with_macros",
- "tauri",
- "tauri-build",
- "tauri-plugin-log",
- "thiserror",
- "tokio",
- "ts-rs",
-]
-
-[[package]]
 name = "arrayref"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1823,6 +1799,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "mep"
+version = "0.0.7"
+dependencies = [
+ "aead",
+ "aead-io",
+ "aes-gcm-siv",
+ "calamine",
+ "flate2",
+ "log",
+ "opener",
+ "rand 0.8.5",
+ "rust-argon2",
+ "serde",
+ "serde_json",
+ "serde_with_macros",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-log",
+ "thiserror",
+ "tokio",
+ "ts-rs",
 ]
 
 [[package]]

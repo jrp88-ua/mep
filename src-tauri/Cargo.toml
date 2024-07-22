@@ -5,7 +5,7 @@ description = "A massive exam planer"
 authors = ["jrp88-ua"]
 license = ""
 repository = "https://github.com/jrp88-ua/mep"
-default-run = "app"
+default-run = "mep"
 edition = "2021"
 rust-version = "1.76.0"
 
